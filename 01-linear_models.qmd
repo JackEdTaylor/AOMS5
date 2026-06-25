@@ -38,7 +38,7 @@ dat <- tibble(
   log_rt = b0 + b1 * zipf + e_i
 )
 
-write_csv(dat, "sims_lm.csv")
+write_csv(dat, file.path("docs", "sims_lm.csv"))
 
 dat |>
   ggplot(aes(zipf, log_rt)) +
