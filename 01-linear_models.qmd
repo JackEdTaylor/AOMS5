@@ -5,11 +5,18 @@
 #| message: false
 #| warning: false
 #| include: false
-library(dplyr)
-library(readr)
-library(ggplot2)
 source("ggplot2_setup.R", local=TRUE)
-set.seed(332548978)  # from sample(.Machine$integer.max, 1)
+set.seed(332528978)  # from sample(.Machine$integer.max, 1)
+```
+
+## Packages
+
+We will be using the following packages in this section:
+
+```{r}
+library(dplyr)  # for data wrangling
+library(readr)  # for importing data
+library(ggplot2)  # for plotting
 ```
 
 ## Building up the Linear Model
@@ -18,7 +25,7 @@ A common behavioural task in language and word recognition research is the *Lexi
 
 The best predictor of response time to real words is word frequency: response times are faster to words that occur more often.
 
-Here are some made-up data showing the relationship between *Zipf word frequency* [a log-transformed count variable; @vanheuvenSUBTLEXUKNewImproved2014] and *response time* (ms). Each point is depicts one word.
+Here is a plot of some made-up data showing a relationship between *Zipf word frequency* [a log-transformed count variable; @vanheuvenSUBTLEXUKNewImproved2014] and *response time* (ms). Each point is depicts one word.
 
 ```{r}
 #| label: sim_dat
@@ -30,12 +37,12 @@ Here are some made-up data showing the relationship between *Zipf word frequency
 b0 <- 6.95
 b1 <- -0.11
 s <- 0.12
-n <- 100
+n <- 50
 
 dat <- tibble(
+  item_nr = 1:n,
   zipf = runif(n, 1.3, 7.6),
-  e_i = rnorm(n, 0, s),
-  log_rt = b0 + b1 * zipf + e_i
+  log_rt = b0 + b1 * zipf + rnorm(n, 0, s)
 )
 
 write_csv(dat, file.path("docs", "sims_lm.csv"))
@@ -46,9 +53,16 @@ dat |>
   labs(x="Word Frequency (Zipf)", y="Log Response Time (ms)")
 ```
 
+If you want to follow along, you can load the data into your R session with:
+
+```{r}
+#| eval: false
+dat <- read_csv("https://jackedtaylor.github.io/AOMS5/sims_lm.csv")
+```
+
 How could we describe these data?
 
-### 1. The Average (Intercept)
+## The Average (Intercept)
 
 One very simple but powerful description could be to just calculate the average log response time.
 
@@ -56,13 +70,108 @@ One very simple but powerful description could be to just calculate the average 
 mean(dat$log_rt)
 ```
 
-# Intercept and Slope
+Typically, this is termed the *Intercept*, and is written as $\beta_0$.
+
+If we were to try to predict our dependent variable using just the intercept, a standard way of writing this would be:
+
+$$y_i = \beta_0$$
+
+We could plot our prediction as a red line on our plot from earlier:
+
+```{r}
+#| fig-height: 4
+#| fig-width: 4
+ggplot(dat, aes(zipf, log_rt)) +
+  geom_point() +
+  geom_hline(
+    yintercept = mean(dat$log_rt),
+    colour = "red"
+  )
+```
+
+This is a start, but it ignores the clear effect of frequency (Zipf) on our response times.
+
+## Intercept + Slope
+
+In addition to the intercept, we can calculate a slope. This is usually written as $b_1$. It is multiplied by our predictor, and represents the change in $y_i$ associated with a one-unit increase in $x$ for item $i$.
+
+$$ y_i = \beta_0 + \beta_1 x_i $$
+
+Whereas before we could just calculate the mean, now we need to estimate these parameters. R has a handy `lm()` function for this.
+
+```{r}
+lm(log_rt ~ 1 + zipf, data = dat)
+```
+
+We could plot this like so:
+
+```{r}
+#| fig-height: 4
+#| fig-width: 4
+ggplot(dat, aes(zipf, log_rt)) +
+  geom_point() +
+  geom_abline(intercept=6.9517, slope=-0.1091, colour="red")
+```
+
+::: callout-note
+Note that the model intercept $beta_0$ is now 7, rather than `{r} mean(dat$log_rt)`. This is because the intercept actually specifies the value of our red line when $x_i=0$. If we want $beta_0$ to still reflect the mean, we can just mean-centre `zipf`.
+
+```{r}
+#| fig-height: 3
+#| fig-width: 3
+dat <- mutate(dat, zipf_cent = zipf - mean(zipf))
+
+ggplot(dat, aes(zipf_cent, log_rt)) +
+  geom_point() +
+  geom_abline(intercept=6.452, slope=-0.1091, colour="red")
+```
+:::
+
+One last issue is that our model is only predicting values along the red line. Yet none of our observations fall perfectly on the line. There is some variability, or "noise", around our estimates.
+
+## Intercept + Slope + Residual
+
+"Residual" is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept.
+
+```{r}
+dat <- mutate(
+  dat,
+  pred = 7.0052 + -0.1177 * zipf,
+  e_i = pred - log_rt
+)
+```
+
+We could visualise these residuals as the distance from the line:
+
+```{r}
+#| fig-height: 4
+#| fig-width: 4
+ggplot(dat, aes(zipf, log_rt)) +
+  geom_point() +
+  geom_abline(intercept=7.0052, slope=-0.1177, colour="red") +
+  geom_segment(aes(xend = zipf, yend = pred))
+```
+
+A powerful way of capturing such variability around estimates is as a normal distribution. If we plot the residuals we can see that they are indeed roughly normal:
+
+```{r}
+#| fig-height: 4
+#| fig-width: 4
+ggplot(dat, aes(e_i)) +
+  geom_density() +
+  geom_function(
+    fun = dnorm, colour = "red",
+    args = list(mean=0, sd=sd(dat$e_i))
+  )
+```
+
+This noise is typically written as $e_i$. We specify it as being drawn from a normal distribution with a mean of zero and a standard deviation of $\sigma$:
 
 $$\begin{aligned}
-& y_i = \beta_0 + \beta_1 x_i + e_i \\
+& y_i = \beta_0 + e_i \\
 & e_i \sim N(0, \sigma)
 \end{aligned}$$
 
-```{r}
-1 + 1
-```
+We now have 3 free parameters: $b_0$, $b_1$, and $\sigma$.
+
+

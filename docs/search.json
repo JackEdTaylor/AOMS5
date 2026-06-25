@@ -14,7 +14,7 @@
     "href": "01-linear_models.html",
     "title": "1  Recap on Linear Models",
     "section": "",
-    "text": "1.1 Building up the Linear Model\nA common behavioural task in language and word recognition research is the Lexical Decision Task. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.\nThe best predictor of response time to real words is word frequency: response times are faster to words that occur more often.\nHere are some made-up data showing the relationship between Zipf word frequency [a log-transformed count variable; van Heuven et al. (2014)] and response time (ms). Each point is depicts one word.\nHow could we describe these data?",
+    "text": "1.1 Packages\nWe will be using the following packages in this section:\nlibrary(dplyr)  # for data wrangling\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlibrary(readr)  # for importing data\nlibrary(ggplot2)  # for plotting",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
@@ -23,8 +23,38 @@
     "objectID": "01-linear_models.html#building-up-the-linear-model",
     "href": "01-linear_models.html#building-up-the-linear-model",
     "title": "1  Recap on Linear Models",
-    "section": "",
-    "text": "1.1.1 1. The Average (Intercept)\nOne very simple but powerful description could be to just calculate the average log response time.\n\nmean(dat$log_rt)\n\n[1] 6.448425",
+    "section": "1.2 Building up the Linear Model",
+    "text": "1.2 Building up the Linear Model\nA common behavioural task in language and word recognition research is the Lexical Decision Task. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.\nThe best predictor of response time to real words is word frequency: response times are faster to words that occur more often.\nHere is a plot of some made-up data showing a relationship between Zipf word frequency [a log-transformed count variable; van Heuven et al. (2014)] and response time (ms). Each point is depicts one word.\n\n\n\n\n\n\n\n\n\nIf you want to follow along, you can load the data into your R session with:\n\ndat &lt;- read_csv(\"https://jackedtaylor.github.io/AOMS5/sims_lm.csv\")\n\nHow could we describe these data?",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
+    ]
+  },
+  {
+    "objectID": "01-linear_models.html#the-average-intercept",
+    "href": "01-linear_models.html#the-average-intercept",
+    "title": "1  Recap on Linear Models",
+    "section": "1.3 The Average (Intercept)",
+    "text": "1.3 The Average (Intercept)\nOne very simple but powerful description could be to just calculate the average log response time.\n\nmean(dat$log_rt)\n\n[1] 6.452035\n\n\nTypically, this is termed the Intercept, and is written as \\(\\beta_0\\).\nIf we were to try to predict our dependent variable using just the intercept, a standard way of writing this would be:\n\\[y_i = \\beta_0\\]\nWe could plot our prediction as a red line on our plot from earlier:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_hline(\n    yintercept = mean(dat$log_rt),\n    colour = \"red\"\n  )\n\n\n\n\n\n\n\n\nThis is a start, but it ignores the clear effect of frequency (Zipf) on our response times.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
+    ]
+  },
+  {
+    "objectID": "01-linear_models.html#intercept-slope",
+    "href": "01-linear_models.html#intercept-slope",
+    "title": "1  Recap on Linear Models",
+    "section": "1.4 Intercept + Slope",
+    "text": "1.4 Intercept + Slope\nIn addition to the intercept, we can calculate a slope. This is usually written as \\(b_1\\). It is multiplied by our predictor, and represents the change in \\(y_i\\) associated with a one-unit increase in \\(x\\) for item \\(i\\).\n\\[ y_i = \\beta_0 + \\beta_1 x_i \\]\nWhereas before we could just calculate the mean, now we need to estimate these parameters. R has a handy lm() function for this.\n\nlm(log_rt ~ 1 + zipf, data = dat)\n\n\nCall:\nlm(formula = log_rt ~ 1 + zipf, data = dat)\n\nCoefficients:\n(Intercept)         zipf  \n     6.9517      -0.1091  \n\n\nWe could plot this like so:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=6.9517, slope=-0.1091, colour=\"red\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nNote that the model intercept \\(beta_0\\) is now 7, rather than 6.4520354. This is because the intercept actually specifies the value of our red line when \\(x_i=0\\). If we want \\(beta_0\\) to still reflect the mean, we can just mean-centre zipf.\n\ndat &lt;- mutate(dat, zipf_cent = zipf - mean(zipf))\n\nggplot(dat, aes(zipf_cent, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=6.452, slope=-0.1091, colour=\"red\")\n\n\n\n\n\n\n\n\n\n\nOne last issue is that our model is only predicting values along the red line. Yet none of our observations fall perfectly on the line. There is some variability, or “noise”, around our estimates.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
+    ]
+  },
+  {
+    "objectID": "01-linear_models.html#intercept-slope-residual",
+    "href": "01-linear_models.html#intercept-slope-residual",
+    "title": "1  Recap on Linear Models",
+    "section": "1.5 Intercept + Slope + Residual",
+    "text": "1.5 Intercept + Slope + Residual\n“Residual” is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept.\n\ndat &lt;- mutate(\n  dat,\n  pred = 7.0052 + -0.1177 * zipf,\n  e_i = pred - log_rt\n)\n\nWe could visualise these residuals as the distance from the line:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=7.0052, slope=-0.1177, colour=\"red\") +\n  geom_segment(aes(xend = zipf, yend = pred))\n\n\n\n\n\n\n\n\nA powerful way of capturing such variability around estimates is as a normal distribution. If we plot the residuals we can see that they are indeed roughly normal:\n\nggplot(dat, aes(e_i)) +\n  geom_density() +\n  geom_function(\n    fun = dnorm, colour = \"red\",\n    args = list(mean=0, sd=sd(dat$e_i))\n  )\n\n\n\n\n\n\n\n\nThis noise is typically written as \\(e_i\\). We specify it as being drawn from a normal distribution with a mean of zero and a standard deviation of \\(\\sigma\\):\n\\[\\begin{aligned}\n& y_i = \\beta_0 + e_i \\\\\n& e_i \\sim N(0, \\sigma)\n\\end{aligned}\\]\nWe now have 3 free parameters: \\(b_0\\), \\(b_1\\), and \\(\\sigma\\).\n\n\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel Keuleers, and Marc Brysbaert. 2014. “SUBTLEX-UK: A New and Improved Word Frequency Database for British English.” Quarterly Journal of Experimental Psychology 67 (6): 1176–90. https://doi.org/10.1080/17470218.2013.850521.",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
