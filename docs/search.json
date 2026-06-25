@@ -10,23 +10,23 @@
     ]
   },
   {
-    "objectID": "intro.html",
-    "href": "intro.html",
-    "title": "1  Introduction",
+    "objectID": "01-linear_models.html",
+    "href": "01-linear_models.html",
+    "title": "1  Recap on Linear Models",
     "section": "",
-    "text": "This is a book created from markdown and executable code.\nSee Knuth (1984) for additional discussion of literate programming.\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. (USA) 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97.",
+    "text": "1.1 Building up the Linear Model\nA common behavioural task in language and word recognition research is the Lexical Decision Task. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.\nThe best predictor of response time to real words is word frequency: response times are faster to words that occur more often.\nHere are some made-up data showing the relationship between Zipf word frequency [a log-transformed count variable; van Heuven et al. (2014)] and response time (ms). Each point is depicts one word.\nHow could we describe these data?",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
   },
   {
-    "objectID": "summary.html",
-    "href": "summary.html",
-    "title": "2  Summary",
+    "objectID": "01-linear_models.html#building-up-the-linear-model",
+    "href": "01-linear_models.html#building-up-the-linear-model",
+    "title": "1  Recap on Linear Models",
     "section": "",
-    "text": "In summary, this book has no content whatsoever.\n\n1 + 1\n\n[1] 2",
+    "text": "1.1.1 1. The Average (Intercept)\nOne very simple but powerful description could be to just calculate the average log response time.\n\nmean(dat$log_rt)\n\n[1] 6.448425",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Summary</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
   },
   {
@@ -34,7 +34,7 @@
     "href": "references.html",
     "title": "References",
     "section": "",
-    "text": "Knuth, Donald E. 1984. “Literate Programming.” Comput.\nJ. (USA) 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97.",
+    "text": "van Heuven, Walter J. B., Pawel Mandera, Emmanuel\nKeuleers, and Marc Brysbaert. 2014.\n“SUBTLEX-UK: A New and Improved Word\nFrequency Database for British English.”\nQuarterly Journal of Experimental Psychology 67 (6): 1176–90.\nhttps://doi.org/10.1080/17470218.2013.850521.",
     "crumbs": [
       "References"
     ]
