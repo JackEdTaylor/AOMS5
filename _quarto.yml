@@ -5,7 +5,7 @@ project:
 book:
   title: "AOMS5"
   author: "Norah Jones"
-  date: "25/06/2026"
+  date: "06/25/2026"
   chapters:
     - index.qmd
     - intro.qmd
