@@ -1,0 +1,68 @@
+# Recap on Linear Models
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| include: false
+library(dplyr)
+library(readr)
+library(ggplot2)
+source("ggplot2_setup.R", local=TRUE)
+set.seed(332548978)  # from sample(.Machine$integer.max, 1)
+```
+
+## Building up the Linear Model
+
+A common behavioural task in language and word recognition research is the *Lexical Decision Task*. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people's responses and their response times to each item.
+
+The best predictor of response time to real words is word frequency: response times are faster to words that occur more often.
+
+Here are some made-up data showing the relationship between *Zipf word frequency* [a log-transformed count variable; @vanheuvenSUBTLEXUKNewImproved2014] and *response time* (ms). Each point is depicts one word.
+
+```{r}
+#| label: sim_dat
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-height: 4
+#| fig-width: 4
+b0 <- 6.95
+b1 <- -0.11
+s <- 0.12
+n <- 100
+
+dat <- tibble(
+  zipf = runif(n, 1.3, 7.6),
+  e_i = rnorm(n, 0, s),
+  log_rt = b0 + b1 * zipf + e_i
+)
+
+write_csv(dat, "sims_lm.csv")
+
+dat |>
+  ggplot(aes(zipf, log_rt)) +
+  geom_point() +
+  labs(x="Word Frequency (Zipf)", y="Log Response Time (ms)")
+```
+
+How could we describe these data?
+
+### 1. The Average (Intercept)
+
+One very simple but powerful description could be to just calculate the average log response time.
+
+```{r}
+mean(dat$log_rt)
+```
+
+# Intercept and Slope
+
+$$\begin{aligned}
+& y_i = \beta_0 + \beta_1 x_i + e_i \\
+& e_i \sim N(0, \sigma)
+\end{aligned}$$
+
+```{r}
+1 + 1
+```
