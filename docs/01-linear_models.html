@@ -596,7 +596,12 @@ Note
 logRT_i &amp;= \beta_0 + \beta_1 zipf_i + e_i \\
 e_i &amp;\sim N(0, \sigma)
 \end{aligned}\]</span></p>
-<p>We now have 3 free parameters that are estimated by the <code>lm()</code> function in R: * <span class="math inline">\(b_0\)</span>: <code>(Intercept)</code> * <span class="math inline">\(b_1\)</span>: <code>zipf</code> * <span class="math inline">\(\sigma\)</span>: <code>Residual standard error</code></p>
+<p>We now have 3 free parameters that are estimated by the <code>lm()</code> function in R:</p>
+<ul>
+<li><span class="math inline">\(b_0\)</span>: <code>(Intercept)</code></li>
+<li><span class="math inline">\(b_1\)</span>: <code>zipf</code></li>
+<li><span class="math inline">\(\sigma\)</span>: <code>Residual standard error</code></li>
+</ul>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( <span class="fu">lm</span>(log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf, <span class="at">data =</span> dat) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">

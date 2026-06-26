@@ -197,7 +197,11 @@ logRT_i &= \beta_0 + \beta_1 zipf_i + e_i \\
 e_i &\sim N(0, \sigma)
 \end{aligned}$$
 
-We now have 3 free parameters that are estimated by the `lm()` function in R: \* $b_0$: `(Intercept)` \* $b_1$: `zipf` \* $\sigma$: `Residual standard error`
+We now have 3 free parameters that are estimated by the `lm()` function in R:
+
+* $b_0$: `(Intercept)`
+* $b_1$: `zipf`
+* $\sigma$: `Residual standard error`
 
 ```{r}
 #| label: summary_lm
