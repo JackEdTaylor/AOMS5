@@ -9,6 +9,7 @@ book:
   chapters:
     - index.qmd
     - 01-linear_models.qmd
+    - 02-random_intercepts.qmd
     - references.qmd
 
 bibliography: references.bib

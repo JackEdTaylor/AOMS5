@@ -14,7 +14,7 @@
     "href": "01-linear_models.html",
     "title": "1  Recap on Linear Models",
     "section": "",
-    "text": "1.1 Packages\nWe will be using the following packages in this section:\nlibrary(dplyr)  # for data wrangling\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlibrary(readr)  # for importing data\nlibrary(ggplot2)  # for plotting",
+    "text": "1.1 Packages\nWe will be using the following packages in this section:\nlibrary(dplyr)  # for data wrangling\nlibrary(readr)  # for importing data\nlibrary(ggplot2)  # for plotting",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
@@ -24,7 +24,7 @@
     "href": "01-linear_models.html#building-up-the-linear-model",
     "title": "1  Recap on Linear Models",
     "section": "1.2 Building up the Linear Model",
-    "text": "1.2 Building up the Linear Model\nA common behavioural task in language and word recognition research is the Lexical Decision Task. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.\nThe best predictor of response time to real words is word frequency: response times are faster to words that occur more often.\nHere is a plot of some made-up data showing a relationship between Zipf word frequency [a log-transformed count variable; van Heuven et al. (2014)] and response time (ms). Each point is depicts one word.\n\n\n\n\n\n\n\n\n\nIf you want to follow along, you can load the data into your R session with:\n\ndat &lt;- read_csv(\"https://jackedtaylor.github.io/AOMS5/sims_lm.csv\")\n\nHow could we describe these data?",
+    "text": "1.2 Building up the Linear Model\nA common behavioural task in language and word recognition research is the Lexical Decision Task. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.\nThe best predictor of response time to real words is word frequency: response times are faster to words that occur more often.\nHere is a plot of some made-up data (based on real estimates) showing a relationship between Zipf word frequency [a log-transformed count variable; van Heuven et al. (2014)] and response time (ms). Each point is depicts one word.\n\n\n\n\n\n\n\n\n\nIf you want to follow along, you can load the data into your R session with:\n\ndat &lt;- read_csv(\"https://jackedtaylor.github.io/AOMS5/sims_lm.csv\")\n\nHow could we describe these data?",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
@@ -34,7 +34,7 @@
     "href": "01-linear_models.html#the-average-intercept",
     "title": "1  Recap on Linear Models",
     "section": "1.3 The Average (Intercept)",
-    "text": "1.3 The Average (Intercept)\nOne very simple but powerful description could be to just calculate the average log response time.\n\nmean(dat$log_rt)\n\n[1] 6.452035\n\n\nTypically, this is termed the Intercept, and is written as \\(\\beta_0\\).\nIf we were to try to predict our dependent variable using just the intercept, a standard way of writing this would be:\n\\[y_i = \\beta_0\\]\nWe could plot our prediction as a red line on our plot from earlier:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_hline(\n    yintercept = mean(dat$log_rt),\n    colour = \"red\"\n  )\n\n\n\n\n\n\n\n\nThis is a start, but it ignores the clear effect of frequency (Zipf) on our response times.",
+    "text": "1.3 The Average (Intercept)\nOne very simple but powerful description could be to just calculate the average log response time.\n\nmean(dat$log_rt)\n\n[1] 6.397823\n\n\nTypically, this is termed the Intercept, and is written as \\(\\beta_0\\).\nIf we were to try to predict our dependent variable using just the intercept, a standard way of writing this would be:\n\\[y_i = \\beta_0\\]\nWe could plot our prediction as a red line on our plot from earlier:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_hline(\n    yintercept = mean(dat$log_rt),\n    colour = \"red\"\n  )\n\n\n\n\n\n\n\n\nThis is a start, but it ignores the clear effect of frequency (Zipf) on our response times.",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
@@ -44,7 +44,7 @@
     "href": "01-linear_models.html#intercept-slope",
     "title": "1  Recap on Linear Models",
     "section": "1.4 Intercept + Slope",
-    "text": "1.4 Intercept + Slope\nIn addition to the intercept, we can calculate a slope. This is usually written as \\(b_1\\). It is multiplied by our predictor, and represents the change in \\(y_i\\) associated with a one-unit increase in \\(x\\) for item \\(i\\).\n\\[ y_i = \\beta_0 + \\beta_1 x_i \\]\nWhereas before we could just calculate the mean, now we need to estimate these parameters. R has a handy lm() function for this.\n\nlm(log_rt ~ 1 + zipf, data = dat)\n\n\nCall:\nlm(formula = log_rt ~ 1 + zipf, data = dat)\n\nCoefficients:\n(Intercept)         zipf  \n     6.9517      -0.1091  \n\n\nWe could plot this like so:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=6.9517, slope=-0.1091, colour=\"red\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nNote that the model intercept \\(beta_0\\) is now 7, rather than 6.4520354. This is because the intercept actually specifies the value of our red line when \\(x_i=0\\). If we want \\(beta_0\\) to still reflect the mean, we can just mean-centre zipf.\n\ndat &lt;- mutate(dat, zipf_cent = zipf - mean(zipf))\n\nggplot(dat, aes(zipf_cent, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=6.452, slope=-0.1091, colour=\"red\")\n\n\n\n\n\n\n\n\n\n\nOne last issue is that our model is only predicting values along the red line. Yet none of our observations fall perfectly on the line. There is some variability, or “noise”, around our estimates.",
+    "text": "1.4 Intercept + Slope\nIn addition to the intercept, we can calculate a slope. This is usually written as \\(b_1\\). It is multiplied by our predictor, and represents the change in \\(y_i\\) associated with a one-unit increase in \\(x\\) for item \\(i\\).\n\\[ logRT_i = \\beta_0 + \\beta_1 zipf_i \\]\nWhereas before we could just calculate the mean, now we need to estimate these parameters. R has a handy lm() function for this.\n\nlm(log_rt ~ 1 + zipf, data = dat)\n\n\nCall:\nlm(formula = log_rt ~ 1 + zipf, data = dat)\n\nCoefficients:\n(Intercept)         zipf  \n    6.85171     -0.09913  \n\n\nWe could plot this like so:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=6.85171, slope=-0.09913, colour=\"red\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nNote that the model intercept \\(\\beta_0\\) is now 6.851709, rather than 6.3978225. This is because the intercept actually specifies the value of our red line when \\(x_i=0\\). If we want \\(\\beta_0\\) to still reflect the mean, we can just mean-centre zipf.\n\ndat &lt;- mutate(dat, zipf_cent = zipf - mean(zipf))\n\nggplot(dat, aes(zipf_cent, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=6.398, slope=-0.09913, colour=\"red\") +\n  geom_vline(xintercept=0, linetype=\"dashed\") +\n  geom_hline(yintercept=6.398, linetype=\"dashed\")\n\n\n\n\n\n\n\n\n\n\nOne last issue is that our model is only predicting values along the red line. Yet none of our observations fall perfectly on the line. There is some variability, or “noise”, around our estimates.",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
@@ -54,9 +54,59 @@
     "href": "01-linear_models.html#intercept-slope-residual",
     "title": "1  Recap on Linear Models",
     "section": "1.5 Intercept + Slope + Residual",
-    "text": "1.5 Intercept + Slope + Residual\n“Residual” is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept.\n\ndat &lt;- mutate(\n  dat,\n  pred = 7.0052 + -0.1177 * zipf,\n  e_i = pred - log_rt\n)\n\nWe could visualise these residuals as the distance from the line:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=7.0052, slope=-0.1177, colour=\"red\") +\n  geom_segment(aes(xend = zipf, yend = pred))\n\n\n\n\n\n\n\n\nA powerful way of capturing such variability around estimates is as a normal distribution. If we plot the residuals we can see that they are indeed roughly normal:\n\nggplot(dat, aes(e_i)) +\n  geom_density() +\n  geom_function(\n    fun = dnorm, colour = \"red\",\n    args = list(mean=0, sd=sd(dat$e_i))\n  )\n\n\n\n\n\n\n\n\nThis noise is typically written as \\(e_i\\). We specify it as being drawn from a normal distribution with a mean of zero and a standard deviation of \\(\\sigma\\):\n\\[\\begin{aligned}\n& y_i = \\beta_0 + e_i \\\\\n& e_i \\sim N(0, \\sigma)\n\\end{aligned}\\]\nWe now have 3 free parameters: \\(b_0\\), \\(b_1\\), and \\(\\sigma\\).\n\n\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel Keuleers, and Marc Brysbaert. 2014. “SUBTLEX-UK: A New and Improved Word Frequency Database for British English.” Quarterly Journal of Experimental Psychology 67 (6): 1176–90. https://doi.org/10.1080/17470218.2013.850521.",
+    "text": "1.5 Intercept + Slope + Residual\n“Residual” is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept.\n\ndat &lt;- mutate(\n  dat,\n  pred = 6.85171 + -0.09913 * zipf,\n  e_i = pred - log_rt\n)\n\nWe could visualise these residuals as the distance from the line:\n\nggplot(dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_abline(intercept=6.85171, slope=-0.09913, colour=\"red\") +\n  geom_segment(aes(xend = zipf, yend = pred))\n\n\n\n\n\n\n\n\nA powerful way of capturing such variability around estimates is as a normal distribution. If we plot the residuals we can see that they are indeed roughly normal:\n\nggplot(dat, aes(e_i)) +\n  # plot the density of e_i\n  geom_density() +\n  # plot a normal distribution for reference\n  geom_function(\n    fun = dnorm, colour = \"red\",\n    args = list(mean=0, sd=sd(dat$e_i))\n  ) +\n  xlim(-0.5, 0.5)\n\n\n\n\n\n\n\n\nThis noise is typically written as \\(e_i\\). We specify it as being drawn from a normal distribution with a mean of zero and a standard deviation of \\(\\sigma\\):\n\\[\\begin{aligned}\nlogRT_i &= \\beta_0 + \\beta_1 zipf_i + e_i \\\\\ne_i &\\sim N(0, \\sigma)\n\\end{aligned}\\]\nWe now have 3 free parameters that are estimated by the lm() function in R: * \\(b_0\\): (Intercept) * \\(b_1\\): zipf * \\(\\sigma\\): Residual standard error\n\nsummary( lm(log_rt ~ 1 + zipf, data = dat) )\n\n\nCall:\nlm(formula = log_rt ~ 1 + zipf, data = dat)\n\nResiduals:\n      Min        1Q    Median        3Q       Max \n-0.245604 -0.078863 -0.000974  0.082422  0.267120 \n\nCoefficients:\n             Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  6.851709   0.045030  152.16  &lt; 2e-16 ***\nzipf        -0.099130   0.009051  -10.95 1.18e-14 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.1246 on 48 degrees of freedom\nMultiple R-squared:  0.7142,    Adjusted R-squared:  0.7083 \nF-statistic:   120 on 1 and 48 DF,  p-value: 1.184e-14",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
+    ]
+  },
+  {
+    "objectID": "01-linear_models.html#simulating-new-data",
+    "href": "01-linear_models.html#simulating-new-data",
+    "title": "1  Recap on Linear Models",
+    "section": "1.6 Simulating New Data",
+    "text": "1.6 Simulating New Data\nNow that we have estimated those parameters, we can simulate a new dataset using the formula.\nHere is the formula we will be using:\n\\[\\begin{aligned}\nlogRT_i &= \\beta_0 + \\beta_1 Zipf_i + e_i \\\\\ne_i &\\sim N(0, \\sigma)\n\\end{aligned}\\]\nFirst, we will define the parameters used in the simulation:\n\n# intercept\nb0 &lt;- 6.85171\n\n# slope for the effect of Zipf\nb1 &lt;- -0.09913\n\n# standard deviation of the residuals\ns &lt;- 0.1246\n\n# number of observations to simulate\nn &lt;- 50\n\nThen, we can plug these in to simulate log response times for a simulated sample of words:\n\n# build a simulated dataset\nsim_dat &lt;- tibble(\n  # random Zipf values from 1.5 to 7.5\n  zipf = runif(n, 1.5, 7.5),\n  # simulate residuals as Normal(0, sigma)\n  e_i = rnorm(n, 0, s),\n  # simulate log response times using the formula above\n  log_rt = b0 + b1 * zipf + e_i\n)\n\nFinally, we can plot this, to show how the simulated dataset shows a very similar pattern to the original data:\n\nggplot(sim_dat, aes(zipf, log_rt)) +\n  geom_point() +\n  geom_smooth(method=\"lm\", colour=\"red\")\n\n\n\n\n\n\n\n\n\n\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel Keuleers, and Marc Brysbaert. 2014. “SUBTLEX-UK: A New and Improved Word Frequency Database for British English.” Quarterly Journal of Experimental Psychology 67 (6): 1176–90. https://doi.org/10.1080/17470218.2013.850521.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html",
+    "href": "02-random_intercepts.html",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "",
+    "text": "2.1 Why Linear Mixed-Effects Models?\nIn the section recapping linear models, we used a linear model to describe the relationship between word frequency and log response time in a lexical decision task. In these data we had one observation per word.\nIn a real study, however, we would have multiple observations for each word from each participant. The traditional approach would be to aggregate: calculate the average log response time for each word before fitting the model. However, while this allows us to account for between-item variability, by aggregating over participants, we are losing valuable information about how the data were generated.\nFor some time, a common compromise was to fit the model twice, and then examine whether a hypothesis is supported across both items and participants (Raaijmakers et al. 1999). However, a more robust solution would be to model item and participant variability simultaneously. This is something that linear-mixed effects models allow us to do (Locker et al. 2007).",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html#what-is-a-linear-mixed-effects-model",
+    "href": "02-random_intercepts.html#what-is-a-linear-mixed-effects-model",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "2.2 What is a Linear Mixed-Effects Model?",
+    "text": "2.2 What is a Linear Mixed-Effects Model?\nA linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the recap on linear models. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.\nTo start with, we will just work with random intercepts:\n\\[logRT_{ip} = \\beta_0 + \\beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\\] Our formula is very similar to before, with the following key differences:\n\nWe index observations with two indices: \\(i\\) (item) and \\(p\\) (participant).\nWe include \\(I0_i\\): per-item random intercepts\nWe include \\(P0_p\\): per-participant random intercepts\n\nAs we saw with \\(e_i\\) in the liner model example, \\(I0_i\\), \\(P0_p\\), and \\(e_{ip}\\) are all drawn from normal distributions with their own standard deviations:\n\\[\\begin{aligned}\nI0_i &\\sim N(0, \\sigma_{I0}) \\\\\nP0_p &\\sim N(0, \\sigma_{P0}) \\\\\ne_{ip} &\\sim N(0, \\sigma_e)\n\\end{aligned}\\]\nTo get a sense for what this looks like, in this section we’ll use these formulae to simulate some data.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html#packages",
+    "href": "02-random_intercepts.html#packages",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "2.3 Packages",
+    "text": "2.3 Packages\nWe’ll use the following packages in this section:\n\nlibrary(lme4)  # for fitting LMMs\nlibrary(dplyr)  # for data wrangling\nlibrary(readr)  # for importing data\nlibrary(ggplot2)  # for plotting",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html#parameters",
+    "href": "02-random_intercepts.html#parameters",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "2.4 Parameters",
+    "text": "2.4 Parameters\nHere we define all the free parameters from the equations above:\n\n\\(\\beta_0\\): b_0\n\\(\\beta_1\\): b_1\n\\(\\sigma_{I0}\\): s_P0\n\\(\\sigma_{P0}\\): s_I0\n\\(\\sigma_e\\): s_e\n\nThe numbers here are based on the same real data as in the section on linear models.\n\n# Fixed-effect intercept and slope\n# (same as the parameters in the section on linear models)\nb_0 &lt;- 6.85\nb_1 &lt;- -0.1\n\n# SD of per-item random intercepts\ns_I0 &lt;- 0.08\n\n# SD of per-participant random intercepts\ns_P0 &lt;- 0.16\n\n# residual SD\ns_e &lt;- 0.33\n\n\n\n\n\nLocker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On the Use of Multilevel Modeling as an Alternative to Items Analysis in Psycholinguistic Research.” Behavior Research Methods 39 (4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans Gremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’: Common Misconceptions and Alternative Solutions.” Journal of Memory and Language 41 (3): 416–26. https://doi.org/10.1006/jmla.1999.2650.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
     ]
   },
   {
@@ -64,7 +114,7 @@
     "href": "references.html",
     "title": "References",
     "section": "",
-    "text": "van Heuven, Walter J. B., Pawel Mandera, Emmanuel\nKeuleers, and Marc Brysbaert. 2014.\n“SUBTLEX-UK: A New and Improved Word\nFrequency Database for British English.”\nQuarterly Journal of Experimental Psychology 67 (6): 1176–90.\nhttps://doi.org/10.1080/17470218.2013.850521.",
+    "text": "Locker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On\nthe Use of Multilevel Modeling as an Alternative to Items Analysis in\nPsycholinguistic Research.” Behavior Research Methods 39\n(4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans\nGremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’:\nCommon Misconceptions and Alternative\nSolutions.” Journal of Memory and Language 41\n(3): 416–26. https://doi.org/10.1006/jmla.1999.2650.\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel\nKeuleers, and Marc Brysbaert. 2014.\n“SUBTLEX-UK: A New and Improved Word\nFrequency Database for British English.”\nQuarterly Journal of Experimental Psychology 67 (6): 1176–90.\nhttps://doi.org/10.1080/17470218.2013.850521.",
     "crumbs": [
       "References"
     ]

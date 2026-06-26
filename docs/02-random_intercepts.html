@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Jack E. Taylor">
-<meta name="dcterms.date" content="2026-06-25">
 
-<title>AOMS5</title>
+<title>2&nbsp; LMMs: Random Intercepts – AOMS5</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -60,7 +58,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -70,7 +87,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./01-linear_models.html" rel="next">
+<link href="./references.html" rel="next">
+<link href="./01-linear_models.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -113,6 +131,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -287,7 +334,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02-random_intercepts.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">LMMs: Random Intercepts</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -317,7 +364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
@@ -329,7 +376,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02-random_intercepts.html" class="sidebar-item-text sidebar-link">
+  <a href="./02-random_intercepts.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">LMMs: Random Intercepts</span></span></a>
   </div>
 </li>
@@ -349,7 +396,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#why-linear-mixed-effects-models" id="toc-why-linear-mixed-effects-models" class="nav-link active" data-scroll-target="#why-linear-mixed-effects-models"><span class="header-section-number">2.1</span> Why Linear Mixed-Effects Models?</a></li>
+  <li><a href="#what-is-a-linear-mixed-effects-model" id="toc-what-is-a-linear-mixed-effects-model" class="nav-link" data-scroll-target="#what-is-a-linear-mixed-effects-model"><span class="header-section-number">2.2</span> What is a Linear Mixed-Effects Model?</a></li>
+  <li><a href="#packages" id="toc-packages" class="nav-link" data-scroll-target="#packages"><span class="header-section-number">2.3</span> Packages</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters"><span class="header-section-number">2.4</span> Parameters</a></li>
   </ul>
 </nav>
     </div>
@@ -359,26 +409,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">AOMS5</h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">LMMs: Random Intercepts</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Jack E. Taylor </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">June 25, 2026</p>
-    </div>
-  </div>
   
     
   </div>
@@ -388,18 +426,76 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
-<p>This is a Quarto book.</p>
-<p>To learn more about Quarto books visit <a href="https://quarto.org/docs/books" class="uri">https://quarto.org/docs/books</a>.</p>
+<section id="why-linear-mixed-effects-models" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="why-linear-mixed-effects-models"><span class="header-section-number">2.1</span> Why Linear Mixed-Effects Models?</h2>
+<p>In the section recapping <a href="01-linear_models">linear models</a>, we used a linear model to describe the relationship between word frequency and log response time in a lexical decision task. In these data we had one observation per word.</p>
+<p>In a real study, however, we would have multiple observations for each word from each participant. The traditional approach would be to <em>aggregate</em>: calculate the average log response time for each word before fitting the model. However, while this allows us to account for between-item variability, by aggregating over participants, we are losing valuable information about how the data were generated.</p>
+<p>For some time, a common compromise was to fit the model twice, and then examine whether a hypothesis is supported across both items and participants <span class="citation" data-cites="raaijmakersHowDealLanguageasFixedEffect1999">(<a href="references.html#ref-raaijmakersHowDealLanguageasFixedEffect1999" role="doc-biblioref">Raaijmakers et al. 1999</a>)</span>. However, a more robust solution would be to model item and participant variability simultaneously. This is something that linear-mixed effects models allow us to do <span class="citation" data-cites="lockerUseMultilevelModeling2007">(<a href="references.html#ref-lockerUseMultilevelModeling2007" role="doc-biblioref">Locker et al. 2007</a>)</span>.</p>
+</section>
+<section id="what-is-a-linear-mixed-effects-model" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="what-is-a-linear-mixed-effects-model"><span class="header-section-number">2.2</span> What is a Linear Mixed-Effects Model?</h2>
+<p>A linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the <a href="01-linear_models">recap on linear models</a>. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.</p>
+<p>To start with, we will just work with random intercepts:</p>
+<p><span class="math display">\[logRT_{ip} = \beta_0 + \beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\]</span> Our formula is very similar to before, with the following key differences:</p>
+<ul>
+<li>We index observations with two indices: <span class="math inline">\(i\)</span> (item) and <span class="math inline">\(p\)</span> (participant).</li>
+<li>We include <span class="math inline">\(I0_i\)</span>: per-item random intercepts</li>
+<li>We include <span class="math inline">\(P0_p\)</span>: per-participant random intercepts</li>
+</ul>
+<p>As we saw with <a href="01-linear_models.html#intercept-slope-residual"><span class="math inline">\(e_i\)</span> in the liner model example</a>, <span class="math inline">\(I0_i\)</span>, <span class="math inline">\(P0_p\)</span>, and <span class="math inline">\(e_{ip}\)</span> are all drawn from normal distributions with their own standard deviations:</p>
+<p><span class="math display">\[\begin{aligned}
+I0_i &amp;\sim N(0, \sigma_{I0}) \\
+P0_p &amp;\sim N(0, \sigma_{P0}) \\
+e_{ip} &amp;\sim N(0, \sigma_e)
+\end{aligned}\]</span></p>
+<p>To get a sense for what this looks like, in this section we’ll use these formulae to simulate some data.</p>
+</section>
+<section id="packages" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="packages"><span class="header-section-number">2.3</span> Packages</h2>
+<p>We’ll use the following packages in this section:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)  <span class="co"># for fitting LMMs</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># for data wrangling</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)  <span class="co"># for importing data</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># for plotting</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="parameters" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="parameters"><span class="header-section-number">2.4</span> Parameters</h2>
+<p>Here we define all the free parameters from the equations above:</p>
+<ul>
+<li><span class="math inline">\(\beta_0\)</span>: <code>b_0</code></li>
+<li><span class="math inline">\(\beta_1\)</span>: <code>b_1</code></li>
+<li><span class="math inline">\(\sigma_{I0}\)</span>: <code>s_P0</code></li>
+<li><span class="math inline">\(\sigma_{P0}\)</span>: <code>s_I0</code></li>
+<li><span class="math inline">\(\sigma_e\)</span>: <code>s_e</code></li>
+</ul>
+<p>The numbers here are based on the same real data as in the <a href="01-linear_models">section on linear models</a>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed-effect intercept and slope</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (same as the parameters in the section on linear models)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>b_0 <span class="ot">&lt;-</span> <span class="fl">6.85</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>b_1 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.1</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># SD of per-item random intercepts</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>s_I0 <span class="ot">&lt;-</span> <span class="fl">0.08</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># SD of per-participant random intercepts</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>s_P0 <span class="ot">&lt;-</span> <span class="fl">0.16</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># residual SD</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>s_e <span class="ot">&lt;-</span> <span class="fl">0.33</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-lockerUseMultilevelModeling2007" class="csl-entry" role="listitem">
+Locker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. <span>“On the Use of Multilevel Modeling as an Alternative to Items Analysis in Psycholinguistic Research.”</span> <em>Behavior Research Methods</em> 39 (4): 723–30. <a href="https://doi.org/10.3758/BF03192962">https://doi.org/10.3758/BF03192962</a>.
+</div>
+<div id="ref-raaijmakersHowDealLanguageasFixedEffect1999" class="csl-entry" role="listitem">
+Raaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans Gremmen. 1999. <span>“How to <span>Deal</span> with <span>‘<span class="nocase">The Language-as-Fixed-Effect Fallacy</span>’</span>: <span>Common Misconceptions</span> and <span>Alternative Solutions</span>.”</span> <em>Journal of Memory and Language</em> 41 (3): 416–26. <a href="https://doi.org/10.1006/jmla.1999.2650">https://doi.org/10.1006/jmla.1999.2650</a>.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -818,10 +914,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./01-linear_models.html" class="pagination-link" aria-label="Recap on Linear Models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Recap on Linear Models</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./01-linear_models.html" class="pagination-link" aria-label="Recap on Linear Models">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Recap on Linear Models</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./references.html" class="pagination-link" aria-label="References">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

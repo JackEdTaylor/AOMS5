@@ -87,7 +87,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./02-random_intercepts.html" rel="next">
 <link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -376,6 +376,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./02-random_intercepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">LMMs: Random Intercepts</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -395,6 +401,7 @@ window.Quarto = {
   <li><a href="#the-average-intercept" id="toc-the-average-intercept" class="nav-link" data-scroll-target="#the-average-intercept"><span class="header-section-number">1.3</span> The Average (Intercept)</a></li>
   <li><a href="#intercept-slope" id="toc-intercept-slope" class="nav-link" data-scroll-target="#intercept-slope"><span class="header-section-number">1.4</span> Intercept + Slope</a></li>
   <li><a href="#intercept-slope-residual" id="toc-intercept-slope-residual" class="nav-link" data-scroll-target="#intercept-slope-residual"><span class="header-section-number">1.5</span> Intercept + Slope + Residual</a></li>
+  <li><a href="#simulating-new-data" id="toc-simulating-new-data" class="nav-link" data-scroll-target="#simulating-new-data"><span class="header-section-number">1.6</span> Simulating New Data</a></li>
   </ul>
 </nav>
     </div>
@@ -425,30 +432,16 @@ window.Quarto = {
 <h2 data-number="1.1" class="anchored" data-anchor-id="packages"><span class="header-section-number">1.1</span> Packages</h2>
 <p>We will be using the following packages in this section:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># for data wrangling</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)  <span class="co"># for importing data</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># for plotting</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># for data wrangling</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)  <span class="co"># for importing data</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># for plotting</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="building-up-the-linear-model" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="building-up-the-linear-model"><span class="header-section-number">1.2</span> Building up the Linear Model</h2>
 <p>A common behavioural task in language and word recognition research is the <em>Lexical Decision Task</em>. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.</p>
 <p>The best predictor of response time to real words is word frequency: response times are faster to words that occur more often.</p>
-<p>Here is a plot of some made-up data showing a relationship between <em>Zipf word frequency</em> [a log-transformed count variable; <span class="citation" data-cites="vanheuvenSUBTLEXUKNewImproved2014"><span class="nocase">van Heuven et al.</span> (<a href="references.html#ref-vanheuvenSUBTLEXUKNewImproved2014" role="doc-biblioref">2014</a>)</span>] and <em>response time</em> (ms). Each point is depicts one word.</p>
+<p>Here is a plot of some made-up data (based on real estimates) showing a relationship between <em>Zipf word frequency</em> [a log-transformed count variable; <span class="citation" data-cites="vanheuvenSUBTLEXUKNewImproved2014"><span class="nocase">van Heuven et al.</span> (<a href="references.html#ref-vanheuvenSUBTLEXUKNewImproved2014" role="doc-biblioref">2014</a>)</span>] and <em>response time</em> (ms). Each point is depicts one word.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -460,7 +453,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <p>If you want to follow along, you can load the data into your R session with:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://jackedtaylor.github.io/AOMS5/sims_lm.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://jackedtaylor.github.io/AOMS5/sims_lm.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>How could we describe these data?</p>
 </section>
@@ -468,9 +461,9 @@ Attaching package: 'dplyr'</code></pre>
 <h2 data-number="1.3" class="anchored" data-anchor-id="the-average-intercept"><span class="header-section-number">1.3</span> The Average (Intercept)</h2>
 <p>One very simple but powerful description could be to just calculate the average log response time.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(dat<span class="sc">$</span>log_rt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(dat<span class="sc">$</span>log_rt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 6.452035</code></pre>
+<pre><code>[1] 6.397823</code></pre>
 </div>
 </div>
 <p>Typically, this is termed the <em>Intercept</em>, and is written as <span class="math inline">\(\beta_0\)</span>.</p>
@@ -478,16 +471,16 @@ Attaching package: 'dplyr'</code></pre>
 <p><span class="math display">\[y_i = \beta_0\]</span></p>
 <p>We could plot our prediction as a red line on our plot from earlier:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">yintercept =</span> <span class="fu">mean</span>(dat<span class="sc">$</span>log_rt),</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"red"</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">yintercept =</span> <span class="fu">mean</span>(dat<span class="sc">$</span>log_rt),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"red"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="01-linear_models_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="384"></p>
+<p><img src="01-linear_models_files/figure-html/plot_mean-1.png" class="img-fluid figure-img" width="384"></p>
 </figure>
 </div>
 </div>
@@ -497,10 +490,10 @@ Attaching package: 'dplyr'</code></pre>
 <section id="intercept-slope" class="level2" data-number="1.4">
 <h2 data-number="1.4" class="anchored" data-anchor-id="intercept-slope"><span class="header-section-number">1.4</span> Intercept + Slope</h2>
 <p>In addition to the intercept, we can calculate a slope. This is usually written as <span class="math inline">\(b_1\)</span>. It is multiplied by our predictor, and represents the change in <span class="math inline">\(y_i\)</span> associated with a one-unit increase in <span class="math inline">\(x\)</span> for item <span class="math inline">\(i\)</span>.</p>
-<p><span class="math display">\[ y_i = \beta_0 + \beta_1 x_i \]</span></p>
+<p><span class="math display">\[ logRT_i = \beta_0 + \beta_1 zipf_i \]</span></p>
 <p>Whereas before we could just calculate the mean, now we need to estimate these parameters. R has a handy <code>lm()</code> function for this.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf, <span class="at">data =</span> dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf, <span class="at">data =</span> dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -508,18 +501,18 @@ lm(formula = log_rt ~ 1 + zipf, data = dat)
 
 Coefficients:
 (Intercept)         zipf  
-     6.9517      -0.1091  </code></pre>
+    6.85171     -0.09913  </code></pre>
 </div>
 </div>
 <p>We could plot this like so:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="fl">6.9517</span>, <span class="at">slope=</span><span class="sc">-</span><span class="fl">0.1091</span>, <span class="at">colour=</span><span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="fl">6.85171</span>, <span class="at">slope=</span><span class="sc">-</span><span class="fl">0.09913</span>, <span class="at">colour=</span><span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="01-linear_models_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="384"></p>
+<p><img src="01-linear_models_files/figure-html/plot_lm-1.png" class="img-fluid figure-img" width="384"></p>
 </figure>
 </div>
 </div>
@@ -534,17 +527,19 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Note that the model intercept <span class="math inline">\(beta_0\)</span> is now 7, rather than 6.4520354. This is because the intercept actually specifies the value of our red line when <span class="math inline">\(x_i=0\)</span>. If we want <span class="math inline">\(beta_0\)</span> to still reflect the mean, we can just mean-centre <code>zipf</code>.</p>
+<p>Note that the model intercept <span class="math inline">\(\beta_0\)</span> is now 6.851709, rather than 6.3978225. This is because the intercept actually specifies the value of our red line when <span class="math inline">\(x_i=0\)</span>. If we want <span class="math inline">\(\beta_0\)</span> to still reflect the mean, we can just mean-centre <code>zipf</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">mutate</span>(dat, <span class="at">zipf_cent =</span> zipf <span class="sc">-</span> <span class="fu">mean</span>(zipf))</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf_cent, log_rt)) <span class="sc">+</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="fl">6.452</span>, <span class="at">slope=</span><span class="sc">-</span><span class="fl">0.1091</span>, <span class="at">colour=</span><span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">mutate</span>(dat, <span class="at">zipf_cent =</span> zipf <span class="sc">-</span> <span class="fu">mean</span>(zipf))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf_cent, log_rt)) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="fl">6.398</span>, <span class="at">slope=</span><span class="sc">-</span><span class="fl">0.09913</span>, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="dv">0</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fl">6.398</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="01-linear_models_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="288"></p>
+<p><img src="01-linear_models_files/figure-html/plot_lm_cent-1.png" class="img-fluid figure-img" width="288"></p>
 </figure>
 </div>
 </div>
@@ -557,48 +552,122 @@ Note
 <h2 data-number="1.5" class="anchored" data-anchor-id="intercept-slope-residual"><span class="header-section-number">1.5</span> Intercept + Slope + Residual</h2>
 <p>“Residual” is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  dat,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred =</span> <span class="fl">7.0052</span> <span class="sc">+</span> <span class="sc">-</span><span class="fl">0.1177</span> <span class="sc">*</span> zipf,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i =</span> pred <span class="sc">-</span> log_rt</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  dat,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred =</span> <span class="fl">6.85171</span> <span class="sc">+</span> <span class="sc">-</span><span class="fl">0.09913</span> <span class="sc">*</span> zipf,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i =</span> pred <span class="sc">-</span> log_rt</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We could visualise these residuals as the distance from the line:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="fl">7.0052</span>, <span class="at">slope=</span><span class="sc">-</span><span class="fl">0.1177</span>, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">xend =</span> zipf, <span class="at">yend =</span> pred))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="fl">6.85171</span>, <span class="at">slope=</span><span class="sc">-</span><span class="fl">0.09913</span>, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">xend =</span> zipf, <span class="at">yend =</span> pred))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="01-linear_models_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="384"></p>
+<p><img src="01-linear_models_files/figure-html/plot_resid-1.png" class="img-fluid figure-img" width="384"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>A powerful way of capturing such variability around estimates is as a normal distribution. If we plot the residuals we can see that they are indeed roughly normal:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(e_i)) <span class="sc">+</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fun =</span> dnorm, <span class="at">colour =</span> <span class="st">"red"</span>,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean=</span><span class="dv">0</span>, <span class="at">sd=</span><span class="fu">sd</span>(dat<span class="sc">$</span>e_i))</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(e_i)) <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot the density of e_i</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot a normal distribution for reference</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fun =</span> dnorm, <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean=</span><span class="dv">0</span>, <span class="at">sd=</span><span class="fu">sd</span>(dat<span class="sc">$</span>e_i))</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="01-linear_models_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="384"></p>
+<p><img src="01-linear_models_files/figure-html/plot_resid_dens-1.png" class="img-fluid figure-img" width="384"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>This noise is typically written as <span class="math inline">\(e_i\)</span>. We specify it as being drawn from a normal distribution with a mean of zero and a standard deviation of <span class="math inline">\(\sigma\)</span>:</p>
 <p><span class="math display">\[\begin{aligned}
-&amp; y_i = \beta_0 + e_i \\
-&amp; e_i \sim N(0, \sigma)
+logRT_i &amp;= \beta_0 + \beta_1 zipf_i + e_i \\
+e_i &amp;\sim N(0, \sigma)
 \end{aligned}\]</span></p>
-<p>We now have 3 free parameters: <span class="math inline">\(b_0\)</span>, <span class="math inline">\(b_1\)</span>, and <span class="math inline">\(\sigma\)</span>.</p>
+<p>We now have 3 free parameters that are estimated by the <code>lm()</code> function in R: * <span class="math inline">\(b_0\)</span>: <code>(Intercept)</code> * <span class="math inline">\(b_1\)</span>: <code>zipf</code> * <span class="math inline">\(\sigma\)</span>: <code>Residual standard error</code></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( <span class="fu">lm</span>(log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf, <span class="at">data =</span> dat) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = log_rt ~ 1 + zipf, data = dat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.245604 -0.078863 -0.000974  0.082422  0.267120 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  6.851709   0.045030  152.16  &lt; 2e-16 ***
+zipf        -0.099130   0.009051  -10.95 1.18e-14 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1246 on 48 degrees of freedom
+Multiple R-squared:  0.7142,    Adjusted R-squared:  0.7083 
+F-statistic:   120 on 1 and 48 DF,  p-value: 1.184e-14</code></pre>
+</div>
+</div>
+</section>
+<section id="simulating-new-data" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="simulating-new-data"><span class="header-section-number">1.6</span> Simulating New Data</h2>
+<p>Now that we have estimated those parameters, we can simulate a new dataset using the formula.</p>
+<p>Here is the formula we will be using:</p>
+<p><span class="math display">\[\begin{aligned}
+logRT_i &amp;= \beta_0 + \beta_1 Zipf_i + e_i \\
+e_i &amp;\sim N(0, \sigma)
+\end{aligned}\]</span></p>
+<p>First, we will define the parameters used in the simulation:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># intercept</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>b0 <span class="ot">&lt;-</span> <span class="fl">6.85171</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># slope for the effect of Zipf</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>b1 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.09913</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># standard deviation of the residuals</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fl">0.1246</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># number of observations to simulate</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">50</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Then, we can plug these in to simulate log response times for a simulated sample of words:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># build a simulated dataset</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>sim_dat <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># random Zipf values from 1.5 to 7.5</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">zipf =</span> <span class="fu">runif</span>(n, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate residuals as Normal(0, sigma)</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, s),</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate log response times using the formula above</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">log_rt =</span> b0 <span class="sc">+</span> b1 <span class="sc">*</span> zipf <span class="sc">+</span> e_i</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Finally, we can plot this, to show how the simulated dataset shows a very similar pattern to the original data:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>, <span class="at">colour=</span><span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="01-linear_models_files/figure-html/plot_sim_dat-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
@@ -1029,8 +1098,8 @@ Note
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link" aria-label="References">
-        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./02-random_intercepts.html" class="pagination-link" aria-label="LMMs: Random Intercepts">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">LMMs: Random Intercepts</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -1,0 +1,86 @@
+# LMMs: Random Intercepts
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| include: false
+source("ggplot2_setup.R", local=TRUE)
+set.seed(1019162963)  # from sample(.Machine$integer.max, 1)
+```
+
+## Why Linear Mixed-Effects Models?
+
+In the section recapping [linear models](01-linear_models), we used a linear model to describe the relationship between word frequency and log response time in a lexical decision task. In these data we had one observation per word.
+
+In a real study, however, we would have multiple observations for each word from each participant. The traditional approach would be to *aggregate*: calculate the average log response time for each word before fitting the model. However, while this allows us to account for between-item variability, by aggregating over participants, we are losing valuable information about how the data were generated.
+
+For some time, a common compromise was to fit the model twice, and then examine whether a hypothesis is supported across both items and participants [@raaijmakersHowDealLanguageasFixedEffect1999]. However, a more robust solution would be to model item and participant variability simultaneously. This is something that linear-mixed effects models allow us to do [@lockerUseMultilevelModeling2007].
+
+## What is a Linear Mixed-Effects Model?
+
+A linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the [recap on linear models](01-linear_models). A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.
+
+To start with, we will just work with random intercepts:
+
+$$logRT_{ip} = \beta_0 + \beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}$$
+Our formula is very similar to before, with the following key differences:
+
+* We index observations with two indices: $i$ (item) and $p$ (participant).
+* We include $I0_i$: per-item random intercepts
+* We include $P0_p$: per-participant random intercepts
+
+As we saw with [$e_i$ in the liner model example](01-linear_models.html#intercept-slope-residual), $I0_i$, $P0_p$, and $e_{ip}$ are all drawn from normal distributions with their own standard deviations:
+
+$$\begin{aligned}
+I0_i &\sim N(0, \sigma_{I0}) \\
+P0_p &\sim N(0, \sigma_{P0}) \\
+e_{ip} &\sim N(0, \sigma_e)
+\end{aligned}$$
+
+To get a sense for what this looks like, in this section we'll use these formulae to simulate some data.
+
+## Packages
+
+We'll use the following packages in this section:
+
+```{r}
+#| label: packages
+#| message: false
+#| warning: false
+library(lme4)  # for fitting LMMs
+library(dplyr)  # for data wrangling
+library(readr)  # for importing data
+library(ggplot2)  # for plotting
+```
+
+## Parameters
+
+Here we define all the free parameters from the equations above:
+
+* $\beta_0$: `b_0`
+* $\beta_1$: `b_1`
+* $\sigma_{I0}$: `s_P0`
+* $\sigma_{P0}$: `s_I0`
+* $\sigma_e$: `s_e`
+
+The numbers here are based on the same real data as in the [section on linear models](01-linear_models).
+
+```{r}
+#| label: params
+# Fixed-effect intercept and slope
+# (same as the parameters in the section on linear models)
+b_0 <- 6.85
+b_1 <- -0.1
+
+# SD of per-item random intercepts
+s_I0 <- 0.08
+
+# SD of per-participant random intercepts
+s_P0 <- 0.16
+
+# residual SD
+s_e <- 0.33
+```
+
+
