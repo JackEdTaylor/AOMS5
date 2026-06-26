@@ -30,7 +30,7 @@ Our formula is very similar to before, with the following key differences:
 * We include $I0_i$: per-item random intercepts
 * We include $P0_p$: per-participant random intercepts
 
-As we saw with [$e_i$ in the liner model example](01-linear_models.html#intercept-slope-residual), $I0_i$, $P0_p$, and $e_{ip}$ are all drawn from normal distributions with their own standard deviations:
+As we saw with [$e_i$ in the linear model example](01-linear_models.html#intercept-slope-residual), $I0_i$, $P0_p$, and $e_{ip}$ are all drawn from normal distributions with their own standard deviations:
 
 $$\begin{aligned}
 I0_i &\sim N(0, \sigma_{I0}) \\
