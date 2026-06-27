@@ -19,6 +19,6 @@ format:
     theme:
       light: flatly
       dark: darkly
+    fig-format: svg
   pdf:
     documentclass: scrreprt
-
