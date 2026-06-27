@@ -88,9 +88,9 @@ s_e <- 0.33
 
 ## Simulating Items and Participants
 
-To be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants.
+To be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants. Here we build two dataframes, of 50 items and 30 participants.
 
-Here we build two dataframes, of 50 items and 30 participants.
+The simulated random intercepts, `I0_i` and `P_0p`, quantify how each item and participant deviate from the fixed-effect average effect.
 
 ```{r}
 # simulate 50 items
@@ -143,7 +143,7 @@ ggplot(participants) +
   ylim(4.5, 7.5)
 ```
 
-Here, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (`s_I0` = `{r} s_I0`) than between participants (`s_P0` = `{r} s_P0`).
+Here, the <span style="color:red;">**red line**</span> shows the fixed effect, while the **black lines** show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (`s_I0` = `{r} s_I0`) than between participants (`s_P0` = `{r} s_P0`).
 
 ## Simulating Trials
 

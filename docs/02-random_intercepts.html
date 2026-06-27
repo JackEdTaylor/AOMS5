@@ -497,8 +497,8 @@ e_{ip} &amp;\sim N(0, \sigma_e)
 </section>
 <section id="simulating-items-and-participants" class="level2" data-number="2.5">
 <h2 data-number="2.5" class="anchored" data-anchor-id="simulating-items-and-participants"><span class="header-section-number">2.5</span> Simulating Items and Participants</h2>
-<p>To be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants.</p>
-<p>Here we build two dataframes, of 50 items and 30 participants.</p>
+<p>To be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants. Here we build two dataframes, of 50 items and 30 participants.</p>
+<p>The simulated random intercepts, <code>I0_i</code> and <code>P_0p</code>, quantify how each item and participant deviate from the fixed-effect average effect.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate 50 items</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n_items <span class="ot">&lt;-</span> <span class="dv">50</span></span>
@@ -559,7 +559,7 @@ e_{ip} &amp;\sim N(0, \sigma_e)
 </div>
 </div>
 </div>
-<p>Here, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (<code>s_I0</code> = 0.08) than between participants (<code>s_P0</code> = 0.16).</p>
+<p>Here, the <span style="color:red;"><strong>red line</strong></span> shows the fixed effect, while the <strong>black lines</strong> show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (<code>s_I0</code> = 0.08) than between participants (<code>s_P0</code> = 0.16).</p>
 </section>
 <section id="simulating-trials" class="level2" data-number="2.7">
 <h2 data-number="2.7" class="anchored" data-anchor-id="simulating-trials"><span class="header-section-number">2.7</span> Simulating Trials</h2>
