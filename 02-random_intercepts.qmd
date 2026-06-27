@@ -143,7 +143,7 @@ ggplot(participants) +
   ylim(4.5, 7.5)
 ```
 
-Here, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (`s_I0 =` `{r} s_I0`) than between participants (`s_P0 =` `{r} s_P0`).
+Here, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (`s_I0` = `{r} s_I0`) than between participants (`s_P0` = `{r} s_P0`).
 
 ## Simulating Trials
 
@@ -199,3 +199,28 @@ ggplot(trials, aes(zipf, log_rt, colour=factor(p_id))) +
   geom_point() +
   theme(legend.position="none")
 ```
+
+## Parameter Retrieval
+
+We can now fit a model that estimates the parameters we originally used to simulate the data. If you compare these estimates to [the values we originally simulated](#defining-parameters), you can see that the estimates from our simulated sample are close to the ground truth.
+
+```{r}
+m <- lmer(
+  log_rt ~ 1 + zipf +
+    (1 | i_id) +
+    (1 | p_id),
+  data = trials
+)
+
+summary(m)
+```
+
+## `lme4` Syntax
+
+Finally, here is a quick breakdown of the `lme4` syntax in the `lmer()` model:
+
+* `log_rt ~ 1 + zipf` --- as in the [linear model formula](01-linear_models.html#intercept-slope-residual), this says that we want to model `log_rt` as a function of a fixed-effect intercept (`1`) and a slope that should be multiplied by `zipf`.
+
+* `(1 | i_id)` --- this says that we want to model random intercepts for each unique value of `i_id` (the item IDs).
+
+* `(1 | p_id)` --- this says that we want to model random intercepts for each unique value of `p_id` (the participant IDs).

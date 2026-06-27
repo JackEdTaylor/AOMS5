@@ -404,6 +404,8 @@ window.Quarto = {
   <li><a href="#visualising-random-intercepts" id="toc-visualising-random-intercepts" class="nav-link" data-scroll-target="#visualising-random-intercepts"><span class="header-section-number">2.6</span> Visualising Random Intercepts</a></li>
   <li><a href="#simulating-trials" id="toc-simulating-trials" class="nav-link" data-scroll-target="#simulating-trials"><span class="header-section-number">2.7</span> Simulating Trials</a></li>
   <li><a href="#simulating-responses" id="toc-simulating-responses" class="nav-link" data-scroll-target="#simulating-responses"><span class="header-section-number">2.8</span> Simulating Responses</a></li>
+  <li><a href="#parameter-retrieval" id="toc-parameter-retrieval" class="nav-link" data-scroll-target="#parameter-retrieval"><span class="header-section-number">2.9</span> Parameter Retrieval</a></li>
+  <li><a href="#lme4-syntax" id="toc-lme4-syntax" class="nav-link" data-scroll-target="#lme4-syntax"><span class="header-section-number">2.10</span> <code>lme4</code> Syntax</a></li>
   </ul>
 </nav>
     </div>
@@ -557,7 +559,7 @@ e_{ip} &amp;\sim N(0, \sigma_e)
 </div>
 </div>
 </div>
-<p>Here, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (<code>s_I0 =</code> 0.08) than between participants (<code>s_P0 =</code> 0.16).</p>
+<p>Here, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (<code>s_I0</code> = 0.08) than between participants (<code>s_P0</code> = 0.16).</p>
 </section>
 <section id="simulating-trials" class="level2" data-number="2.7">
 <h2 data-number="2.7" class="anchored" data-anchor-id="simulating-trials"><span class="header-section-number">2.7</span> Simulating Trials</h2>
@@ -642,6 +644,56 @@ Note
 </div>
 </div>
 </div>
+</section>
+<section id="parameter-retrieval" class="level2" data-number="2.9">
+<h2 data-number="2.9" class="anchored" data-anchor-id="parameter-retrieval"><span class="header-section-number">2.9</span> Parameter Retrieval</h2>
+<p>We can now fit a model that estimates the parameters we originally used to simulate the data. If you compare these estimates to <a href="#defining-parameters">the values we originally simulated</a>, you can see that the estimates from our simulated sample are close to the ground truth.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">1</span> <span class="sc">|</span> i_id) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">1</span> <span class="sc">|</span> p_id),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> trials</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML ['lmerMod']
+Formula: log_rt ~ 1 + zipf + (1 | i_id) + (1 | p_id)
+   Data: trials
+
+REML criterion at convergence: 1020.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.7332 -0.6655  0.0260  0.6379  2.9602 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ i_id     (Intercept) 0.008668 0.0931  
+ p_id     (Intercept) 0.022208 0.1490  
+ Residual             0.104945 0.3240  
+Number of obs: 1500, groups:  i_id, 50; p_id, 30
+
+Fixed effects:
+             Estimate Std. Error t value
+(Intercept)  6.792328   0.053743 126.384
+zipf        -0.075392   0.009599  -7.854
+
+Correlation of Fixed Effects:
+     (Intr)
+zipf -0.812</code></pre>
+</div>
+</div>
+</section>
+<section id="lme4-syntax" class="level2" data-number="2.10">
+<h2 data-number="2.10" class="anchored" data-anchor-id="lme4-syntax"><span class="header-section-number">2.10</span> <code>lme4</code> Syntax</h2>
+<p>Finally, here is a quick breakdown of the <code>lme4</code> syntax in the <code>lmer()</code> model:</p>
+<ul>
+<li><p><code>log_rt ~ 1 + zipf</code> — as in the <a href="01-linear_models.html#intercept-slope-residual">linear model formula</a>, this says that we want to model <code>log_rt</code> as a function of a fixed-effect intercept (<code>1</code>) and a slope that should be multiplied by <code>zipf</code>.</p></li>
+<li><p><code>(1 | i_id)</code> — this says that we want to model random intercepts for each unique value of <code>i_id</code> (the item IDs).</p></li>
+<li><p><code>(1 | p_id)</code> — this says that we want to model random intercepts for each unique value of <code>p_id</code> (the participant IDs).</p></li>
+</ul>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
