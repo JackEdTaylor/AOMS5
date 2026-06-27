@@ -133,17 +133,33 @@ For example, just as we can [plot a single simulated linear relationship](01-lin
 ggplot(items) +
   geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id)) +
   geom_abline(intercept=b_0, slope=b_1, colour="red") +
-  xlim(1.5, 7.5) +
-  ylim(4.5, 7.5)
+  lims(x=c(1.5, 7.5), y=c(5, 7.5))
 # (b)
 ggplot(participants) +
   geom_abline(aes(intercept = b_0+P0_p, slope=b_1, group=p_id)) +
   geom_abline(intercept=b_0, slope=b_1, colour="red") +
-  xlim(1.5, 7.5) +
-  ylim(4.5, 7.5)
+  lims(x=c(1.5, 7.5), y=c(5, 7.5))
 ```
 
 Here, the <span style="color:red;">**red line**</span> shows the fixed effect, while the **black lines** show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (`s_I0` = `{r} s_I0`) than between participants (`s_P0` = `{r} s_P0`).
+
+::: callout-note
+Panel (b) shows each participant's predicted average response time to a stimulus of any given frequency. However, we can't interpret panel (a) in this way, because each item only has one `zipf` value! Here is a version of the plot showing where the simulated items actually fall on this relationship:
+
+```{r}
+#| fig-height: 3
+#| fig-width: 2.25
+ggplot(items) +
+  geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id),
+              colour="grey") +
+  geom_point(aes(x = zipf, y = I0_i + b_0 + b_1*zipf),
+             shape=3) +
+  geom_abline(intercept=b_0, slope=b_1, colour="red") +
+  lims(x=c(1.5, 7.5), y=c(5, 7.5))
+```
+
+Rather than the black lines in panel (a) showing the effect of frequency for each item, it shows what the predicted response time would be if it had a *different* frequency.
+:::
 
 ## Simulating Trials
 
@@ -217,10 +233,98 @@ summary(m)
 
 ## `lme4` Syntax
 
-Finally, here is a quick breakdown of the `lme4` syntax in the `lmer()` model:
+Here is a quick breakdown of the `lme4` syntax in the `lmer()` model:
 
 * `log_rt ~ 1 + zipf` --- as in the [linear model formula](01-linear_models.html#intercept-slope-residual), this says that we want to model `log_rt` as a function of a fixed-effect intercept (`1`) and a slope that should be multiplied by `zipf`.
 
 * `(1 | i_id)` --- this says that we want to model random intercepts for each unique value of `i_id` (the item IDs).
 
 * `(1 | p_id)` --- this says that we want to model random intercepts for each unique value of `p_id` (the participant IDs).
+
+## Visualising Estimated Random Effects
+
+Just as we visualised the ground-truth relationships between `zipf` and `log_rt` (see [here](#visualising-random-intercepts)), we can visualise the relationships estimated by our model.
+
+To do this, we want to extract the estimated fixed effect and the estimated per-participant random intercepts from our model.
+
+The `fixef()` function gives us a vector of all fixed effects in the model.
+
+```{r}
+# extract fixed-effect estimates
+fes <- fixef(m)
+
+print(fes)
+```
+
+The `ranef()` function gives us the random-effect estimates for all participants and items. Here, we extract the per-participant estimates, and coerce them to a dataframe.
+
+```{r}
+# extract random-effect estimates
+res <- ranef(m)
+
+# extract participant random effects specifically
+res_p_df <- res$p_id |>
+  # coerce to a dataframe
+  as_tibble(rownames="p_id") |>
+  # rename the "(Intercept)" column to remove the parentheses
+  rename(est_P0_p = `(Intercept)`)
+
+print(res_p_df)
+```
+
+Recall that the random effects are per-unit (e.g., per-participant) deviations from the fixed effects. We can add the random intercept to the fixed-effect intercept to get per-participant predictions of average response times across Zipf.
+
+```{r}
+#| fig-height: 4
+#| fig-width: 3
+ggplot(res_p_df) +
+  geom_abline(aes(intercept = fes[["(Intercept)"]]+est_P0_p,
+                  slope=fes[["zipf"]],
+                  group=p_id)) +
+  geom_abline(intercept=fes[["(Intercept)"]],
+              slope=fes[["zipf"]],
+              colour="red") +
+  lims(x=c(1.5, 7.5), y=c(5, 7.5))
+```
+
+## Cheating, with `predict()`
+
+Instead of calculating the predictions manually, there is also a handy [`predict.merMod()`](https://rdrr.io/cran/lme4/man/predict.merMod.html) method which we can use on `lmer()` models. The advantage of this is that you don't have to think about the mixed-effects model formula --- you can just get this information from the `lme4` model.
+
+Here, we create a dataframe called `participant_preds` that contains all participant IDs. These are repeated for values of Zipf from 1.5 to 7.5.
+
+```{r}
+participant_preds <- expand_grid(
+  p_id = unique(participants$p_id),
+  zipf = seq(1.5, 7.5, length.out=1000)
+)
+```
+
+We can then pass this dataframe to the `predict()` function, to predict the relationship between Zipf and log response time for each participant in our sample.
+
+Importantly, we also have to change the `re.form` argument from the default. By default, the function will try to use the full random-effect formula. However, we only want to get average predictions for participants, rather than predictions of participant responses to specific items.
+
+```{r}
+participant_preds$pred_log_rt <- predict(
+  # pass the model
+  m,
+  # pass the data we want to get predictions for
+  newdata = participant_preds,
+  # only include the participant random intercepts
+  # in the random effect formula
+  re.form = ~(1 | p_id)
+)
+```
+
+Finally, we can plot the predicted relationship between `zipf` and `log_rt` for each of our participants:
+
+```{r}
+#| fig-height: 4
+#| fig-width: 3
+ggplot(participant_preds, aes(zipf, pred_log_rt, group=p_id)) +
+  geom_line() +
+  geom_abline(intercept=fes[["(Intercept)"]],
+              slope=fes[["zipf"]],
+              colour="red") +
+  lims(x=c(1.5, 7.5), y=c(5, 7.5))
+```
