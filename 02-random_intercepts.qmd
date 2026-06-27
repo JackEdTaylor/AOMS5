@@ -125,6 +125,7 @@ For example, just as we can [plot a single simulated linear relationship](01-lin
 ```{r}
 #| layout-ncol: 2
 #| fig-height: 4
+#| fig-width: 3
 #| fig-cap: 
 #|   - "(a) Per-Item Variability"
 #|   - "(b) Per-Participant Variability"
@@ -185,6 +186,7 @@ If we plot these observations coloured by items or participants, you can see how
 ```{r}
 #| layout-ncol: 2
 #| fig-height: 4
+#| fig-width: 3
 #| fig-cap: 
 #|   - "(a) Trials coloured by Item"
 #|   - "(b) Trials coloured by Participant"
