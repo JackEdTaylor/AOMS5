@@ -149,7 +149,7 @@ Here, the <span style="color:red;">**red line**</span> shows the fixed effect, w
 
 In a trial, a single participant responds to a single item. We simulate trials by simulating the meeting between participants and items.
 
-As @debruineUnderstandingMixedEffectsModels2021 do, we here simulate this using the `crossing()` function from `tidyr`. This simulates a study in which all `{r} n_participants` participants respond to `{r} n_items` items, producing a total `{r} n_items * n_participants` trials. For each unique combination of item and participant, we also simulate the residuals, $e_{ip}$.
+As @debruineUnderstandingMixedEffectsModels2021 do, we'll simulate this using the `crossing()` function from `tidyr`. This simulates a study in which all `{r} n_participants` participants respond to `{r} n_items` items, producing a total `{r} n_items * n_participants` trials. For each unique combination of item and participant, we also simulate the residuals, $e_{ip}$.
 
 ```{r}
 # generate trials
