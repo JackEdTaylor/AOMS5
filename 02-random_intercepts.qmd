@@ -275,8 +275,8 @@ print(res_p_df)
 Recall that the random effects are per-unit (e.g., per-participant) deviations from the fixed effects. We can add the random intercept to the fixed-effect intercept to get per-participant predictions of average response times across Zipf.
 
 ```{r}
-#| fig-height: 4
-#| fig-width: 3
+#| fig-height: 3
+#| fig-width: 5
 ggplot(res_p_df) +
   geom_abline(aes(intercept = fes[["(Intercept)"]]+est_P0_p,
                   slope=fes[["zipf"]],
@@ -319,8 +319,8 @@ participant_preds$pred_log_rt <- predict(
 Finally, we can plot the predicted relationship between `zipf` and `log_rt` for each of our participants:
 
 ```{r}
-#| fig-height: 4
-#| fig-width: 3
+#| fig-height: 3
+#| fig-width: 5
 ggplot(participant_preds, aes(zipf, pred_log_rt, group=p_id)) +
   geom_line() +
   geom_abline(intercept=fes[["(Intercept)"]],
