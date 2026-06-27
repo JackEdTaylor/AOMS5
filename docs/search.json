@@ -74,7 +74,7 @@
     "href": "02-random_intercepts.html",
     "title": "2  LMMs: Random Intercepts",
     "section": "",
-    "text": "2.1 Why Linear Mixed-Effects Models?\nIn the section recapping linear models, we used a linear model to describe the relationship between word frequency and log response time in a lexical decision task. In these data we had one observation per word.\nIn a real study, however, we would have multiple observations for each word from each participant. The traditional approach would be to aggregate: calculate the average log response time for each word before fitting the model. However, while this allows us to account for between-item variability, by aggregating over participants, we are losing valuable information about how the data were generated.\nFor some time, a common compromise was to fit the model twice, and then examine whether a hypothesis is supported across both items and participants (Raaijmakers et al. 1999). However, a more robust solution would be to model item and participant variability simultaneously. This is something that linear-mixed effects models allow us to do (Locker et al. 2007).",
+    "text": "2.1 Why Linear Mixed-Effects Models?\nIn the section recapping linear models, we used a linear model to describe the relationship between word frequency and log response time in a lexical decision task. In these data we had one observation per word.\nIn a real study, however, we would have multiple observations for each word from each participant. The traditional approach would be to aggregate: calculate the average log response time for each word before fitting the model. However, while this allows us to account for between-item variability, by aggregating over participants, we are losing valuable information about how the data were generated.\nWhere it was possible, a common compromise could be to fit the model twice, and then examine whether a hypothesis is supported across both items and participants (Raaijmakers et al. 1999). However, a more robust solution would be to model item and participant variability simultaneously. This is something that linear-mixed effects models allow us to do (Locker et al. 2007).",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
     ]
@@ -84,7 +84,7 @@
     "href": "02-random_intercepts.html#what-is-a-linear-mixed-effects-model",
     "title": "2  LMMs: Random Intercepts",
     "section": "2.2 What is a Linear Mixed-Effects Model?",
-    "text": "2.2 What is a Linear Mixed-Effects Model?\nA linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the recap on linear models. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.\nTo start with, we will just work with random intercepts:\n\\[logRT_{ip} = \\beta_0 + \\beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\\] Our formula is very similar to before, with the following key differences:\n\nWe index observations with two indices: \\(i\\) (item) and \\(p\\) (participant).\nWe include \\(I0_i\\): per-item random intercepts\nWe include \\(P0_p\\): per-participant random intercepts\n\nAs we saw with \\(e_i\\) in the linear model example, \\(I0_i\\), \\(P0_p\\), and \\(e_{ip}\\) are all drawn from normal distributions with their own standard deviations:\n\\[\\begin{aligned}\nI0_i &\\sim N(0, \\sigma_{I0}) \\\\\nP0_p &\\sim N(0, \\sigma_{P0}) \\\\\ne_{ip} &\\sim N(0, \\sigma_e)\n\\end{aligned}\\]\nTo get a sense for what this looks like, in this section we’ll use these formulae to simulate some data.",
+    "text": "2.2 What is a Linear Mixed-Effects Model?\nA linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the recap on linear models. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.\nTo start with, we will just work with random intercepts:\n\\[logRT_{ip} = \\beta_0 + \\beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\\] Our formula is very similar to before, with the following key differences:\n\nWe index observations with two indices: \\(i\\) (item) and \\(p\\) (participant).\nWe include \\(I0_i\\): per-item random intercepts\nWe include \\(P0_p\\): per-participant random intercepts\n\nAs we saw with \\(e_i\\) in the linear model example, \\(I0_i\\), \\(P0_p\\), and \\(e_{ip}\\) are all drawn from normal distributions with their own standard deviations:\n\\[\\begin{aligned}\nI0_i &\\sim N(0, \\sigma_{I0}) \\\\\nP0_p &\\sim N(0, \\sigma_{P0}) \\\\\ne_{ip} &\\sim N(0, \\sigma_e)\n\\end{aligned}\\]\nThe per-item and per-participant random intercepts describe variability among these populations. Items will vary in their average response time — while word frequency is maybe the best predictor of response times, a whole range of other factors will also affect a single word’s average response time. Similarly, participants will differ in their average response times, with some participants responding consistently faster, and some responding consistently slower. Our model says that these random effects combine with our fixed effects to generate our observations.\nTo get a sense for what this looks like, in this section we’ll use these formulae to simulate some data.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
     ]
@@ -94,17 +94,57 @@
     "href": "02-random_intercepts.html#packages",
     "title": "2  LMMs: Random Intercepts",
     "section": "2.3 Packages",
-    "text": "2.3 Packages\nWe’ll use the following packages in this section:\n\nlibrary(lme4)  # for fitting LMMs\nlibrary(dplyr)  # for data wrangling\nlibrary(readr)  # for importing data\nlibrary(ggplot2)  # for plotting",
+    "text": "2.3 Packages\nWe’ll use the following packages in this section:\n\nlibrary(lme4)  # for fitting LMMs\nlibrary(dplyr)  # for data wrangling\nlibrary(tidyr)  # for data wrangling\nlibrary(readr)  # for importing data\nlibrary(ggplot2)  # for plotting",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
     ]
   },
   {
-    "objectID": "02-random_intercepts.html#parameters",
-    "href": "02-random_intercepts.html#parameters",
+    "objectID": "02-random_intercepts.html#defining-parameters",
+    "href": "02-random_intercepts.html#defining-parameters",
     "title": "2  LMMs: Random Intercepts",
-    "section": "2.4 Parameters",
-    "text": "2.4 Parameters\nHere we define all the free parameters from the equations above:\n\n\\(\\beta_0\\): b_0\n\\(\\beta_1\\): b_1\n\\(\\sigma_{I0}\\): s_P0\n\\(\\sigma_{P0}\\): s_I0\n\\(\\sigma_e\\): s_e\n\nThe numbers here are based on the same real data as in the section on linear models.\n\n# Fixed-effect intercept and slope\n# (same as the parameters in the section on linear models)\nb_0 &lt;- 6.85\nb_1 &lt;- -0.1\n\n# SD of per-item random intercepts\ns_I0 &lt;- 0.08\n\n# SD of per-participant random intercepts\ns_P0 &lt;- 0.16\n\n# residual SD\ns_e &lt;- 0.33\n\n\n\n\n\nLocker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On the Use of Multilevel Modeling as an Alternative to Items Analysis in Psycholinguistic Research.” Behavior Research Methods 39 (4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans Gremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’: Common Misconceptions and Alternative Solutions.” Journal of Memory and Language 41 (3): 416–26. https://doi.org/10.1006/jmla.1999.2650.",
+    "section": "2.4 Defining Parameters",
+    "text": "2.4 Defining Parameters\nHere we define all the free parameters from the equations above:\n\n\\(\\beta_0\\) (Fixed-effect Intercept): b_0\n\\(\\beta_1\\) (Fixed-effect Slope): b_1\n\\(\\sigma_{I0}\\) (SD of per-item random intercepts): s_P0\n\\(\\sigma_{P0}\\) (SD of per-participant random intercepts): s_I0\n\\(\\sigma_e\\) (SD of the residual): s_e\n\nThe numbers here are based on the same real data as in the section on linear models.\n\n# Fixed-effect intercept and slope\n# (same as the parameters in the section on linear models)\nb_0 &lt;- 6.85\nb_1 &lt;- -0.1\n\n# SD of per-item random intercepts\ns_I0 &lt;- 0.08\n\n# SD of per-participant random intercepts\ns_P0 &lt;- 0.16\n\n# residual SD\ns_e &lt;- 0.33",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html#simulating-items-and-participants",
+    "href": "02-random_intercepts.html#simulating-items-and-participants",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "2.5 Simulating Items and Participants",
+    "text": "2.5 Simulating Items and Participants\nTo be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants.\nHere we build two dataframes, of 50 items and 30 participants.\n\n# simulate 50 items\nn_items &lt;- 50\n\nitems &lt;- tibble(\n  # item IDs\n  i_id = 1:n_items,\n  # item word frequencies\n  zipf = runif(n_items, 1.5, 7.5),\n  # item intercepts\n  I0_i = rnorm(n_items, 0, s_I0)\n)\n\n# simulate 30 participants\nn_participants &lt;- 30\n\nparticipants &lt;- tibble(\n  # participant IDs\n  p_id = 1:n_participants,\n  # participant intercepts\n  P0_p = rnorm(n_participants, 0, s_P0)\n)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html#visualising-random-intercepts",
+    "href": "02-random_intercepts.html#visualising-random-intercepts",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "2.6 Visualising Random Intercepts",
+    "text": "2.6 Visualising Random Intercepts\nAs you can see, the random intercepts allow us to describe multiple sources of variability at the same time. A common way of understanding random effects is to plot separate linear relationships for each unit in our population.\nFor example, just as we can plot a single simulated linear relationship, so too can we plot how this would look for items and participants in a given sample:\n# (a)\nggplot(items) +\n  geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id)) +\n  geom_abline(intercept=b_0, slope=b_1, colour=\"red\") +\n  xlim(1.5, 7.5) +\n  ylim(4.5, 7.5)\n# (b)\nggplot(participants) +\n  geom_abline(aes(intercept = b_0+P0_p, slope=b_1, group=p_id)) +\n  geom_abline(intercept=b_0, slope=b_1, colour=\"red\") +\n  xlim(1.5, 7.5) +\n  ylim(4.5, 7.5)\n\n\n\n\n\n\n(a) Per-Item Variability\n\n\n\n\n\n\n\n(b) Per-Participant Variability\n\n\n\n\n\nHere, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (s_I0 = 0.08) than between participants (s_P0 = 0.16).",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html#simulating-trials",
+    "href": "02-random_intercepts.html#simulating-trials",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "2.7 Simulating Trials",
+    "text": "2.7 Simulating Trials\nIn a trial, a single participant responds to a single item. We simulate trials by simulating the meeting between participants and items.\nAs DeBruine and Barr (2021) do, we here simulate this using the crossing() function from tidyr. This simulates a study in which all 30 participants respond to 50 items, producing a total 1500 trials. For each unique combination of item and participant, we also simulate the residuals, \\(e_{ip}\\).\n\n# generate trials\ntrials &lt;- crossing(items, participants) |&gt;\n  mutate(e_ip = rnorm(n(), 0, s_e))\n\n# print the first few rows\nprint(trials)\n\n# A tibble: 1,500 × 6\n    i_id  zipf   I0_i  p_id     P0_p    e_ip\n   &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt;\n 1     1  6.80 0.0698     1 -0.00396  0.518 \n 2     1  6.80 0.0698     2  0.192    0.0523\n 3     1  6.80 0.0698     3  0.0264   0.147 \n 4     1  6.80 0.0698     4  0.220    0.141 \n 5     1  6.80 0.0698     5 -0.177   -0.642 \n 6     1  6.80 0.0698     6 -0.0287   0.236 \n 7     1  6.80 0.0698     7  0.152   -0.124 \n 8     1  6.80 0.0698     8  0.00549  0.445 \n 9     1  6.80 0.0698     9  0.0114  -0.218 \n10     1  6.80 0.0698    10  0.115   -0.212 \n# ℹ 1,490 more rows\n\n\n\n\n\n\n\n\nNote\n\n\n\nAs well as simulating all possible combinations of items and participants, you could also simulate other combinations of participants and items. For example, you could simulate participants responding to N random trials, or you could create 10 separate stimulus lists, with 10% of your participants being assigned to each set of items. Similarly, you could use real data to inform your simulation, such as taking real items and real Zipf values from a frequency corpus.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "02-random_intercepts.html#simulating-responses",
+    "href": "02-random_intercepts.html#simulating-responses",
+    "title": "2  LMMs: Random Intercepts",
+    "section": "2.8 Simulating Responses",
+    "text": "2.8 Simulating Responses\nNow that we have simulated trials, we can use our formula to simulate each participant’s response to each item.\nAs a quick reminder, here is the formula again:\n\\[logRT_{ip} = \\beta_0 + \\beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\\]\nWe use this formula to add the simulated log response times to the trials dataframe:\n\ntrials &lt;- mutate(\n    trials,\n    log_rt = b_0 + b_1 * zipf + I0_i + P0_p + e_ip\n  )\n\nIf we plot these observations coloured by items or participants, you can see how item and participant variability is reflected in the structure of the data:\n# (a)\nggplot(trials, aes(zipf, log_rt, colour=factor(i_id))) +\n  geom_point() +\n  theme(legend.position=\"none\")\n# (b)\nggplot(trials, aes(zipf, log_rt, colour=factor(p_id))) +\n  geom_point() +\n  theme(legend.position=\"none\")\n\n\n\n\n\n\n(a) Trials coloured by Item\n\n\n\n\n\n\n\n(b) Trials coloured by Participant\n\n\n\n\n\n\n\n\n\nDeBruine, Lisa M., and Dale J. Barr. 2021. “Understanding Mixed-Effects Models Through Data Simulation.” Advances in Methods and Practices in Psychological Science 4 (1): 2515245920965119. https://doi.org/10.1177/2515245920965119.\n\n\nLocker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On the Use of Multilevel Modeling as an Alternative to Items Analysis in Psycholinguistic Research.” Behavior Research Methods 39 (4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans Gremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’: Common Misconceptions and Alternative Solutions.” Journal of Memory and Language 41 (3): 416–26. https://doi.org/10.1006/jmla.1999.2650.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
     ]
@@ -114,7 +154,7 @@
     "href": "references.html",
     "title": "References",
     "section": "",
-    "text": "Locker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On\nthe Use of Multilevel Modeling as an Alternative to Items Analysis in\nPsycholinguistic Research.” Behavior Research Methods 39\n(4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans\nGremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’:\nCommon Misconceptions and Alternative\nSolutions.” Journal of Memory and Language 41\n(3): 416–26. https://doi.org/10.1006/jmla.1999.2650.\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel\nKeuleers, and Marc Brysbaert. 2014.\n“SUBTLEX-UK: A New and Improved Word\nFrequency Database for British English.”\nQuarterly Journal of Experimental Psychology 67 (6): 1176–90.\nhttps://doi.org/10.1080/17470218.2013.850521.",
+    "text": "DeBruine, Lisa M., and Dale J. Barr. 2021. “Understanding\nMixed-Effects Models Through Data Simulation.”\nAdvances in Methods and Practices in Psychological Science 4\n(1): 2515245920965119. https://doi.org/10.1177/2515245920965119.\n\n\nLocker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On\nthe Use of Multilevel Modeling as an Alternative to Items Analysis in\nPsycholinguistic Research.” Behavior Research Methods 39\n(4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans\nGremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’:\nCommon Misconceptions and Alternative\nSolutions.” Journal of Memory and Language 41\n(3): 416–26. https://doi.org/10.1006/jmla.1999.2650.\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel\nKeuleers, and Marc Brysbaert. 2014.\n“SUBTLEX-UK: A New and Improved Word\nFrequency Database for British English.”\nQuarterly Journal of Experimental Psychology 67 (6): 1176–90.\nhttps://doi.org/10.1080/17470218.2013.850521.",
     "crumbs": [
       "References"
     ]

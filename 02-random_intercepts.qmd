@@ -15,7 +15,7 @@ In the section recapping [linear models](01-linear_models), we used a linear mod
 
 In a real study, however, we would have multiple observations for each word from each participant. The traditional approach would be to *aggregate*: calculate the average log response time for each word before fitting the model. However, while this allows us to account for between-item variability, by aggregating over participants, we are losing valuable information about how the data were generated.
 
-For some time, a common compromise was to fit the model twice, and then examine whether a hypothesis is supported across both items and participants [@raaijmakersHowDealLanguageasFixedEffect1999]. However, a more robust solution would be to model item and participant variability simultaneously. This is something that linear-mixed effects models allow us to do [@lockerUseMultilevelModeling2007].
+Where it was possible, a common compromise could be to fit the model twice, and then examine whether a hypothesis is supported across both items and participants [@raaijmakersHowDealLanguageasFixedEffect1999]. However, a more robust solution would be to model item and participant variability simultaneously. This is something that linear-mixed effects models allow us to do [@lockerUseMultilevelModeling2007].
 
 ## What is a Linear Mixed-Effects Model?
 
@@ -38,6 +38,8 @@ P0_p &\sim N(0, \sigma_{P0}) \\
 e_{ip} &\sim N(0, \sigma_e)
 \end{aligned}$$
 
+The per-item and per-participant random intercepts describe variability among these populations. Items will vary in their average response time --- while word frequency is maybe the best predictor of response times, a whole range of other factors will also affect a single word's average response time. Similarly, participants will differ in their average response times, with some participants responding consistently faster, and some responding consistently slower. Our model says that these random effects combine with our fixed effects to generate our observations.
+
 To get a sense for what this looks like, in this section we'll use these formulae to simulate some data.
 
 ## Packages
@@ -50,19 +52,20 @@ We'll use the following packages in this section:
 #| warning: false
 library(lme4)  # for fitting LMMs
 library(dplyr)  # for data wrangling
+library(tidyr)  # for data wrangling
 library(readr)  # for importing data
 library(ggplot2)  # for plotting
 ```
 
-## Parameters
+## Defining Parameters
 
 Here we define all the free parameters from the equations above:
 
-* $\beta_0$: `b_0`
-* $\beta_1$: `b_1`
-* $\sigma_{I0}$: `s_P0`
-* $\sigma_{P0}$: `s_I0`
-* $\sigma_e$: `s_e`
+* $\beta_0$ (Fixed-effect Intercept): `b_0`
+* $\beta_1$ (Fixed-effect Slope): `b_1`
+* $\sigma_{I0}$ (SD of per-item random intercepts): `s_P0`
+* $\sigma_{P0}$ (SD of per-participant random intercepts): `s_I0`
+* $\sigma_e$ (SD of the residual): `s_e`
 
 The numbers here are based on the same real data as in the [section on linear models](01-linear_models).
 
@@ -83,4 +86,114 @@ s_P0 <- 0.16
 s_e <- 0.33
 ```
 
+## Simulating Items and Participants
 
+To be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants.
+
+Here we build two dataframes, of 50 items and 30 participants.
+
+```{r}
+# simulate 50 items
+n_items <- 50
+
+items <- tibble(
+  # item IDs
+  i_id = 1:n_items,
+  # item word frequencies
+  zipf = runif(n_items, 1.5, 7.5),
+  # item intercepts
+  I0_i = rnorm(n_items, 0, s_I0)
+)
+
+# simulate 30 participants
+n_participants <- 30
+
+participants <- tibble(
+  # participant IDs
+  p_id = 1:n_participants,
+  # participant intercepts
+  P0_p = rnorm(n_participants, 0, s_P0)
+)
+```
+
+## Visualising Random Intercepts
+
+As you can see, the random intercepts allow us to describe multiple sources of variability at the same time. A common way of understanding random effects is to plot separate linear relationships for each unit in our population.
+
+For example, just as we can [plot a single simulated linear relationship](01-linear_models.html#intercept-slope), so too can we plot how this would look for items and participants in a given sample:
+
+```{r}
+#| layout-ncol: 2
+#| fig-height: 4
+#| fig-cap: 
+#|   - "(a) Per-Item Variability"
+#|   - "(b) Per-Participant Variability"
+# (a)
+ggplot(items) +
+  geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id)) +
+  geom_abline(intercept=b_0, slope=b_1, colour="red") +
+  xlim(1.5, 7.5) +
+  ylim(4.5, 7.5)
+# (b)
+ggplot(participants) +
+  geom_abline(aes(intercept = b_0+P0_p, slope=b_1, group=p_id)) +
+  geom_abline(intercept=b_0, slope=b_1, colour="red") +
+  xlim(1.5, 7.5) +
+  ylim(4.5, 7.5)
+```
+
+Here, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants. You can clearly see that there is less variability between items (`s_I0 =` `{r} s_I0`) than between participants (`s_P0 =` `{r} s_P0`).
+
+## Simulating Trials
+
+In a trial, a single participant responds to a single item. We simulate trials by simulating the meeting between participants and items.
+
+As @debruineUnderstandingMixedEffectsModels2021 do, we here simulate this using the `crossing()` function from `tidyr`. This simulates a study in which all `{r} n_participants` participants respond to `{r} n_items` items, producing a total `{r} n_items * n_participants` trials. For each unique combination of item and participant, we also simulate the residuals, $e_{ip}$.
+
+```{r}
+# generate trials
+trials <- crossing(items, participants) |>
+  mutate(e_ip = rnorm(n(), 0, s_e))
+
+# print the first few rows
+print(trials)
+```
+
+::: callout-note
+As well as simulating all possible combinations of items and participants, you could also simulate other combinations of participants and items. For example, you could simulate participants responding to N random trials, or you could create 10 separate stimulus lists, with 10% of your participants being assigned to each set of items. Similarly, you could use real data to inform your simulation, such as taking real items and real Zipf values from a frequency corpus.
+:::
+
+## Simulating Responses
+
+Now that we have simulated trials, we can use our formula to simulate each participant's response to each item.
+
+As a quick reminder, here is the formula again:
+
+$$logRT_{ip} = \beta_0 + \beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}$$
+
+We use this formula to add the simulated log response times to the `trials` dataframe:
+
+```{r}
+trials <- mutate(
+    trials,
+    log_rt = b_0 + b_1 * zipf + I0_i + P0_p + e_ip
+  )
+```
+
+If we plot these observations coloured by items or participants, you can see how item and participant variability is reflected in the structure of the data:
+
+```{r}
+#| layout-ncol: 2
+#| fig-height: 4
+#| fig-cap: 
+#|   - "(a) Trials coloured by Item"
+#|   - "(b) Trials coloured by Participant"
+# (a)
+ggplot(trials, aes(zipf, log_rt, colour=factor(i_id))) +
+  geom_point() +
+  theme(legend.position="none")
+# (b)
+ggplot(trials, aes(zipf, log_rt, colour=factor(p_id))) +
+  geom_point() +
+  theme(legend.position="none")
+```
