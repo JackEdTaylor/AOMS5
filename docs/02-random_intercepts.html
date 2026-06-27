@@ -87,7 +87,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./03-random_slopes.html" rel="next">
 <link href="./01-linear_models.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -382,6 +382,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./03-random_slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">LMMs: Random Slopes</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -444,7 +450,7 @@ window.Quarto = {
 <h2 data-number="2.2" class="anchored" data-anchor-id="what-is-a-linear-mixed-effects-model"><span class="header-section-number">2.2</span> What is a Linear Mixed-Effects Model?</h2>
 <p>A linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the <a href="01-linear_models">recap on linear models</a>. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.</p>
 <p>To start with, we will just work with random intercepts:</p>
-<p><span class="math display">\[logRT_{ip} = \beta_0 + \beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\]</span> Our formula is very similar to before, with the following key differences:</p>
+<p><span class="math display">\[logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}\]</span> Our formula is very similar to before, with the following key differences:</p>
 <ul>
 <li>We index observations with two indices: <span class="math inline">\(i\)</span> (item) and <span class="math inline">\(p\)</span> (participant).</li>
 <li>We include <span class="math inline">\(I0_i\)</span>: per-item random intercepts</li>
@@ -637,12 +643,12 @@ Note
 <h2 data-number="2.8" class="anchored" data-anchor-id="simulating-responses"><span class="header-section-number">2.8</span> Simulating Responses</h2>
 <p>Now that we have simulated trials, we can use our formula to simulate each participant’s response to each item.</p>
 <p>As a quick reminder, here is the formula again:</p>
-<p><span class="math display">\[logRT_{ip} = \beta_0 + \beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\]</span></p>
+<p><span class="math display">\[logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}\]</span></p>
 <p>We use this formula to add the simulated log response times to the <code>trials</code> dataframe:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    trials,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_rt =</span> b_0 <span class="sc">+</span> b_1 <span class="sc">*</span> zipf <span class="sc">+</span> I0_i <span class="sc">+</span> P0_p <span class="sc">+</span> e_ip</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_rt =</span> b_0 <span class="sc">+</span> I0_i <span class="sc">+</span> P0_p <span class="sc">+</span> b_1 <span class="sc">*</span> zipf <span class="sc">+</span> e_ip</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>If we plot these observations coloured by items or participants, you can see how item and participant variability is reflected in the structure of the data:</p>
@@ -1264,8 +1270,8 @@ Raaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans Gremmen. 1999.
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link" aria-label="References">
-        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./03-random_slopes.html" class="pagination-link" aria-label="LMMs: Random Slopes">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">LMMs: Random Slopes</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -24,7 +24,7 @@
     "href": "01-linear_models.html#building-up-the-linear-model",
     "title": "1  Recap on Linear Models",
     "section": "1.2 Building up the Linear Model",
-    "text": "1.2 Building up the Linear Model\nA common behavioural task in language and word recognition research is the Lexical Decision Task. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.\nThe best predictor of response time to real words is word frequency: response times are faster to words that occur more often.\nHere is a plot of some made-up data (based on real estimates) showing a relationship between Zipf word frequency [a log-transformed count variable; van Heuven et al. (2014)] and response time (ms). Each point is depicts one word.\n\n\n\n\n\n\n\n\n\nIf you want to follow along, you can load the data into your R session with:\n\ndat &lt;- read_csv(\"https://jackedtaylor.github.io/AOMS5/sims_lm.csv\")\n\nHow could we describe these data?",
+    "text": "1.2 Building up the Linear Model\nA common behavioural task in language and word recognition research is the Lexical Decision Task. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.\nThe best predictor of response time to real words is word frequency: response times are faster to words that occur more often.\nHere is a plot of some made-up data (based on real estimates) showing a relationship between Zipf word frequency (a log-transformed count variable; van Heuven et al. 2014) and response time (ms). Each point is depicts one word.\n\n\n\n\n\n\n\n\n\nIf you want to follow along, you can load the data into your R session with:\n\ndat &lt;- read_csv(\"https://jackedtaylor.github.io/AOMS5/sims_lm.csv\")\n\nHow could we describe these data?",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Recap on Linear Models</span>"
     ]
@@ -84,7 +84,7 @@
     "href": "02-random_intercepts.html#what-is-a-linear-mixed-effects-model",
     "title": "2  LMMs: Random Intercepts",
     "section": "2.2 What is a Linear Mixed-Effects Model?",
-    "text": "2.2 What is a Linear Mixed-Effects Model?\nA linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the recap on linear models. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.\nTo start with, we will just work with random intercepts:\n\\[logRT_{ip} = \\beta_0 + \\beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\\] Our formula is very similar to before, with the following key differences:\n\nWe index observations with two indices: \\(i\\) (item) and \\(p\\) (participant).\nWe include \\(I0_i\\): per-item random intercepts\nWe include \\(P0_p\\): per-participant random intercepts\n\nAs we saw with \\(e_i\\) in the linear model example, \\(I0_i\\), \\(P0_p\\), and \\(e_{ip}\\) are all drawn from normal distributions with their own standard deviations:\n\\[\\begin{aligned}\nI0_i &\\sim N(0, \\sigma_{I0}) \\\\\nP0_p &\\sim N(0, \\sigma_{P0}) \\\\\ne_{ip} &\\sim N(0, \\sigma_e)\n\\end{aligned}\\]\nThe per-item and per-participant random intercepts describe variability among these populations. Items will vary in their average response time — while word frequency is maybe the best predictor of response times, a whole range of other factors will also affect a single word’s average response time. Similarly, participants will differ in their average response times, with some participants responding consistently faster, and some responding consistently slower. Our model says that these random effects combine with our fixed effects to generate our observations.\nTo get a sense for what this looks like, in this section we’ll use these formulae to simulate some data.",
+    "text": "2.2 What is a Linear Mixed-Effects Model?\nA linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the recap on linear models. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.\nTo start with, we will just work with random intercepts:\n\\[logRT_{ip} = \\beta_0 + I0_i + P0_p + \\beta_1 Zipf_{ip} + e_{ip}\\] Our formula is very similar to before, with the following key differences:\n\nWe index observations with two indices: \\(i\\) (item) and \\(p\\) (participant).\nWe include \\(I0_i\\): per-item random intercepts\nWe include \\(P0_p\\): per-participant random intercepts\n\nAs we saw with \\(e_i\\) in the linear model example, \\(I0_i\\), \\(P0_p\\), and \\(e_{ip}\\) are all drawn from normal distributions with their own standard deviations:\n\\[\\begin{aligned}\nI0_i &\\sim N(0, \\sigma_{I0}) \\\\\nP0_p &\\sim N(0, \\sigma_{P0}) \\\\\ne_{ip} &\\sim N(0, \\sigma_e)\n\\end{aligned}\\]\nThe per-item and per-participant random intercepts describe variability among these populations. Items will vary in their average response time — while word frequency is maybe the best predictor of response times, a whole range of other factors will also affect a single word’s average response time. Similarly, participants will differ in their average response times, with some participants responding consistently faster, and some responding consistently slower. Our model says that these random effects combine with our fixed effects to generate our observations.\nTo get a sense for what this looks like, in this section we’ll use these formulae to simulate some data.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
     ]
@@ -144,7 +144,7 @@
     "href": "02-random_intercepts.html#simulating-responses",
     "title": "2  LMMs: Random Intercepts",
     "section": "2.8 Simulating Responses",
-    "text": "2.8 Simulating Responses\nNow that we have simulated trials, we can use our formula to simulate each participant’s response to each item.\nAs a quick reminder, here is the formula again:\n\\[logRT_{ip} = \\beta_0 + \\beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}\\]\nWe use this formula to add the simulated log response times to the trials dataframe:\n\ntrials &lt;- mutate(\n    trials,\n    log_rt = b_0 + b_1 * zipf + I0_i + P0_p + e_ip\n  )\n\nIf we plot these observations coloured by items or participants, you can see how item and participant variability is reflected in the structure of the data:\n# (a)\nggplot(trials, aes(zipf, log_rt, colour=factor(i_id))) +\n  geom_point() +\n  theme(legend.position=\"none\")\n# (b)\nggplot(trials, aes(zipf, log_rt, colour=factor(p_id))) +\n  geom_point() +\n  theme(legend.position=\"none\")\n\n\n\n\n\n\n(a) Trials coloured by Item\n\n\n\n\n\n\n\n(b) Trials coloured by Participant",
+    "text": "2.8 Simulating Responses\nNow that we have simulated trials, we can use our formula to simulate each participant’s response to each item.\nAs a quick reminder, here is the formula again:\n\\[logRT_{ip} = \\beta_0 + I0_i + P0_p + \\beta_1 Zipf_{ip} + e_{ip}\\]\nWe use this formula to add the simulated log response times to the trials dataframe:\n\ntrials &lt;- mutate(\n    trials,\n    log_rt = b_0 + I0_i + P0_p + b_1 * zipf + e_ip\n  )\n\nIf we plot these observations coloured by items or participants, you can see how item and participant variability is reflected in the structure of the data:\n# (a)\nggplot(trials, aes(zipf, log_rt, colour=factor(i_id))) +\n  geom_point() +\n  theme(legend.position=\"none\")\n# (b)\nggplot(trials, aes(zipf, log_rt, colour=factor(p_id))) +\n  geom_point() +\n  theme(legend.position=\"none\")\n\n\n\n\n\n\n(a) Trials coloured by Item\n\n\n\n\n\n\n\n(b) Trials coloured by Participant",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
     ]
@@ -187,6 +187,86 @@
     "text": "2.12 Cheating, with predict()\nInstead of calculating the predictions manually, there is also a handy predict.merMod() method which we can use on lmer() models. The advantage of this is that you don’t have to think about the mixed-effects model formula — you can just get this information from the lme4 model.\nHere, we create a dataframe called participant_preds that contains all participant IDs. These are repeated for values of Zipf from 1.5 to 7.5.\n\nparticipant_preds &lt;- expand_grid(\n  p_id = unique(participants$p_id),\n  zipf = seq(1.5, 7.5, length.out=1000)\n)\n\nWe can then pass this dataframe to the predict() function, to predict the relationship between Zipf and log response time for each participant in our sample.\nImportantly, we also have to change the re.form argument from the default. By default, the function will try to use the full random-effect formula. However, we only want to get average predictions for participants, rather than predictions of participant responses to specific items.\n\nparticipant_preds$pred_log_rt &lt;- predict(\n  # pass the model\n  m,\n  # pass the data we want to get predictions for\n  newdata = participant_preds,\n  # only include the participant random intercepts\n  # in the random effect formula\n  re.form = ~(1 | p_id)\n)\n\nFinally, we can plot the predicted relationship between zipf and log_rt for each of our participants:\n\nggplot(participant_preds, aes(zipf, pred_log_rt, group=p_id)) +\n  geom_line() +\n  geom_abline(intercept=fes[[\"(Intercept)\"]],\n              slope=fes[[\"zipf\"]],\n              colour=\"red\") +\n  lims(x=c(1.5, 7.5), y=c(5, 7.5))\n\n\n\n\n\n\n\n\n\n\n\n\nDeBruine, Lisa M., and Dale J. Barr. 2021. “Understanding Mixed-Effects Models Through Data Simulation.” Advances in Methods and Practices in Psychological Science 4 (1): 2515245920965119. https://doi.org/10.1177/2515245920965119.\n\n\nLocker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On the Use of Multilevel Modeling as an Alternative to Items Analysis in Psycholinguistic Research.” Behavior Research Methods 39 (4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans Gremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’: Common Misconceptions and Alternative Solutions.” Journal of Memory and Language 41 (3): 416–26. https://doi.org/10.1006/jmla.1999.2650.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>LMMs: Random Intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html",
+    "href": "03-random_slopes.html",
+    "title": "3  LMMs: Random Slopes",
+    "section": "",
+    "text": "3.1 What are Random Slopes?\nIn the last section, we saw how we can use linear mixed-effects models to account for item and participant variability simultaneously. We simulated and modelled random intercepts, which aim to describe the degree to which individual items and participants differ from the average of their population. For example, participants may be faster or slower relative to the population of possible participants.\nHowever, as well as different averages overall, participants may also differ in the size of the effect of word frequency. Some participants may show a larger effect than others. We can model these differences with random slopes. Like random intercepts, random slopes describe a deviation from the fixed-effect average. It is added to the fixed-effect slope before we multiply it by the predictor:\n\\[logRT_{ip} = \\beta_0 + I0_i + P0_p + (\\beta_1 + P1_p) Zipf_{ip} + e_{ip}\\]\nFor now (ominous foreshadowing), we will simulate the random effects independently. This means that we just draw \\(P0_1\\) from a new independent normal distribution:\n\\[\\begin{aligned}\nI0_i &\\sim N(0, \\sigma_{I0}) \\\\\nP0_p &\\sim N(0, \\sigma_{P0}) \\\\\nP1_p &\\sim N(0, \\sigma_{P1}) \\\\\ne_{ip} &\\sim N(0, \\sigma_e)\n\\end{aligned}\\]",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html#what-are-random-slopes",
+    "href": "03-random_slopes.html#what-are-random-slopes",
+    "title": "3  LMMs: Random Slopes",
+    "section": "",
+    "text": "Note\n\n\n\nThe random-effect structure for the items is unchanged from before. It doesn’t make sense to simulate or estimate a random slope for the effect of zipf for each item, because each item can only have one zipf value.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html#packages",
+    "href": "03-random_slopes.html#packages",
+    "title": "3  LMMs: Random Slopes",
+    "section": "3.2 Packages",
+    "text": "3.2 Packages\nWe’ll use the following packages in this section:\n\nlibrary(lme4)  # for fitting LMMs\nlibrary(dplyr)  # for data wrangling\nlibrary(tidyr)  # for data wrangling\nlibrary(readr)  # for importing data\nlibrary(ggplot2)  # for plotting",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html#defining-parameters",
+    "href": "03-random_slopes.html#defining-parameters",
+    "title": "3  LMMs: Random Slopes",
+    "section": "3.3 Defining Parameters",
+    "text": "3.3 Defining Parameters\nThe parameters are as before, except now we also simulate \\(\\sigma_{P1}\\) (s_P1).\n\n# Fixed-effect intercept and slope\n# (same as the parameters in the section on linear models)\nb_0 &lt;- 6.85\nb_1 &lt;- -0.1\n\n# SD of per-item random intercepts\ns_I0 &lt;- 0.08\n\n# SD of per-participant random intercepts\ns_P0 &lt;- 0.16\ns_P1 &lt;- 0.04\n\n# residual SD\ns_e &lt;- 0.33",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html#simulating-items-and-participants",
+    "href": "03-random_slopes.html#simulating-items-and-participants",
+    "title": "3  LMMs: Random Slopes",
+    "section": "3.4 Simulating Items and Participants",
+    "text": "3.4 Simulating Items and Participants\nWe also simulate items and participants as before, except we now also simulate random slopes for participants, P1_p.\n\n# simulate 50 items\nn_items &lt;- 50\n\nitems &lt;- tibble(\n  # item IDs\n  i_id = 1:n_items,\n  # item word frequencies\n  zipf = runif(n_items, 1.5, 7.5),\n  # item intercepts\n  I0_i = rnorm(n_items, 0, s_I0)\n)\n\n# simulate 30 participants\nn_participants &lt;- 30\n\nparticipants &lt;- tibble(\n  # participant IDs\n  p_id = 1:n_participants,\n  # participant intercepts\n  P0_p = rnorm(n_participants, 0, s_P0),\n  # participant slopes\n  P1_p = rnorm(n_participants, 0, s_P1)\n)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html#visualising-random-effects",
+    "href": "03-random_slopes.html#visualising-random-effects",
+    "title": "3  LMMs: Random Slopes",
+    "section": "3.5 Visualising Random Effects",
+    "text": "3.5 Visualising Random Effects\nAs before, we can visualise the variability between items and participants in our simulated sample. This time, you can see that whereas the effect of Zipf is constant for all items, our random slope means that there is now variability in the effect of Zipf for different participants.\n# (a)\nggplot(items) +\n  geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id)) +\n  geom_abline(intercept=b_0, slope=b_1, colour=\"red\") +\n  lims(x=c(1.5, 7.5), y=c(5, 7.5))\n# (b)\nggplot(participants) +\n  geom_abline(aes(intercept = b_0+P0_p, slope=b_1+P1_p, group=p_id)) +\n  geom_abline(intercept=b_0, slope=b_1, colour=\"red\") +\n  lims(x=c(1.5, 7.5), y=c(5, 7.5))\n\n\n\n\n\n\n(a) Per-Item Variability\n\n\n\n\n\n\n\n(b) Per-Participant Variability\n\n\n\n\n\nAs before, the red line shows the fixed effect, while the black lines show variability between (a) items and (b) participants.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html#simulating-trials-responses",
+    "href": "03-random_slopes.html#simulating-trials-responses",
+    "title": "3  LMMs: Random Slopes",
+    "section": "3.6 Simulating Trials & Responses",
+    "text": "3.6 Simulating Trials & Responses\nThis section is also very similar to what we have already seen, except we now also include the random slopes for participants.\n\n# generate trials\ntrials &lt;- crossing(items, participants) |&gt;\n  mutate(\n    e_ip = rnorm(n(), 0, s_e),\n    log_rt = b_0 + I0_i + P0_p + (b_1 + P1_p) * zipf + e_ip\n  )\n\n# print the first few rows\nprint(trials)\n\n# A tibble: 1,500 × 8\n    i_id  zipf    I0_i  p_id    P0_p     P1_p     e_ip log_rt\n   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n 1     1  2.14 -0.0319     1 -0.0845 -0.0483   0.243     6.66\n 2     1  2.14 -0.0319     2 -0.0191  0.0506  -0.00215   6.69\n 3     1  2.14 -0.0319     3 -0.119   0.0193  -0.174     6.35\n 4     1  2.14 -0.0319     4 -0.457   0.00928 -0.0368    6.13\n 5     1  2.14 -0.0319     5 -0.129   0.0535  -0.0455    6.54\n 6     1  2.14 -0.0319     6  0.232  -0.0304  -0.0161    6.75\n 7     1  2.14 -0.0319     7 -0.108  -0.00698  0.200     6.68\n 8     1  2.14 -0.0319     8 -0.0559 -0.0449   0.0264    6.48\n 9     1  2.14 -0.0319     9  0.155  -0.0339   0.360     7.05\n10     1  2.14 -0.0319    10 -0.0665 -0.0429   0.181     6.63\n# ℹ 1,490 more rows",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
+    ]
+  },
+  {
+    "objectID": "03-random_slopes.html#parameter-retrieval",
+    "href": "03-random_slopes.html#parameter-retrieval",
+    "title": "3  LMMs: Random Slopes",
+    "section": "3.7 Parameter Retrieval",
+    "text": "3.7 Parameter Retrieval\nTo fit a model that can estimate the values we originally simulated, we just have to include the random slope in the random-effect structure.\n\nm &lt;- lmer(\n  log_rt ~ 1 + zipf +\n    (1 | i_id) +\n    (1 + zipf || p_id),\n  data = trials\n)\n\nsummary(m)\n\nLinear mixed model fit by REML ['lmerMod']\nFormula: log_rt ~ 1 + zipf + (1 | i_id) + ((1 | p_id) + (0 + zipf | p_id))\n   Data: trials\n\nREML criterion at convergence: 1120.9\n\nScaled residuals: \n    Min      1Q  Median      3Q     Max \n-3.0264 -0.6575  0.0222  0.6702  4.1439 \n\nRandom effects:\n Groups   Name        Variance Std.Dev.\n i_id     (Intercept) 0.007438 0.08624 \n p_id     (Intercept) 0.036427 0.19086 \n p_id.1   zipf        0.002824 0.05314 \n Residual             0.107719 0.32821 \nNumber of obs: 1500, groups:  i_id, 50; p_id, 30\n\nFixed effects:\n            Estimate Std. Error t value\n(Intercept)  6.79393    0.05434 125.037\nzipf        -0.09847    0.01290  -7.631\n\nCorrelation of Fixed Effects:\n     (Intr)\nzipf -0.473\n\n\n\n\n\n\n\n\nNote\n\n\n\nWe write (1 + zipf || p_id) rather than (1 + zipf | p_id) to tell lme4 to not estimate the random correlations, because we simulated data with independent participant random effects. In the next section on random correlations, we will simulate and estimate participant random effects from multivariate normal distributions.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>LMMs: Random Slopes</span>"
     ]
   },
   {

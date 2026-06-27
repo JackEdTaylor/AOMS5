@@ -10,6 +10,7 @@ book:
     - index.qmd
     - 01-linear_models.qmd
     - 02-random_intercepts.qmd
+    - 03-random_slopes.qmd
     - references.qmd
 
 bibliography: references.bib

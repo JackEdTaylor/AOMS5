@@ -28,7 +28,7 @@ A common behavioural task in language and word recognition research is the *Lexi
 
 The best predictor of response time to real words is word frequency: response times are faster to words that occur more often.
 
-Here is a plot of some made-up data (based on real estimates) showing a relationship between *Zipf word frequency* [a log-transformed count variable; @vanheuvenSUBTLEXUKNewImproved2014] and *response time* (ms). Each point is depicts one word.
+Here is a plot of some made-up data (based on real estimates) showing a relationship between *Zipf word frequency* [a log-transformed count variable\; @vanheuvenSUBTLEXUKNewImproved2014] and *response time* (ms). Each point is depicts one word.
 
 ```{r}
 #| label: sim_dat

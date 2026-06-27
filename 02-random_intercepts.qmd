@@ -23,7 +23,7 @@ A linear mixed-effects model is largely a generalisation of the ideas behind a l
 
 To start with, we will just work with random intercepts:
 
-$$logRT_{ip} = \beta_0 + \beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}$$
+$$logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}$$
 Our formula is very similar to before, with the following key differences:
 
 * We index observations with two indices: $i$ (item) and $p$ (participant).
@@ -186,14 +186,14 @@ Now that we have simulated trials, we can use our formula to simulate each parti
 
 As a quick reminder, here is the formula again:
 
-$$logRT_{ip} = \beta_0 + \beta_1 Zipf_{ip} + I0_i + P0_p + e_{ip}$$
+$$logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}$$
 
 We use this formula to add the simulated log response times to the `trials` dataframe:
 
 ```{r}
 trials <- mutate(
     trials,
-    log_rt = b_0 + b_1 * zipf + I0_i + P0_p + e_ip
+    log_rt = b_0 + I0_i + P0_p + b_1 * zipf + e_ip
   )
 ```
 
