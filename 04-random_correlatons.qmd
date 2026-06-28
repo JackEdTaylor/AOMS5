@@ -236,12 +236,12 @@ ggplot(participants) +
   lims(x=c(1.5, 7.5), y=c(5, 7.5)) +
   labs(x="Zipf", y="Log RT")
 # (c)
-ggplot(participants, aes(P_0p, P_1p)) +
+ggplot(participants, aes(b_0 + P_0p, b_1 + P_1p)) +
   geom_point() +
   geom_smooth(method="lm")
 ```
 
-As before, the <span style="color:red;">**red line**</span> shows the fixed effect, while the **black lines** show variability between (a) items and (b) participants. The <span style="color:blue;">**blue line**</span> in the last panel shows the relationship between $P_{0p}$ and $P_{1p}$.
+As before, the <span style="color:red;">**red line**</span> shows the fixed effect, while the **black lines** show variability between (a) items and (b) participants. The <span style="color:blue;">**blue line**</span> in the last panel shows the relationship between per-participant intercepts ($\beta_0 + P_{0p}$) and slopes ($\beta_0 + P_{1p}$).
 
 ## Simulating Trials and Responses
 
