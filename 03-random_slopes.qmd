@@ -1,4 +1,4 @@
-# LMMs: Random Slopes
+# Random Slopes
 
 ```{r}
 #| label: setup

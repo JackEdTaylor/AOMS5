@@ -1,4 +1,4 @@
-# LMMs: Random Correlations
+# Random Correlations
 
 ```{r}
 #| label: setup

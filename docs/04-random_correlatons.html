@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>4&nbsp; LMMs: Random Correlations – AOMS5</title>
+<title>4&nbsp; Random Correlations – AOMS5</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -334,7 +334,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04-random_correlatons.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">LMMs: Random Correlations</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04-random_correlatons.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Random Correlations</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -377,19 +377,19 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./02-random_intercepts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">LMMs: Random Intercepts</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./03-random_slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">LMMs: Random Slopes</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./04-random_correlatons.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">LMMs: Random Correlations</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Random Correlations</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -425,7 +425,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">LMMs: Random Correlations</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Random Correlations</span></h1>
 </div>
 
 
@@ -684,7 +684,7 @@ Note
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">7.5</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="fl">7.5</span>)) <span class="sc">+</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Zipf"</span>, <span class="at">y=</span><span class="st">"Log RT"</span>)</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># (c)</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(participants, <span class="fu">aes</span>(P_0p, P_1p)) <span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(participants, <span class="fu">aes</span>(b_0 <span class="sc">+</span> P_0p, b_1 <span class="sc">+</span> P_1p)) <span class="sc">+</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -718,7 +718,7 @@ Note
 </div>
 </div>
 </div>
-<p>As before, the <span style="color:red;"><strong>red line</strong></span> shows the fixed effect, while the <strong>black lines</strong> show variability between (a) items and (b) participants. The <span style="color:blue;"><strong>blue line</strong></span> in the last panel shows the relationship between <span class="math inline">\(P_{0p}\)</span> and <span class="math inline">\(P_{1p}\)</span>.</p>
+<p>As before, the <span style="color:red;"><strong>red line</strong></span> shows the fixed effect, while the <strong>black lines</strong> show variability between (a) items and (b) participants. The <span style="color:blue;"><strong>blue line</strong></span> in the last panel shows the relationship between per-participant intercepts (<span class="math inline">\(\beta_0 + P_{0p}\)</span>) and slopes (<span class="math inline">\(\beta_0 + P_{1p}\)</span>).</p>
 </section>
 <section id="simulating-trials-and-responses" class="level2" data-number="4.7">
 <h2 data-number="4.7" class="anchored" data-anchor-id="simulating-trials-and-responses"><span class="header-section-number">4.7</span> Simulating Trials and Responses</h2>
@@ -1226,8 +1226,8 @@ DeBruine, Lisa. 2020. <em>Faux: <span>Simulation</span> for Factorial Designs</e
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./03-random_slopes.html" class="pagination-link" aria-label="LMMs: Random Slopes">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">LMMs: Random Slopes</span></span>
+      <a href="./03-random_slopes.html" class="pagination-link" aria-label="Random Slopes">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Random Slopes</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

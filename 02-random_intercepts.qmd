@@ -1,4 +1,4 @@
-# LMMs: Random Intercepts
+# Random Intercepts
 
 ```{r}
 #| label: setup
