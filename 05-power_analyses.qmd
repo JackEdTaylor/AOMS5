@@ -1,0 +1,155 @@
+# Power Analyses
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| include: false
+source("ggplot2_setup.R", local=TRUE)
+set.seed(1237865070)  # from sample(.Machine$integer.max, 1)
+```
+
+## Summary so far
+
+Over the last few sections, we've built up code for simulating data from the following model:
+
+$$\begin{aligned}
+logRT_{ip} &= \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip} \\
+I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\
+\begin{pmatrix}
+    P_{0p} \\ P_{1p}
+    \end{pmatrix}
+    &\sim \mathcal{N}\!\left(\mathbf{0},\, \Sigma_P\right) \\
+\Sigma_P &= 
+    \begin{pmatrix}
+    \sigma^2_{P0} & \rho_P \sigma_{P0} \sigma_{P1} \\
+    \rho_P \sigma_{P0} \sigma_{P1} & \sigma^2_{P1}
+    \end{pmatrix} \\
+e_{ip} &\sim \mathcal{N}(0, \sigma_e)
+\end{aligned}$$
+
+One of the ways in which we could apply this code is in power analyses. With a power analysis, we could ask:
+
+> "Assuming our simulated coefficients are correct, what is the probability of correctly detecting the effect of word frequency?"
+
+Using multi-level simulations is a powerful way of conducting power analyses. In this section, we'll build some code for conducting power analyses using the code we've built so far.
+
+## Packages
+
+We'll use the following packages in this section:
+
+```{r}
+#| label: packages
+#| message: false
+#| warning: false
+library(lme4)  # for fitting LMMs
+library(dplyr)  # for data wrangling
+library(tidyr)  # for data wrangling
+library(purrr)  # for iterating
+library(readr)  # for importing data
+library(faux)  # for simulating multivariate normals
+library(lmerTest)  # for calculating significance
+library(ggplot2)  # for plotting
+```
+
+## Modularising Code
+
+To use the code we have come up with in a power analysis, we first want to *modularise* it. We want to write a self-contained function that takes our parameters as arguments, and returns simulated trials as an output
+
+Functions in R have the following syntax:
+
+```{r}
+multiply <- function(a, b) {
+  # calculate result
+  res <- a * b
+  # return the result by having the variable be the last line in the function
+  res
+}
+```
+
+Once a function is defined, we can call it to get the result:
+
+```{r}
+multiply(23, 2)
+```
+
+We can also define default arguments in the function. For example, if we think that most of the time people use our function, they will want to double a number, we could set the default for `b = 2`. Then, if people don't explicitly give a value for a, the function will use the default value of `2`.
+
+```{r}
+multiply <- function(a, b = 2) {
+  res <- a * b
+  res
+}
+
+multiply(4)
+```
+
+Using the code snippets from the [last section](04-random_correlations), write a function, `sim_trials()`, that takes all free parameters as inputs and returns the simulated trials. I recommend setting all arguments to defaults based on the numbers we've used so far.
+
+```{r}
+#| code-fold: true
+#| code-summary: Show solution
+sim_trials <- function(
+    # all parameters with default values
+    n_items = 50, n_participants = 30,
+    b_0 = 6.85, b_1 = -0.1,
+    s_I0 = 0.08,
+    s_P0 = 0.16, s_P1 = 0.04,
+    r_P = -0.74,
+    s_e = 0.33
+  ) {
+  # simulate items
+  items <- tibble(
+    i_id = 1:n_items,
+    zipf = runif(n_items, 1.5, 7.5),
+    I_0i = rnorm(n_items, 0, s_I0)
+  )
+  
+  # simulate participants
+  participants <- rnorm_multi(
+    n = n_participants,
+    vars = 2,
+    varnames = c("P_0p", "P_1p"),
+    mu = c(0, 0),
+    sd = c(s_P0, s_P1),
+    r = r_P
+  ) |>
+    mutate(p_id = 1:n_participants)
+  
+  # generate trials
+  trials <- crossing(items, participants) |>
+    mutate(
+      e_ip = rnorm(n(), 0, s_e),
+      log_rt = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf + e_ip
+    )
+  
+  # return the simulated trials
+  trials
+}
+```
+
+### Example Usage
+
+If your function is similar to mine, then we can call it to simulate some example data. If we don't provide any inputs, it will use the defaults:
+
+```{r}
+sim_trials()
+```
+
+Or, we can provide specific inputs to change them from the defaults. For example, here we simulate 250 participants, and increase the SD of random intercepts:
+
+```{r}
+sim_trials(n_participants=250, s_P0=0.3)
+```
+
+## Hypothesis Testing
+
+There are many ways to test hypotheses. Even within the null hypothesis significance testing approach, there are many ways to calculate a *p* value.
+
+* **Wald *p* values** are the *p* values printed in the model `summary()` outputs for `lme4` models. Wald *p* values capture whether a model parameter is significantly different from zero.
+
+* **Kenward-Roger corrected *p* values** are Wald *p* values, but with a correction to address inflated false-positive rates.
+
+* **Likelihood ratio tests** provide *p* values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it.
+
+[@lukeEvaluatingSignificanceLinear2017]

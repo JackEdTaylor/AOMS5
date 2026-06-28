@@ -360,11 +360,61 @@
     ]
   },
   {
+    "objectID": "05-power_analyses.html",
+    "href": "05-power_analyses.html",
+    "title": "5  Power Analyses",
+    "section": "",
+    "text": "5.1 Summary so far\nOver the last few sections, we’ve built up code for simulating data from the following model:\n\\[\\begin{aligned}\nlogRT_{ip} &= \\beta_0 + I_{0i} + P_{0p} + (\\beta_1 + P_{1p}) Zipf_{ip} + e_{ip} \\\\\nI_{0i} &\\sim \\mathcal{N}(0, \\sigma_{I0}) \\\\\n\\begin{pmatrix}\n    P_{0p} \\\\ P_{1p}\n    \\end{pmatrix}\n    &\\sim \\mathcal{N}\\!\\left(\\mathbf{0},\\, \\Sigma_P\\right) \\\\\n\\Sigma_P &=\n    \\begin{pmatrix}\n    \\sigma^2_{P0} & \\rho_P \\sigma_{P0} \\sigma_{P1} \\\\\n    \\rho_P \\sigma_{P0} \\sigma_{P1} & \\sigma^2_{P1}\n    \\end{pmatrix} \\\\\ne_{ip} &\\sim \\mathcal{N}(0, \\sigma_e)\n\\end{aligned}\\]\nOne of the ways in which we could apply this code is in power analyses. With a power analysis, we could ask:\nUsing multi-level simulations is a powerful way of conducting power analyses. In this section, we’ll build some code for conducting power analyses using the code we’ve built so far.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Power Analyses</span>"
+    ]
+  },
+  {
+    "objectID": "05-power_analyses.html#summary-so-far",
+    "href": "05-power_analyses.html#summary-so-far",
+    "title": "5  Power Analyses",
+    "section": "",
+    "text": "“Assuming our simulated coefficients are correct, what is the probability of correctly detecting the effect of word frequency?”",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Power Analyses</span>"
+    ]
+  },
+  {
+    "objectID": "05-power_analyses.html#packages",
+    "href": "05-power_analyses.html#packages",
+    "title": "5  Power Analyses",
+    "section": "5.2 Packages",
+    "text": "5.2 Packages\nWe’ll use the following packages in this section:\n\nlibrary(lme4)  # for fitting LMMs\nlibrary(dplyr)  # for data wrangling\nlibrary(tidyr)  # for data wrangling\nlibrary(purrr)  # for iterating\nlibrary(readr)  # for importing data\nlibrary(faux)  # for simulating multivariate normals\nlibrary(lmerTest)  # for calculating significance\nlibrary(ggplot2)  # for plotting",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Power Analyses</span>"
+    ]
+  },
+  {
+    "objectID": "05-power_analyses.html#modularising-code",
+    "href": "05-power_analyses.html#modularising-code",
+    "title": "5  Power Analyses",
+    "section": "5.3 Modularising Code",
+    "text": "5.3 Modularising Code\nTo use the code we have come up with in a power analysis, we first want to modularise it. We want to write a self-contained function that takes our parameters as arguments, and returns simulated trials as an output\nFunctions in R have the following syntax:\n\nmultiply &lt;- function(a, b) {\n  # calculate result\n  res &lt;- a * b\n  # return the result by having the variable be the last line in the function\n  res\n}\n\nOnce a function is defined, we can call it to get the result:\n\nmultiply(23, 2)\n\n[1] 46\n\n\nWe can also define default arguments in the function. For example, if we think that most of the time people use our function, they will want to double a number, we could set the default for b = 2. Then, if people don’t explicitly give a value for a, the function will use the default value of 2.\n\nmultiply &lt;- function(a, b = 2) {\n  res &lt;- a * b\n  res\n}\n\nmultiply(4)\n\n[1] 8\n\n\nUsing the code snippets from the last section, write a function, sim_trials(), that takes all free parameters as inputs and returns the simulated trials. I recommend setting all arguments to defaults based on the numbers we’ve used so far.\n\n\nShow solution\nsim_trials &lt;- function(\n    # all parameters with default values\n    n_items = 50, n_participants = 30,\n    b_0 = 6.85, b_1 = -0.1,\n    s_I0 = 0.08,\n    s_P0 = 0.16, s_P1 = 0.04,\n    r_P = -0.74,\n    s_e = 0.33\n  ) {\n  # simulate items\n  items &lt;- tibble(\n    i_id = 1:n_items,\n    zipf = runif(n_items, 1.5, 7.5),\n    I_0i = rnorm(n_items, 0, s_I0)\n  )\n  \n  # simulate participants\n  participants &lt;- rnorm_multi(\n    n = n_participants,\n    vars = 2,\n    varnames = c(\"P_0p\", \"P_1p\"),\n    mu = c(0, 0),\n    sd = c(s_P0, s_P1),\n    r = r_P\n  ) |&gt;\n    mutate(p_id = 1:n_participants)\n  \n  # generate trials\n  trials &lt;- crossing(items, participants) |&gt;\n    mutate(\n      e_ip = rnorm(n(), 0, s_e),\n      log_rt = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf + e_ip\n    )\n  \n  # return the simulated trials\n  trials\n}\n\n\n\n5.3.1 Example Usage\nIf your function is similar to mine, then we can call it to simulate some example data. If we don’t provide any inputs, it will use the defaults:\n\nsim_trials()\n\n# A tibble: 1,500 × 8\n    i_id  zipf   I_0i    P_0p     P_1p  p_id    e_ip log_rt\n   &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n 1     1  7.38 0.0602 -0.417   0.0990      5 -0.407    6.08\n 2     1  7.38 0.0602 -0.347   0.0347     14  0.200    6.28\n 3     1  7.38 0.0602 -0.274   0.0344     13  0.252    6.40\n 4     1  7.38 0.0602 -0.159  -0.0109     20 -0.289    5.64\n 5     1  7.38 0.0602 -0.146   0.00871     6  0.0498   6.14\n 6     1  7.38 0.0602 -0.138   0.0204     21  0.474    6.66\n 7     1  7.38 0.0602 -0.133   0.0289     18  0.129    6.38\n 8     1  7.38 0.0602 -0.0975 -0.0140     22  0.109    6.08\n 9     1  7.38 0.0602 -0.0902  0.0688     10 -0.157    6.43\n10     1  7.38 0.0602 -0.0900  0.00902    24  0.420    6.57\n# ℹ 1,490 more rows\n\n\nOr, we can provide specific inputs to change them from the defaults. For example, here we simulate 250 participants, and increase the SD of random intercepts:\n\nsim_trials(n_participants=250, s_P0=0.3)\n\n# A tibble: 12,500 × 8\n    i_id  zipf     I_0i   P_0p   P_1p  p_id    e_ip log_rt\n   &lt;int&gt; &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n 1     1  4.72 0.000504 -0.900 0.0784   135  0.513    6.36\n 2     1  4.72 0.000504 -0.798 0.0627   234  0.168    6.04\n 3     1  4.72 0.000504 -0.797 0.0658   124 -0.172    5.72\n 4     1  4.72 0.000504 -0.651 0.0525    23  0.173    6.15\n 5     1  4.72 0.000504 -0.620 0.0433    54 -0.0758   5.89\n 6     1  4.72 0.000504 -0.605 0.0752   169 -0.204    5.92\n 7     1  4.72 0.000504 -0.582 0.0491    73 -0.350    5.68\n 8     1  4.72 0.000504 -0.556 0.0539   188 -0.480    5.60\n 9     1  4.72 0.000504 -0.550 0.0682    13  0.113    6.26\n10     1  4.72 0.000504 -0.542 0.0611   194  1.08     7.21\n# ℹ 12,490 more rows",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Power Analyses</span>"
+    ]
+  },
+  {
+    "objectID": "05-power_analyses.html#hypothesis-testing",
+    "href": "05-power_analyses.html#hypothesis-testing",
+    "title": "5  Power Analyses",
+    "section": "5.4 Hypothesis Testing",
+    "text": "5.4 Hypothesis Testing\nThere are many ways to test hypotheses. Even within the null hypothesis significance testing approach, there are many ways to calculate a p value.\n\nWald p values are the p values printed in the model summary() outputs for lme4 models. Wald p values capture whether a model parameter is significantly different from zero.\nKenward-Roger corrected p values are Wald p values, but with a correction to address inflated false-positive rates.\nLikelihood ratio tests provide p values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it.\n\n(Luke 2017)\n\n\n\n\nLuke, Steven G. 2017. “Evaluating Significance in Linear Mixed-Effects Models in R.” Behavior Research Methods 49 (4): 1494–502. https://doi.org/10.3758/s13428-016-0809-y.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Power Analyses</span>"
+    ]
+  },
+  {
     "objectID": "references.html",
     "href": "references.html",
     "title": "References",
     "section": "",
-    "text": "DeBruine, Lisa. 2020. Faux: Simulation for Factorial\nDesigns. Zenodo. https://doi.org/10.5281/zenodo.2669586.\n\n\nDeBruine, Lisa M., and Dale J. Barr. 2021. “Understanding\nMixed-Effects Models Through Data Simulation.”\nAdvances in Methods and Practices in Psychological Science 4\n(1): 2515245920965119. https://doi.org/10.1177/2515245920965119.\n\n\nLocker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On\nthe Use of Multilevel Modeling as an Alternative to Items Analysis in\nPsycholinguistic Research.” Behavior Research Methods 39\n(4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans\nGremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’:\nCommon Misconceptions and Alternative\nSolutions.” Journal of Memory and Language 41\n(3): 416–26. https://doi.org/10.1006/jmla.1999.2650.\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel\nKeuleers, and Marc Brysbaert. 2014.\n“SUBTLEX-UK: A New and Improved Word\nFrequency Database for British English.”\nQuarterly Journal of Experimental Psychology 67 (6): 1176–90.\nhttps://doi.org/10.1080/17470218.2013.850521.",
+    "text": "DeBruine, Lisa. 2020. Faux: Simulation for Factorial\nDesigns. Zenodo. https://doi.org/10.5281/zenodo.2669586.\n\n\nDeBruine, Lisa M., and Dale J. Barr. 2021. “Understanding\nMixed-Effects Models Through Data Simulation.”\nAdvances in Methods and Practices in Psychological Science 4\n(1): 2515245920965119. https://doi.org/10.1177/2515245920965119.\n\n\nLocker, Lawrence, Lesa Hoffman, and James A. Bovaird. 2007. “On\nthe Use of Multilevel Modeling as an Alternative to Items Analysis in\nPsycholinguistic Research.” Behavior Research Methods 39\n(4): 723–30. https://doi.org/10.3758/BF03192962.\n\n\nLuke, Steven G. 2017. “Evaluating Significance in Linear\nMixed-Effects Models in R.” Behavior Research\nMethods 49 (4): 1494–502. https://doi.org/10.3758/s13428-016-0809-y.\n\n\nRaaijmakers, Jeroen G. W., Joseph M. C. Schrijnemakers, and Frans\nGremmen. 1999. “How to Deal with ‘The Language-as-Fixed-Effect Fallacy’:\nCommon Misconceptions and Alternative\nSolutions.” Journal of Memory and Language 41\n(3): 416–26. https://doi.org/10.1006/jmla.1999.2650.\n\n\nvan Heuven, Walter J. B., Pawel Mandera, Emmanuel\nKeuleers, and Marc Brysbaert. 2014.\n“SUBTLEX-UK: A New and Improved Word\nFrequency Database for British English.”\nQuarterly Journal of Experimental Psychology 67 (6): 1176–90.\nhttps://doi.org/10.1080/17470218.2013.850521.",
     "crumbs": [
       "References"
     ]

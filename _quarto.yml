@@ -12,6 +12,7 @@ book:
     - 02-random_intercepts.qmd
     - 03-random_slopes.qmd
     - 04-random_correlatons.qmd
+    - 05-power_analyses.qmd
     - references.qmd
 
 bibliography: references.bib
