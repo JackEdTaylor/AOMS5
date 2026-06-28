@@ -11,6 +11,7 @@ book:
     - 01-linear_models.qmd
     - 02-random_intercepts.qmd
     - 03-random_slopes.qmd
+    - 04-random_correlatons.qmd
     - references.qmd
 
 bibliography: references.bib
@@ -23,3 +24,6 @@ format:
     fig-format: svg
   pdf:
     documentclass: scrreprt
+
+filters:
+  - collapse-output  # https://github.com/mcanouil/quarto-collapse-output

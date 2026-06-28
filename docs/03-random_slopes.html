@@ -68,7 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./04-random_correlatons.html" rel="next">
 <link href="./02-random_intercepts.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -369,6 +369,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./04-random_correlatons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">LMMs: Random Correlations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -388,8 +394,9 @@ window.Quarto = {
   <li><a href="#defining-parameters" id="toc-defining-parameters" class="nav-link" data-scroll-target="#defining-parameters"><span class="header-section-number">3.3</span> Defining Parameters</a></li>
   <li><a href="#simulating-items-and-participants" id="toc-simulating-items-and-participants" class="nav-link" data-scroll-target="#simulating-items-and-participants"><span class="header-section-number">3.4</span> Simulating Items and Participants</a></li>
   <li><a href="#visualising-random-effects" id="toc-visualising-random-effects" class="nav-link" data-scroll-target="#visualising-random-effects"><span class="header-section-number">3.5</span> Visualising Random Effects</a></li>
-  <li><a href="#simulating-trials-responses" id="toc-simulating-trials-responses" class="nav-link" data-scroll-target="#simulating-trials-responses"><span class="header-section-number">3.6</span> Simulating Trials &amp; Responses</a></li>
-  <li><a href="#parameter-retrieval" id="toc-parameter-retrieval" class="nav-link" data-scroll-target="#parameter-retrieval"><span class="header-section-number">3.7</span> Parameter Retrieval</a></li>
+  <li><a href="#simulating-trials" id="toc-simulating-trials" class="nav-link" data-scroll-target="#simulating-trials"><span class="header-section-number">3.6</span> Simulating Trials</a></li>
+  <li><a href="#simulating-responses" id="toc-simulating-responses" class="nav-link" data-scroll-target="#simulating-responses"><span class="header-section-number">3.7</span> Simulating Responses</a></li>
+  <li><a href="#parameter-retrieval" id="toc-parameter-retrieval" class="nav-link" data-scroll-target="#parameter-retrieval"><span class="header-section-number">3.8</span> Parameter Retrieval</a></li>
   </ul>
 </nav>
     </div>
@@ -420,13 +427,13 @@ window.Quarto = {
 <h2 data-number="3.1" class="anchored" data-anchor-id="what-are-random-slopes"><span class="header-section-number">3.1</span> What are Random Slopes?</h2>
 <p>In the <a href="02-random_intercepts">last section</a>, we saw how we can use linear mixed-effects models to account for item and participant variability simultaneously. We simulated and modelled random intercepts, which aim to describe the degree to which individual items and participants differ from the average of their population. For example, participants may be faster or slower relative to the population of possible participants.</p>
 <p>However, as well as different averages <em>overall</em>, participants may also differ in the size of the effect of word frequency. Some participants may show a larger effect than others. We can model these differences with <em>random slopes</em>. Like random intercepts, random slopes describe a deviation from the fixed-effect average. It is added to the fixed-effect slope before we multiply it by the predictor:</p>
-<p><span class="math display">\[logRT_{ip} = \beta_0 + I0_i + P0_p + (\beta_1 + P1_p) Zipf_{ip} + e_{ip}\]</span></p>
-<p>For now (<a href="04-random_correlations"><em>ominous foreshadowing</em></a>), we will simulate the random effects independently. This means that we just draw <span class="math inline">\(P0_1\)</span> from a new independent normal distribution:</p>
+<p><span class="math display">\[logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip}\]</span></p>
+<p>For now (<a href="04-random_correlations"><em>ominous foreshadowing</em></a>), we will simulate the random effects independently. This means that we just draw <span class="math inline">\(P_{1p}\)</span> from a new independent normal distribution:</p>
 <p><span class="math display">\[\begin{aligned}
-I0_i &amp;\sim N(0, \sigma_{I0}) \\
-P0_p &amp;\sim N(0, \sigma_{P0}) \\
-P1_p &amp;\sim N(0, \sigma_{P1}) \\
-e_{ip} &amp;\sim N(0, \sigma_e)
+I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\
+P_{0p} &amp;\sim \mathcal{N}(0, \sigma_{P0}) \\
+P_{1p} &amp;\sim \mathcal{N}(0, \sigma_{P1}) \\
+e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 \end{aligned}\]</span></p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -438,7 +445,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The random-effect structure for the items is unchanged from before. It doesn’t make sense to simulate or estimate a random slope for the effect of <code>zipf</code> for each item, because each item can only have one <code>zipf</code> value.</p>
+<p>The random-effect structure for the <em>items</em> is unchanged from before. It doesn’t make sense to simulate or estimate a random slope for the effect of <code>zipf</code> for each item, because each item can only have one <code>zipf</code> value.</p>
 </div>
 </div>
 </section>
@@ -455,8 +462,11 @@ Note
 </section>
 <section id="defining-parameters" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="defining-parameters"><span class="header-section-number">3.3</span> Defining Parameters</h2>
-<p>The parameters are <a href="02-random_intercepts#defining-parameters">as before</a>, except now we also simulate <span class="math inline">\(\sigma_{P1}\)</span> (<code>s_P1</code>).</p>
+<p>This time, try to write the code to simulate the data yourself, using the <a href="02-random_intercepts#defining-parameters">last section</a> as a guide.</p>
+<p>The parameters should be the same as before, except now we also simulate <span class="math inline">\(\sigma_{P1}\)</span> (<code>s_P1</code>). I suggest a value of 0.04.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Show solution</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed-effect intercept and slope</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (same as the parameters in the section on linear models)</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>b_0 <span class="ot">&lt;-</span> <span class="fl">6.85</span></span>
@@ -471,12 +481,15 @@ Note
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># residual SD</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>s_e <span class="ot">&lt;-</span> <span class="fl">0.33</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="simulating-items-and-participants" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="simulating-items-and-participants"><span class="header-section-number">3.4</span> Simulating Items and Participants</h2>
-<p>We also simulate items and participants as before, except we now also simulate random slopes for participants, <code>P1_p</code>.</p>
+<p>We also simulate items and participants as before, except we now also simulate random slopes for participants, <code>P_1p</code>. Using the code from <a href="02-random_intercepts#simulating-items-and-participants">the last section</a> as a starting place, add code to simulate <code>P_1p</code>.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Show solution</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate 50 items</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n_items <span class="ot">&lt;-</span> <span class="dv">50</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -486,7 +499,7 @@ Note
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># item word frequencies</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">zipf =</span> <span class="fu">runif</span>(n_items, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># item intercepts</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">I0_i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">I_0i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate 30 participants</span></span>
@@ -496,25 +509,30 @@ Note
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># participant IDs</span></span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_id =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># participant intercepts</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">P0_p =</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, s_P0),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">P_0p =</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, s_P0),</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># participant slopes</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">P1_p =</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, s_P1)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">P_1p =</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, s_P1)</span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="visualising-random-effects" class="level2" data-number="3.5">
 <h2 data-number="3.5" class="anchored" data-anchor-id="visualising-random-effects"><span class="header-section-number">3.5</span> Visualising Random Effects</h2>
-<p><a href="02-random_intercepts#visualising-random-intercepts">As before</a>, we can visualise the variability between items and participants in our simulated sample. This time, you can see that whereas the effect of Zipf is constant for all items, our random slope means that there is now variability in the effect of Zipf for different participants.</p>
+<p><a href="02-random_intercepts#visualising-random-intercepts">As before</a>, let’s visualise the variability between items and participants in our simulated sample. The code to generate the plot showing items should be very similar, but the code for the participants will need tweaking to be able to generate the plot below.</p>
+<p>You can see that whereas the effect of Zipf is constant for all items, our random slope means that there is now variability in the effect of Zipf for different participants.</p>
+<details class="code-fold">
+<summary>Show solution</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (a)</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(items) <span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>I0_i, <span class="at">slope=</span>b_1, <span class="at">group=</span>i_id)) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>I_0i, <span class="at">slope=</span>b_1, <span class="at">group=</span>i_id)) <span class="sc">+</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span>b_0, <span class="at">slope=</span>b_1, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">7.5</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="fl">7.5</span>))</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># (b)</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(participants) <span class="sc">+</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>P0_p, <span class="at">slope=</span>b_1<span class="sc">+</span>P1_p, <span class="at">group=</span>p_id)) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>P_0p, <span class="at">slope=</span>b_1<span class="sc">+</span>P_1p, <span class="at">group=</span>p_id)) <span class="sc">+</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span>b_0, <span class="at">slope=</span>b_1, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">7.5</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="fl">7.5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
@@ -537,22 +555,52 @@ Note
 </div>
 <p>As before, the <span style="color:red;"><strong>red line</strong></span> shows the fixed effect, while the <strong>black lines</strong> show variability between (a) items and (b) participants.</p>
 </section>
-<section id="simulating-trials-responses" class="level2" data-number="3.6">
-<h2 data-number="3.6" class="anchored" data-anchor-id="simulating-trials-responses"><span class="header-section-number">3.6</span> Simulating Trials &amp; Responses</h2>
-<p>This section is also very similar to what we have already seen, except we now also include the random slopes for participants.</p>
+<section id="simulating-trials" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="simulating-trials"><span class="header-section-number">3.6</span> Simulating Trials</h2>
+<p>This section is actually identical to what we did before. We get all combinations of items and participants, and then simulate <span class="math inline">\(e_{ip}\)</span> (<code>e_ip</code>) as random noise of mean 0 and SD <span class="math inline">\(\sigma_e\)</span> (<code>s_e</code>).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate trials</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">crossing</span>(items, participants) <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">e_ip =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, s_e),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_rt =</span> b_0 <span class="sc">+</span> I0_i <span class="sc">+</span> P0_p <span class="sc">+</span> (b_1 <span class="sc">+</span> P1_p) <span class="sc">*</span> zipf <span class="sc">+</span> e_ip</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># print the first few rows</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(trials)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">e_ip =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, s_e))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># print the first few rows</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(trials)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,500 × 7
+    i_id  zipf    I_0i  p_id    P_0p     P_1p     e_ip
+   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+ 1     1  2.14 -0.0319     1 -0.0845 -0.0483   0.243  
+ 2     1  2.14 -0.0319     2 -0.0191  0.0506  -0.00215
+ 3     1  2.14 -0.0319     3 -0.119   0.0193  -0.174  
+ 4     1  2.14 -0.0319     4 -0.457   0.00928 -0.0368 
+ 5     1  2.14 -0.0319     5 -0.129   0.0535  -0.0455 
+ 6     1  2.14 -0.0319     6  0.232  -0.0304  -0.0161 
+ 7     1  2.14 -0.0319     7 -0.108  -0.00698  0.200  
+ 8     1  2.14 -0.0319     8 -0.0559 -0.0449   0.0264 
+ 9     1  2.14 -0.0319     9  0.155  -0.0339   0.360  
+10     1  2.14 -0.0319    10 -0.0665 -0.0429   0.181  
+# ℹ 1,490 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="simulating-responses" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="simulating-responses"><span class="header-section-number">3.7</span> Simulating Responses</h2>
+<p>Simulating responses is again similar to what we did before, except we now also want to include the random slopes in the formula.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show solution</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate response times</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    trials,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_rt =</span> b_0 <span class="sc">+</span> I_0i <span class="sc">+</span> P_0p <span class="sc">+</span> (b_1 <span class="sc">+</span> P_1p) <span class="sc">*</span> zipf <span class="sc">+</span> e_ip</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># print the first few rows</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(trials)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,500 × 8
-    i_id  zipf    I0_i  p_id    P0_p     P1_p     e_ip log_rt
+    i_id  zipf    I_0i  p_id    P_0p     P_1p     e_ip log_rt
    &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;
  1     1  2.14 -0.0319     1 -0.0845 -0.0483   0.243     6.66
  2     1  2.14 -0.0319     2 -0.0191  0.0506  -0.00215   6.69
@@ -568,18 +616,21 @@ Note
 </div>
 </div>
 </section>
-<section id="parameter-retrieval" class="level2" data-number="3.7">
-<h2 data-number="3.7" class="anchored" data-anchor-id="parameter-retrieval"><span class="header-section-number">3.7</span> Parameter Retrieval</h2>
+<section id="parameter-retrieval" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="parameter-retrieval"><span class="header-section-number">3.8</span> Parameter Retrieval</h2>
 <p>To fit a model that can estimate the <a href="#defining-parameters">values we originally simulated</a>, we just have to include the random slope in the random-effect structure.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf <span class="sc">+</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">1</span> <span class="sc">|</span> i_id) <span class="sc">+</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">1</span> <span class="sc">+</span> zipf <span class="sc">||</span> p_id),</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> trials</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Show solution</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">1</span> <span class="sc">|</span> i_id) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">1</span> <span class="sc">+</span> zipf <span class="sc">||</span> p_id),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> trials</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: log_rt ~ 1 + zipf + (1 | i_id) + ((1 | p_id) + (0 + zipf | p_id))
@@ -1047,8 +1098,8 @@ Note
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link" aria-label="References">
-        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./04-random_correlatons.html" class="pagination-link" aria-label="LMMs: Random Correlations">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">LMMs: Random Correlations</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

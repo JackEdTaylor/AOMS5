@@ -23,19 +23,19 @@ A linear mixed-effects model is largely a generalisation of the ideas behind a l
 
 To start with, we will just work with random intercepts:
 
-$$logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}$$
+$$logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + \beta_1 Zipf_{ip} + e_{ip}$$
 Our formula is very similar to before, with the following key differences:
 
 * We index observations with two indices: $i$ (item) and $p$ (participant).
-* We include $I0_i$: per-item random intercepts
-* We include $P0_p$: per-participant random intercepts
+* We include $I_{0i}$: per-item random intercepts
+* We include $P_{0p}$: per-participant random intercepts
 
-As we saw with [$e_i$ in the linear model example](01-linear_models.html#intercept-slope-residual), $I0_i$, $P0_p$, and $e_{ip}$ are all drawn from normal distributions with their own standard deviations:
+As we saw with [$e_i$ in the linear model example](01-linear_models.html#intercept-slope-residual), $I_{0i}$, $P_{0p}$, and $e_{ip}$ are all drawn from normal distributions with their own standard deviations:
 
 $$\begin{aligned}
-I0_i &\sim N(0, \sigma_{I0}) \\
-P0_p &\sim N(0, \sigma_{P0}) \\
-e_{ip} &\sim N(0, \sigma_e)
+I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\
+P_{0p} &\sim \mathcal{N}(0, \sigma_{P0}) \\
+e_{ip} &\sim \mathcal{N}(0, \sigma_e)
 \end{aligned}$$
 
 The per-item and per-participant random intercepts describe variability among these populations. Items will vary in their average response time --- while word frequency is maybe the best predictor of response times, a whole range of other factors will also affect a single word's average response time. Similarly, participants will differ in their average response times, with some participants responding consistently faster, and some responding consistently slower. Our model says that these random effects combine with our fixed effects to generate our observations.
@@ -90,7 +90,7 @@ s_e <- 0.33
 
 To be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants. Here we build two dataframes, of 50 items and 30 participants.
 
-The simulated random intercepts, `I0_i` and `P_0p`, quantify how each item and participant deviate from the fixed-effect average effect.
+The simulated random intercepts, `I_0i` and `P_0p`, quantify how each item and participant deviate from the fixed-effect average effect.
 
 ```{r}
 # simulate 50 items
@@ -102,7 +102,7 @@ items <- tibble(
   # item word frequencies
   zipf = runif(n_items, 1.5, 7.5),
   # item intercepts
-  I0_i = rnorm(n_items, 0, s_I0)
+  I_0i = rnorm(n_items, 0, s_I0)
 )
 
 # simulate 30 participants
@@ -112,7 +112,7 @@ participants <- tibble(
   # participant IDs
   p_id = 1:n_participants,
   # participant intercepts
-  P0_p = rnorm(n_participants, 0, s_P0)
+  P_0p = rnorm(n_participants, 0, s_P0)
 )
 ```
 
@@ -131,12 +131,12 @@ For example, just as we can [plot a single simulated linear relationship](01-lin
 #|   - "(b) Per-Participant Variability"
 # (a)
 ggplot(items) +
-  geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id)) +
+  geom_abline(aes(intercept = b_0+I_0i, slope=b_1, group=i_id)) +
   geom_abline(intercept=b_0, slope=b_1, colour="red") +
   lims(x=c(1.5, 7.5), y=c(5, 7.5))
 # (b)
 ggplot(participants) +
-  geom_abline(aes(intercept = b_0+P0_p, slope=b_1, group=p_id)) +
+  geom_abline(aes(intercept = b_0+P_0p, slope=b_1, group=p_id)) +
   geom_abline(intercept=b_0, slope=b_1, colour="red") +
   lims(x=c(1.5, 7.5), y=c(5, 7.5))
 ```
@@ -150,9 +150,9 @@ Panel (b) shows each participant's predicted average response time to a stimulus
 #| fig-height: 3
 #| fig-width: 2.25
 ggplot(items) +
-  geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id),
+  geom_abline(aes(intercept = b_0+I_0i, slope=b_1, group=i_id),
               colour="grey") +
-  geom_point(aes(x = zipf, y = I0_i + b_0 + b_1*zipf),
+  geom_point(aes(x = zipf, y = I_0i + b_0 + b_1*zipf),
              shape=3) +
   geom_abline(intercept=b_0, slope=b_1, colour="red") +
   lims(x=c(1.5, 7.5), y=c(5, 7.5))
@@ -186,14 +186,14 @@ Now that we have simulated trials, we can use our formula to simulate each parti
 
 As a quick reminder, here is the formula again:
 
-$$logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}$$
+$$logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + \beta_1 Zipf_{ip} + e_{ip}$$
 
 We use this formula to add the simulated log response times to the `trials` dataframe:
 
 ```{r}
 trials <- mutate(
     trials,
-    log_rt = b_0 + I0_i + P0_p + b_1 * zipf + e_ip
+    log_rt = b_0 + I_0i + P_0p + b_1 * zipf + e_ip
   )
 ```
 
@@ -221,6 +221,7 @@ ggplot(trials, aes(zipf, log_rt, colour=factor(p_id))) +
 We can now fit a model that estimates the parameters we originally used to simulate the data. If you compare these estimates to [the values we originally simulated](#defining-parameters), you can see that the estimates from our simulated sample are close to the ground truth.
 
 ```{r}
+#| warning: false
 m <- lmer(
   log_rt ~ 1 + zipf +
     (1 | i_id) +
@@ -267,7 +268,7 @@ res_p_df <- res$p_id |>
   # coerce to a dataframe
   as_tibble(rownames="p_id") |>
   # rename the "(Intercept)" column to remove the parentheses
-  rename(est_P0_p = `(Intercept)`)
+  rename(est_P_0p = `(Intercept)`)
 
 print(res_p_df)
 ```
@@ -278,7 +279,7 @@ Recall that the random effects are per-unit (e.g., per-participant) deviations f
 #| fig-height: 3
 #| fig-width: 5
 ggplot(res_p_df) +
-  geom_abline(aes(intercept = fes[["(Intercept)"]]+est_P0_p,
+  geom_abline(aes(intercept = fes[["(Intercept)"]]+est_P_0p,
                   slope=fes[["zipf"]],
                   group=p_id)) +
   geom_abline(intercept=fes[["(Intercept)"]],

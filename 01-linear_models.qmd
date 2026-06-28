@@ -190,11 +190,11 @@ ggplot(dat, aes(e_i)) +
   xlim(-0.5, 0.5)
 ```
 
-This noise is typically written as $e_i$. We specify it as being drawn from a normal distribution with a mean of zero and a standard deviation of $\sigma$:
+This noise is typically written as $e_i$. We specify it as being drawn from a normal distribution ($\mathcal{N}()$) with a mean of zero and a standard deviation of $\sigma$:
 
 $$\begin{aligned}
 logRT_i &= \beta_0 + \beta_1 zipf_i + e_i \\
-e_i &\sim N(0, \sigma)
+e_i &\sim \mathcal{N}(0, \sigma)
 \end{aligned}$$
 
 We now have 3 free parameters that are estimated by the `lm()` function in R:
@@ -216,7 +216,7 @@ Here is the formula we will be using:
 
 $$\begin{aligned}
 logRT_i &= \beta_0 + \beta_1 Zipf_i + e_i \\
-e_i &\sim N(0, \sigma)
+e_i &\sim \mathcal{N}(0, \sigma)
 \end{aligned}$$
 
 First, we will define the parameters used in the simulation:

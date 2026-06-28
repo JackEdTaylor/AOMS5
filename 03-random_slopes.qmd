@@ -15,19 +15,19 @@ In the [last section](02-random_intercepts), we saw how we can use linear mixed-
 
 However, as well as different averages *overall*, participants may also differ in the size of the effect of word frequency. Some participants may show a larger effect than others. We can model these differences with *random slopes*. Like random intercepts, random slopes describe a deviation from the fixed-effect average. It is added to the fixed-effect slope before we multiply it by the predictor:
 
-$$logRT_{ip} = \beta_0 + I0_i + P0_p + (\beta_1 + P1_p) Zipf_{ip} + e_{ip}$$
+$$logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip}$$
 
-For now ([*ominous foreshadowing*](04-random_correlations)), we will simulate the random effects independently. This means that we just draw $P0_1$ from a new independent normal distribution:
+For now ([*ominous foreshadowing*](04-random_correlations)), we will simulate the random effects independently. This means that we just draw $P_{1p}$ from a new independent normal distribution:
 
 $$\begin{aligned}
-I0_i &\sim N(0, \sigma_{I0}) \\
-P0_p &\sim N(0, \sigma_{P0}) \\
-P1_p &\sim N(0, \sigma_{P1}) \\
-e_{ip} &\sim N(0, \sigma_e)
+I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\
+P_{0p} &\sim \mathcal{N}(0, \sigma_{P0}) \\
+P_{1p} &\sim \mathcal{N}(0, \sigma_{P1}) \\
+e_{ip} &\sim \mathcal{N}(0, \sigma_e)
 \end{aligned}$$
 
 ::: callout-note
-The random-effect structure for the items is unchanged from before. It doesn't make sense to simulate or estimate a random slope for the effect of `zipf` for each item, because each item can only have one `zipf` value.
+The random-effect structure for the *items* is unchanged from before. It doesn't make sense to simulate or estimate a random slope for the effect of `zipf` for each item, because each item can only have one `zipf` value.
 :::
 
 ## Packages
@@ -47,10 +47,14 @@ library(ggplot2)  # for plotting
 
 ## Defining Parameters
 
-The parameters are [as before](02-random_intercepts#defining-parameters), except now we also simulate $\sigma_{P1}$ (`s_P1`).
+This time, try to write the code to simulate the data yourself, using the [last section](02-random_intercepts#defining-parameters) as a guide.
+
+The parameters should be the same as before, except now we also simulate $\sigma_{P1}$ (`s_P1`). I suggest a value of 0.04.
 
 ```{r}
 #| label: params
+#| code-fold: true
+#| code-summary: "Show solution"
 # Fixed-effect intercept and slope
 # (same as the parameters in the section on linear models)
 b_0 <- 6.85
@@ -69,9 +73,11 @@ s_e <- 0.33
 
 ## Simulating Items and Participants
 
-We also simulate items and participants as before, except we now also simulate random slopes for participants, `P1_p`.
+We also simulate items and participants as before, except we now also simulate random slopes for participants, `P_1p`. Using the code from [the last section](02-random_intercepts#simulating-items-and-participants) as a starting place, add code to simulate `P_1p`.
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show solution"
 # simulate 50 items
 n_items <- 50
 
@@ -81,7 +87,7 @@ items <- tibble(
   # item word frequencies
   zipf = runif(n_items, 1.5, 7.5),
   # item intercepts
-  I0_i = rnorm(n_items, 0, s_I0)
+  I_0i = rnorm(n_items, 0, s_I0)
 )
 
 # simulate 30 participants
@@ -91,17 +97,21 @@ participants <- tibble(
   # participant IDs
   p_id = 1:n_participants,
   # participant intercepts
-  P0_p = rnorm(n_participants, 0, s_P0),
+  P_0p = rnorm(n_participants, 0, s_P0),
   # participant slopes
-  P1_p = rnorm(n_participants, 0, s_P1)
+  P_1p = rnorm(n_participants, 0, s_P1)
 )
 ```
 
 ## Visualising Random Effects
 
-[As before](02-random_intercepts#visualising-random-intercepts), we can visualise the variability between items and participants in our simulated sample. This time, you can see that whereas the effect of Zipf is constant for all items, our random slope means that there is now variability in the effect of Zipf for different participants.
+[As before](02-random_intercepts#visualising-random-intercepts), let's visualise the variability between items and participants in our simulated sample. The code to generate the plot showing items should be very similar, but the code for the participants will need tweaking to be able to generate the plot below.
+
+You can see that whereas the effect of Zipf is constant for all items, our random slope means that there is now variability in the effect of Zipf for different participants.
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show solution"
 #| layout-ncol: 2
 #| fig-height: 4
 #| fig-width: 3
@@ -110,28 +120,42 @@ participants <- tibble(
 #|   - "(b) Per-Participant Variability"
 # (a)
 ggplot(items) +
-  geom_abline(aes(intercept = b_0+I0_i, slope=b_1, group=i_id)) +
+  geom_abline(aes(intercept = b_0+I_0i, slope=b_1, group=i_id)) +
   geom_abline(intercept=b_0, slope=b_1, colour="red") +
   lims(x=c(1.5, 7.5), y=c(5, 7.5))
 # (b)
 ggplot(participants) +
-  geom_abline(aes(intercept = b_0+P0_p, slope=b_1+P1_p, group=p_id)) +
+  geom_abline(aes(intercept = b_0+P_0p, slope=b_1+P_1p, group=p_id)) +
   geom_abline(intercept=b_0, slope=b_1, colour="red") +
   lims(x=c(1.5, 7.5), y=c(5, 7.5))
 ```
 
 As before, the <span style="color:red;">**red line**</span> shows the fixed effect, while the **black lines** show variability between (a) items and (b) participants.
 
-## Simulating Trials & Responses
+## Simulating Trials
 
-This section is also very similar to what we have already seen, except we now also include the random slopes for participants.
+This section is actually identical to what we did before. We get all combinations of items and participants, and then simulate $e_{ip}$ (`e_ip`) as random noise of mean 0 and SD $\sigma_e$ (`s_e`).
 
 ```{r}
 # generate trials
 trials <- crossing(items, participants) |>
-  mutate(
-    e_ip = rnorm(n(), 0, s_e),
-    log_rt = b_0 + I0_i + P0_p + (b_1 + P1_p) * zipf + e_ip
+  mutate(e_ip = rnorm(n(), 0, s_e))
+
+# print the first few rows
+print(trials)
+```
+
+## Simulating Responses
+
+Simulating responses is again similar to what we did before, except we now also want to include the random slopes in the formula.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show solution"
+# simulate response times
+trials <- mutate(
+    trials,
+    log_rt = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf + e_ip
   )
 
 # print the first few rows
@@ -143,6 +167,8 @@ print(trials)
 To fit a model that can estimate the [values we originally simulated](#defining-parameters), we just have to include the random slope in the random-effect structure.
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show solution"
 m <- lmer(
   log_rt ~ 1 + zipf +
     (1 | i_id) +

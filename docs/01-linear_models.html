@@ -388,6 +388,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./04-random_correlatons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">LMMs: Random Correlations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -597,10 +603,10 @@ Note
 </div>
 </div>
 </div>
-<p>This noise is typically written as <span class="math inline">\(e_i\)</span>. We specify it as being drawn from a normal distribution with a mean of zero and a standard deviation of <span class="math inline">\(\sigma\)</span>:</p>
+<p>This noise is typically written as <span class="math inline">\(e_i\)</span>. We specify it as being drawn from a normal distribution (<span class="math inline">\(\mathcal{N}()\)</span>) with a mean of zero and a standard deviation of <span class="math inline">\(\sigma\)</span>:</p>
 <p><span class="math display">\[\begin{aligned}
 logRT_i &amp;= \beta_0 + \beta_1 zipf_i + e_i \\
-e_i &amp;\sim N(0, \sigma)
+e_i &amp;\sim \mathcal{N}(0, \sigma)
 \end{aligned}\]</span></p>
 <p>We now have 3 free parameters that are estimated by the <code>lm()</code> function in R:</p>
 <ul>
@@ -638,7 +644,7 @@ F-statistic:   120 on 1 and 48 DF,  p-value: 1.184e-14</code></pre>
 <p>Here is the formula we will be using:</p>
 <p><span class="math display">\[\begin{aligned}
 logRT_i &amp;= \beta_0 + \beta_1 Zipf_i + e_i \\
-e_i &amp;\sim N(0, \sigma)
+e_i &amp;\sim \mathcal{N}(0, \sigma)
 \end{aligned}\]</span></p>
 <p>First, we will define the parameters used in the simulation:</p>
 <div class="cell">

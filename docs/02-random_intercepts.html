@@ -388,6 +388,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./04-random_correlatons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">LMMs: Random Correlations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -450,17 +456,17 @@ window.Quarto = {
 <h2 data-number="2.2" class="anchored" data-anchor-id="what-is-a-linear-mixed-effects-model"><span class="header-section-number">2.2</span> What is a Linear Mixed-Effects Model?</h2>
 <p>A linear mixed-effects model is largely a generalisation of the ideas behind a linear model that we went over in the <a href="01-linear_models">recap on linear models</a>. A key difference is that rather than aggregating, we can model multiple sources of variability simultaneously.</p>
 <p>To start with, we will just work with random intercepts:</p>
-<p><span class="math display">\[logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}\]</span> Our formula is very similar to before, with the following key differences:</p>
+<p><span class="math display">\[logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + \beta_1 Zipf_{ip} + e_{ip}\]</span> Our formula is very similar to before, with the following key differences:</p>
 <ul>
 <li>We index observations with two indices: <span class="math inline">\(i\)</span> (item) and <span class="math inline">\(p\)</span> (participant).</li>
-<li>We include <span class="math inline">\(I0_i\)</span>: per-item random intercepts</li>
-<li>We include <span class="math inline">\(P0_p\)</span>: per-participant random intercepts</li>
+<li>We include <span class="math inline">\(I_{0i}\)</span>: per-item random intercepts</li>
+<li>We include <span class="math inline">\(P_{0p}\)</span>: per-participant random intercepts</li>
 </ul>
-<p>As we saw with <a href="01-linear_models.html#intercept-slope-residual"><span class="math inline">\(e_i\)</span> in the linear model example</a>, <span class="math inline">\(I0_i\)</span>, <span class="math inline">\(P0_p\)</span>, and <span class="math inline">\(e_{ip}\)</span> are all drawn from normal distributions with their own standard deviations:</p>
+<p>As we saw with <a href="01-linear_models.html#intercept-slope-residual"><span class="math inline">\(e_i\)</span> in the linear model example</a>, <span class="math inline">\(I_{0i}\)</span>, <span class="math inline">\(P_{0p}\)</span>, and <span class="math inline">\(e_{ip}\)</span> are all drawn from normal distributions with their own standard deviations:</p>
 <p><span class="math display">\[\begin{aligned}
-I0_i &amp;\sim N(0, \sigma_{I0}) \\
-P0_p &amp;\sim N(0, \sigma_{P0}) \\
-e_{ip} &amp;\sim N(0, \sigma_e)
+I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\
+P_{0p} &amp;\sim \mathcal{N}(0, \sigma_{P0}) \\
+e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 \end{aligned}\]</span></p>
 <p>The per-item and per-participant random intercepts describe variability among these populations. Items will vary in their average response time — while word frequency is maybe the best predictor of response times, a whole range of other factors will also affect a single word’s average response time. Similarly, participants will differ in their average response times, with some participants responding consistently faster, and some responding consistently slower. Our model says that these random effects combine with our fixed effects to generate our observations.</p>
 <p>To get a sense for what this looks like, in this section we’ll use these formulae to simulate some data.</p>
@@ -506,7 +512,7 @@ e_{ip} &amp;\sim N(0, \sigma_e)
 <section id="simulating-items-and-participants" class="level2" data-number="2.5">
 <h2 data-number="2.5" class="anchored" data-anchor-id="simulating-items-and-participants"><span class="header-section-number">2.5</span> Simulating Items and Participants</h2>
 <p>To be able to simulate trials (a single participant responds to a single item), we first need to simulate the individual items and participants. Here we build two dataframes, of 50 items and 30 participants.</p>
-<p>The simulated random intercepts, <code>I0_i</code> and <code>P_0p</code>, quantify how each item and participant deviate from the fixed-effect average effect.</p>
+<p>The simulated random intercepts, <code>I_0i</code> and <code>P_0p</code>, quantify how each item and participant deviate from the fixed-effect average effect.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate 50 items</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n_items <span class="ot">&lt;-</span> <span class="dv">50</span></span>
@@ -517,7 +523,7 @@ e_{ip} &amp;\sim N(0, \sigma_e)
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># item word frequencies</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">zipf =</span> <span class="fu">runif</span>(n_items, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># item intercepts</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">I0_i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">I_0i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate 30 participants</span></span>
@@ -527,7 +533,7 @@ e_{ip} &amp;\sim N(0, \sigma_e)
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># participant IDs</span></span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_id =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># participant intercepts</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">P0_p =</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, s_P0)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">P_0p =</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, s_P0)</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
@@ -537,12 +543,12 @@ e_{ip} &amp;\sim N(0, \sigma_e)
 <p>For example, just as we can <a href="01-linear_models.html#intercept-slope">plot a single simulated linear relationship</a>, so too can we plot how this would look for items and participants in a given sample:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (a)</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(items) <span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>I0_i, <span class="at">slope=</span>b_1, <span class="at">group=</span>i_id)) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>I_0i, <span class="at">slope=</span>b_1, <span class="at">group=</span>i_id)) <span class="sc">+</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span>b_0, <span class="at">slope=</span>b_1, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">7.5</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="fl">7.5</span>))</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># (b)</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(participants) <span class="sc">+</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>P0_p, <span class="at">slope=</span>b_1, <span class="at">group=</span>p_id)) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>P_0p, <span class="at">slope=</span>b_1, <span class="at">group=</span>p_id)) <span class="sc">+</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span>b_0, <span class="at">slope=</span>b_1, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">7.5</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="fl">7.5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
@@ -579,9 +585,9 @@ Note
 <p>Panel (b) shows each participant’s predicted average response time to a stimulus of any given frequency. However, we can’t interpret panel (a) in this way, because each item only has one <code>zipf</code> value! Here is a version of the plot showing where the simulated items actually fall on this relationship:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(items) <span class="sc">+</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>I0_i, <span class="at">slope=</span>b_1, <span class="at">group=</span>i_id),</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> b_0<span class="sc">+</span>I_0i, <span class="at">slope=</span>b_1, <span class="at">group=</span>i_id),</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> zipf, <span class="at">y =</span> I0_i <span class="sc">+</span> b_0 <span class="sc">+</span> b_1<span class="sc">*</span>zipf),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> zipf, <span class="at">y =</span> I_0i <span class="sc">+</span> b_0 <span class="sc">+</span> b_1<span class="sc">*</span>zipf),</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">shape=</span><span class="dv">3</span>) <span class="sc">+</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span>b_0, <span class="at">slope=</span>b_1, <span class="at">colour=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">7.5</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="fl">7.5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -610,7 +616,7 @@ Note
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(trials)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,500 × 6
-    i_id  zipf   I0_i  p_id     P0_p    e_ip
+    i_id  zipf   I_0i  p_id     P_0p    e_ip
    &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt;
  1     1  6.80 0.0698     1 -0.00396  0.518 
  2     1  6.80 0.0698     2  0.192    0.0523
@@ -643,12 +649,12 @@ Note
 <h2 data-number="2.8" class="anchored" data-anchor-id="simulating-responses"><span class="header-section-number">2.8</span> Simulating Responses</h2>
 <p>Now that we have simulated trials, we can use our formula to simulate each participant’s response to each item.</p>
 <p>As a quick reminder, here is the formula again:</p>
-<p><span class="math display">\[logRT_{ip} = \beta_0 + I0_i + P0_p + \beta_1 Zipf_{ip} + e_{ip}\]</span></p>
+<p><span class="math display">\[logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + \beta_1 Zipf_{ip} + e_{ip}\]</span></p>
 <p>We use this formula to add the simulated log response times to the <code>trials</code> dataframe:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    trials,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_rt =</span> b_0 <span class="sc">+</span> I0_i <span class="sc">+</span> P0_p <span class="sc">+</span> b_1 <span class="sc">*</span> zipf <span class="sc">+</span> e_ip</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_rt =</span> b_0 <span class="sc">+</span> I_0i <span class="sc">+</span> P_0p <span class="sc">+</span> b_1 <span class="sc">*</span> zipf <span class="sc">+</span> e_ip</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>If we plot these observations coloured by items or participants, you can see how item and participant variability is reflected in the structure of the data:</p>
@@ -756,12 +762,12 @@ zipf -0.812</code></pre>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># coerce to a dataframe</span></span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rename the "(Intercept)" column to remove the parentheses</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">est_P0_p =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">est_P_0p =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>)</span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(res_p_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 30 × 2
-   p_id   est_P0_p
+   p_id   est_P_0p
    &lt;chr&gt;     &lt;dbl&gt;
  1 1     -0.0213  
  2 2      0.0693  
@@ -779,7 +785,7 @@ zipf -0.812</code></pre>
 <p>Recall that the random effects are per-unit (e.g., per-participant) deviations from the fixed effects. We can add the random intercept to the fixed-effect intercept to get per-participant predictions of average response times across Zipf.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(res_p_df) <span class="sc">+</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> fes[[<span class="st">"(Intercept)"</span>]]<span class="sc">+</span>est_P0_p,</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="fu">aes</span>(<span class="at">intercept =</span> fes[[<span class="st">"(Intercept)"</span>]]<span class="sc">+</span>est_P_0p,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">slope=</span>fes[[<span class="st">"zipf"</span>]],</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">group=</span>p_id)) <span class="sc">+</span></span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span>fes[[<span class="st">"(Intercept)"</span>]],</span>
