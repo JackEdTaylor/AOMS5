@@ -131,8 +131,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -484,9 +498,9 @@ window.Quarto = {
 <pre><code>[1] 6.397823</code></pre>
 </div>
 </div>
-<p>Typically, this is termed the <em>Intercept</em>, and is written as <span class="math inline">\(\beta_0\)</span>.</p>
+<p>Typically, this is termed the <em>Intercept</em>, and is written as <span class="math inline">\beta_0</span>.</p>
 <p>If we were to try to predict our dependent variable using just the intercept, a standard way of writing this would be:</p>
-<p><span class="math display">\[y_i = \beta_0\]</span></p>
+<p><span class="math display">y_i = \beta_0</span></p>
 <p>We could plot our prediction as a red line on our plot from earlier:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(zipf, log_rt)) <span class="sc">+</span></span>
@@ -507,8 +521,8 @@ window.Quarto = {
 </section>
 <section id="intercept-slope" class="level2" data-number="1.4">
 <h2 data-number="1.4" class="anchored" data-anchor-id="intercept-slope"><span class="header-section-number">1.4</span> Intercept + Slope</h2>
-<p>In addition to the intercept, we can calculate a slope. This is usually written as <span class="math inline">\(b_1\)</span>. It is multiplied by our predictor, and represents the change in <span class="math inline">\(y_i\)</span> associated with a one-unit increase in <span class="math inline">\(x\)</span> for item <span class="math inline">\(i\)</span>.</p>
-<p><span class="math display">\[ logRT_i = \beta_0 + \beta_1 zipf_i \]</span></p>
+<p>In addition to the intercept, we can calculate a slope. This is usually written as <span class="math inline">b_1</span>. It is multiplied by our predictor, and represents the change in <span class="math inline">y_i</span> associated with a one-unit increase in <span class="math inline">x</span> for item <span class="math inline">i</span>.</p>
+<p><span class="math display"> logRT_i = \beta_0 + \beta_1 zipf_i </span></p>
 <p>Whereas before we could just calculate the mean, now we need to estimate these parameters. R has a handy <code>lm()</code> function for this.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf, <span class="at">data =</span> dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -545,7 +559,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Note that the model intercept <span class="math inline">\(\beta_0\)</span> is now 6.851709, rather than 6.3978225. This is because the intercept actually specifies the value of our red line when <span class="math inline">\(x_i=0\)</span>. If we want <span class="math inline">\(\beta_0\)</span> to still reflect the mean, we can just mean-centre <code>zipf</code>.</p>
+<p>Note that the model intercept <span class="math inline">\beta_0</span> is now 6.851709, rather than 6.3978225. This is because the intercept actually specifies the value of our red line when <span class="math inline">x_i=0</span>. If we want <span class="math inline">\beta_0</span> to still reflect the mean, we can just mean-centre <code>zipf</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">mutate</span>(dat, <span class="at">zipf_cent =</span> zipf <span class="sc">-</span> <span class="fu">mean</span>(zipf))</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -609,16 +623,16 @@ Note
 </div>
 </div>
 </div>
-<p>This noise is typically written as <span class="math inline">\(e_i\)</span>. We specify it as being drawn from a normal distribution (<span class="math inline">\(\mathcal{N}()\)</span>) with a mean of zero and a standard deviation of <span class="math inline">\(\sigma\)</span>:</p>
-<p><span class="math display">\[\begin{aligned}
+<p>This noise is typically written as <span class="math inline">e_i</span>. We specify it as being drawn from a normal distribution (<span class="math inline">\mathcal{N}()</span>) with a mean of zero and a standard deviation of <span class="math inline">\sigma</span>:</p>
+<p><span class="math display">\begin{aligned}
 logRT_i &amp;= \beta_0 + \beta_1 zipf_i + e_i \\
 e_i &amp;\sim \mathcal{N}(0, \sigma)
-\end{aligned}\]</span></p>
+\end{aligned}</span></p>
 <p>We now have 3 free parameters that are estimated by the <code>lm()</code> function in R:</p>
 <ul>
-<li><span class="math inline">\(b_0\)</span>: <code>(Intercept)</code></li>
-<li><span class="math inline">\(b_1\)</span>: <code>zipf</code></li>
-<li><span class="math inline">\(\sigma\)</span>: <code>Residual standard error</code></li>
+<li><span class="math inline">b_0</span>: <code>(Intercept)</code></li>
+<li><span class="math inline">b_1</span>: <code>zipf</code></li>
+<li><span class="math inline">\sigma</span>: <code>Residual standard error</code></li>
 </ul>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( <span class="fu">lm</span>(log_rt <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf, <span class="at">data =</span> dat) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -648,10 +662,10 @@ F-statistic:   120 on 1 and 48 DF,  p-value: 1.184e-14</code></pre>
 <h2 data-number="1.6" class="anchored" data-anchor-id="simulating-new-data"><span class="header-section-number">1.6</span> Simulating New Data</h2>
 <p>Now that we have estimated those parameters, we can simulate a new dataset using the formula.</p>
 <p>Here is the formula we will be using:</p>
-<p><span class="math display">\[\begin{aligned}
+<p><span class="math display">\begin{aligned}
 logRT_i &amp;= \beta_0 + \beta_1 Zipf_i + e_i \\
 e_i &amp;\sim \mathcal{N}(0, \sigma)
-\end{aligned}\]</span></p>
+\end{aligned}</span></p>
 <p>First, we will define the parameters used in the simulation:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># intercept</span></span>
