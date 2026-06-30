@@ -60,7 +60,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -371,6 +390,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
   <li><a href="#prior-knowledge" id="toc-prior-knowledge" class="nav-link" data-scroll-target="#prior-knowledge">Prior Knowledge</a></li>
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -425,7 +445,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="03-random_slopes">Random Slopes</a></li>
 <li><a href="04-random_correlations">Random Correlations</a></li>
 </ul>
-<p>We will take a simulation-based approach, simulating data based on the logic of mixed-effects models, and then fitting models via <code>lme4</code> to retrieve the parameters we simulate.</p>
+<p>We will take a simulation-based approach, simulating data based on the logic of mixed-effects models, and then fitting models via <code>lme4</code> to retrieve the parameters we simulate. Finally, we will see how the code we have built up over the workshop can be used to estimate statistical power from simulations.</p>
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>To make sure you have everything you need to take part in this workshop, you will need to install R, an IDE for R, and the packages we will be using.</p>
@@ -445,8 +465,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="prior-knowledge" class="level2">
 <h2 class="anchored" data-anchor-id="prior-knowledge">Prior Knowledge</h2>
 <p>This workshop assumes you have basic knowledge of working with data and code in R and some familiarity with linear modelling. No prior experience working with mixed-effects models is necessary.</p>
+</section>
+<section id="acknowledgements" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
+<p>This course takes a lot of inspiration from the approach presented by <span class="citation" data-cites="debruineUnderstandingMixedEffectsModels2021">DeBruine and Barr (<a href="references.html#ref-debruineUnderstandingMixedEffectsModels2021" role="doc-biblioref">2021</a>)</span>.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-debruineUnderstandingMixedEffectsModels2021" class="csl-entry" role="listitem">
+DeBruine, Lisa M., and Dale J. Barr. 2021. <span>“Understanding <span>Mixed-Effects Models Through Data Simulation</span>.”</span> <em>Advances in Methods and Practices in Psychological Science</em> 4 (1): 2515245920965119. <a href="https://doi.org/10.1177/2515245920965119">https://doi.org/10.1177/2515245920965119</a>.
+</div>
+</div>
 </section>
 </section>
 

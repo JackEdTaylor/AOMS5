@@ -12,7 +12,7 @@ In this workshop, we will introduce linear mixed-effects modelling. We will star
 - [Random Slopes](03-random_slopes)
 - [Random Correlations](04-random_correlations)
 
-We will take a simulation-based approach, simulating data based on the logic of mixed-effects models, and then fitting models via `lme4` to retrieve the parameters we simulate.
+We will take a simulation-based approach, simulating data based on the logic of mixed-effects models, and then fitting models via `lme4` to retrieve the parameters we simulate. Finally, we will see how the code we have built up over the workshop can be used to estimate statistical power from simulations.
 
 ## Setup
 
@@ -36,3 +36,7 @@ install.packages(req_packages)
 ## Prior Knowledge
 
 This workshop assumes you have basic knowledge of working with data and code in R and some familiarity with linear modelling. No prior experience working with mixed-effects models is necessary.
+
+## Acknowledgements
+
+This course takes a lot of inspiration from the approach presented by @debruineUnderstandingMixedEffectsModels2021.

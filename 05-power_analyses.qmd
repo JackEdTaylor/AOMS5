@@ -600,7 +600,8 @@ ggplot(sims_summ, aes(n_participants, power, colour=n_items, group=n_items)) +
 #| code-fold: true
 #| code-summary: "Show solution"
 #| fig-height: 3
-#| fig-width: 3
+#| fig-width: 3.5
+#| layout-ncol: 2
 # fit model with interaction between sqrt(N participant) and sqrt(N item)
 power_mod <- glm(
   is_sig ~ 1 + sqrt(n_participants) * sqrt(n_items),
