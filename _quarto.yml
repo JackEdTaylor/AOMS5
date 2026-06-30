@@ -3,9 +3,9 @@ project:
   output-dir: docs
 
 book:
-  title: "AOMS5"
+  title: "AOMS5 Workshop - Modelling Behaviour with Mixed Effects"
   author: "Jack E. Taylor"
-  date: "06/25/2026"
+  date: "07/02/2026"
   chapters:
     - index.qmd
     - 01-linear_models.qmd
@@ -27,7 +27,6 @@ format:
         dev: png
         dev.args: 
           type: cairo-png
-    html-math-method: katex
 
 filters:
   - collapse-output  # https://github.com/mcanouil/quarto-collapse-output

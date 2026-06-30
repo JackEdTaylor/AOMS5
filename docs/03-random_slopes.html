@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Random Slopes – AOMS5</title>
+<title>3&nbsp; Random Slopes – AOMS5 Workshop - Modelling Behaviour with Mixed Effects</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -112,22 +112,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
- var mathElements = document.getElementsByClassName("math");
- var macros = [];
- for (var i = 0; i < mathElements.length; i++) {
-  var texText = mathElements[i].firstChild;
-  if (mathElements[i].tagName == "SPAN") {
-   katex.render(texText.data, mathElements[i], {
-    displayMode: mathElements[i].classList.contains('display'),
-    throwOnError: false,
-    macros: macros,
-    fleqn: false
-   });
-}}});
-  </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -344,7 +330,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">AOMS5</a> 
+      <a href="./">AOMS5 Workshop - Modelling Behaviour with Mixed Effects</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
@@ -447,14 +433,14 @@ window.Quarto = {
 <h2 data-number="3.1" class="anchored" data-anchor-id="what-are-random-slopes"><span class="header-section-number">3.1</span> What are Random Slopes?</h2>
 <p>In the <a href="02-random_intercepts">last section</a>, we saw how we can use linear mixed-effects models to account for item and participant variability simultaneously. We simulated and modelled random intercepts, which aim to describe the degree to which individual items and participants differ from the average of their population. For example, participants may be faster or slower relative to the population of possible participants.</p>
 <p>However, as well as different averages <em>overall</em>, participants may also differ in the size of the effect of word frequency. Some participants may show a larger effect than others. We can model these differences with <em>random slopes</em>. Like random intercepts, random slopes describe a deviation from the fixed-effect average. It is added to the fixed-effect slope before we multiply it by the predictor:</p>
-<p><span class="math display">logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip}</span></p>
-<p>For now (<a href="04-random_correlations"><em>ominous foreshadowing</em></a>), we will simulate the random effects independently. This means that we just draw <span class="math inline">P_{1p}</span> from a new independent normal distribution:</p>
-<p><span class="math display">\begin{aligned}
+<p><span class="math display">\[logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip}\]</span></p>
+<p>For now (<a href="04-random_correlations"><em>ominous foreshadowing</em></a>), we will simulate the random effects independently. This means that we just draw <span class="math inline">\(P_{1p}\)</span> from a new independent normal distribution:</p>
+<p><span class="math display">\[\begin{aligned}
 I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\
 P_{0p} &amp;\sim \mathcal{N}(0, \sigma_{P0}) \\
 P_{1p} &amp;\sim \mathcal{N}(0, \sigma_{P1}) \\
 e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
-\end{aligned}</span></p>
+\end{aligned}\]</span></p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -482,7 +468,7 @@ Note
 <section id="defining-parameters" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="defining-parameters"><span class="header-section-number">3.3</span> Defining Parameters</h2>
 <p>This time, try to write the code to simulate the data yourself, using the <a href="02-random_intercepts#defining-parameters">last section</a> as a guide.</p>
-<p>The parameters should be the same as before, except now we also simulate <span class="math inline">\sigma_{P1}</span> (<code>s_P1</code>). I suggest a value of 0.04.</p>
+<p>The parameters should be the same as before, except now we also simulate <span class="math inline">\(\sigma_{P1}\)</span> (<code>s_P1</code>). I suggest a value of 0.04.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show solution</summary>
@@ -576,7 +562,7 @@ Note
 </section>
 <section id="simulating-trials" class="level2" data-number="3.6">
 <h2 data-number="3.6" class="anchored" data-anchor-id="simulating-trials"><span class="header-section-number">3.6</span> Simulating Trials</h2>
-<p>This section is actually identical to what we did before. We get all combinations of items and participants, and then simulate <span class="math inline">e_{ip}</span> (<code>e_ip</code>) as random noise of mean 0 and SD <span class="math inline">\sigma_e</span> (<code>s_e</code>).</p>
+<p>This section is actually identical to what we did before. We get all combinations of items and participants, and then simulate <span class="math inline">\(e_{ip}\)</span> (<code>e_ip</code>) as random noise of mean 0 and SD <span class="math inline">\(\sigma_e\)</span> (<code>s_e</code>).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate trials</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">crossing</span>(items, participants) <span class="sc">|&gt;</span></span>

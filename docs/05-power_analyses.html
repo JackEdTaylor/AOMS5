@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>5&nbsp; Power Analyses – AOMS5</title>
+<title>5&nbsp; Power Analyses – AOMS5 Workshop - Modelling Behaviour with Mixed Effects</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -131,22 +131,8 @@ div.csl-indent {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
- var mathElements = document.getElementsByClassName("math");
- var macros = [];
- for (var i = 0; i < mathElements.length; i++) {
-  var texText = mathElements[i].firstChild;
-  if (mathElements[i].tagName == "SPAN") {
-   katex.render(texText.data, mathElements[i], {
-    displayMode: mathElements[i].classList.contains('display'),
-    throwOnError: false,
-    macros: macros,
-    fleqn: false
-   });
-}}});
-  </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -363,7 +349,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">AOMS5</a> 
+      <a href="./">AOMS5 Workshop - Modelling Behaviour with Mixed Effects</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
@@ -472,20 +458,20 @@ window.Quarto = {
 <section id="summary-so-far" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="summary-so-far"><span class="header-section-number">5.1</span> Summary so far</h2>
 <p>Over the last few sections, we’ve built up code for simulating data from the following model:</p>
-<p><span class="math display">\begin{aligned}
-logRT_{ip} &amp;= \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip} \\
-I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\
+<p><span class="math display">\[\begin{aligned}
+logRT_{ip} &amp;= \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip} \\\\
+I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\\\
 \begin{pmatrix}
     P_{0p} \\ P_{1p}
     \end{pmatrix}
-    &amp;\sim \mathcal{N}\!\left(\mathbf{0},\, \Sigma_P\right) \\
+    &amp;\sim \mathcal{N}\!\left(\mathbf{0},\, \Sigma_P\right) \\\\
 \Sigma_P &amp;=
     \begin{pmatrix}
     \sigma^2_{P0} &amp; \rho_P \sigma_{P0} \sigma_{P1} \\
     \rho_P \sigma_{P0} \sigma_{P1} &amp; \sigma^2_{P1}
-    \end{pmatrix} \\
+    \end{pmatrix} \\\\
 e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
-\end{aligned}</span></p>
+\end{aligned}\]</span></p>
 <p>One of the ways in which we could apply this code is in power analyses. With a power analysis, we could ask:</p>
 <blockquote class="blockquote">
 <p>“Assuming our simulated coefficients are correct, what is the probability of correctly detecting the effect of word frequency?”</p>
@@ -632,7 +618,7 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <h2 data-number="5.4" class="anchored" data-anchor-id="hypothesis-testing"><span class="header-section-number">5.4</span> Hypothesis Testing</h2>
 <p>There are many ways to test hypotheses. Even within the null hypothesis significance testing approach, there are many ways to calculate a <em>p</em> value.</p>
 <ul>
-<li><p><strong>Wald <em>p</em> values</strong> are the <em>p</em> values printed in the model <code>summary()</code> outputs for <code>lme4</code> models. They correspond to <em>z</em> values calculated as <span class="math inline">\beta/SE</span>. The <em>p</em> values then reflect the probability of seeing a <em>z</em> value at least this large, assuming the null hypothesis is true.</p></li>
+<li><p><strong>Wald <em>p</em> values</strong> are the <em>p</em> values printed in the model <code>summary()</code> outputs for <code>lme4</code> models. They correspond to <em>z</em> values calculated as <span class="math inline">\(\beta/SE\)</span>. The <em>p</em> values then reflect the probability of seeing a <em>z</em> value at least this large, assuming the null hypothesis is true.</p></li>
 <li><p><strong>Satterthwaite and Kenward-Roger <em>p</em> values</strong> are Wald <em>p</em> values, but with a correction to the degrees of freedom to address inflated false-positive rates.</p></li>
 <li><p><strong>Likelihood ratio tests</strong> provide <em>p</em> values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it. They reflect the probability of seeing a likelihood ratio at least as large as that observed, assuming that the models actually explain the data equally well.</p></li>
 </ul>
@@ -971,8 +957,8 @@ zipf_sc 0.155 </code></pre>
 </div>
 <p>We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the N associated with a probability of 0.9.</p>
 <p>Since our logit-link binomial model for power is estimating</p>
-<p><span class="math display"> log\left( \frac{p}{1-p} \right) = \beta_0 + \beta_1\sqrt{NParticipants}, </span></p>
-<p>we can rearrange this to tell us the value of <span class="math inline">NParticipants</span> for a given <span class="math inline">p</span>:</p>
+<p><span class="math display">\[ log\left( \frac{p}{1-p} \right) = \beta_0 + \beta_1\sqrt{NParticipants}, \]</span></p>
+<p>we can rearrange this to tell us the value of <span class="math inline">\(NParticipants\)</span> for a given <span class="math inline">\(p\)</span>:</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -985,17 +971,17 @@ zipf_sc 0.155 </code></pre>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><span class="math display">\begin{aligned}
+<p><span class="math display">\[\begin{aligned}
 log\left( \frac{p}{1-p} \right) &amp;= \beta_0 + \beta_1\sqrt{NParticipants} \\\\
 log\left( \frac{p}{1-p} \right) - \beta_1\sqrt{NParticipants} &amp;= \beta_0 \\\\
 \beta_1\sqrt{NParticipants} &amp;= log\left( \frac{p}{1-p} \right) - \beta_0 \\\\
 \sqrt{NParticipants} &amp;= \frac{ log\left( \frac{p}{1-p} \right) - \beta_0 }{\beta_1} \\\\
 NParticipants &amp;= \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{ \beta_1 } \right) ^2
-\end{aligned}</span></p>
+\end{aligned}\]</span></p>
 </div>
 </div>
 </div>
-<p><span class="math display">NParticipants = \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{ \beta_1 } \right) ^ 2</span></p>
+<p><span class="math display">\[NParticipants = \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{ \beta_1 } \right) ^ 2\]</span></p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>power_target <span class="ot">&lt;-</span> <span class="fl">0.9</span></span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>

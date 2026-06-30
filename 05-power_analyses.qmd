@@ -14,17 +14,17 @@ set.seed(1237865072)  # from sample(.Machine$integer.max, 1)
 Over the last few sections, we've built up code for simulating data from the following model:
 
 $$\begin{aligned}
-logRT_{ip} &= \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip} \\
-I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\
+logRT_{ip} &= \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip} \\\\
+I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\\\
 \begin{pmatrix}
     P_{0p} \\ P_{1p}
     \end{pmatrix}
-    &\sim \mathcal{N}\!\left(\mathbf{0},\, \Sigma_P\right) \\
+    &\sim \mathcal{N}\!\left(\mathbf{0},\, \Sigma_P\right) \\\\
 \Sigma_P &= 
     \begin{pmatrix}
     \sigma^2_{P0} & \rho_P \sigma_{P0} \sigma_{P1} \\
     \rho_P \sigma_{P0} \sigma_{P1} & \sigma^2_{P1}
-    \end{pmatrix} \\
+    \end{pmatrix} \\\\
 e_{ip} &\sim \mathcal{N}(0, \sigma_e)
 \end{aligned}$$
 
