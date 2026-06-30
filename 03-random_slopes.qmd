@@ -41,7 +41,6 @@ We'll use the following packages in this section:
 library(lme4)  # for fitting LMMs
 library(dplyr)  # for data wrangling
 library(tidyr)  # for data wrangling
-library(readr)  # for importing data
 library(ggplot2)  # for plotting
 ```
 

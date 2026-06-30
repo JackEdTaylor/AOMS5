@@ -22,9 +22,11 @@ format:
     theme:
       light: flatly
       dark: darkly
-    fig-format: svg
-  pdf:
-    documentclass: scrreprt
+    knitr:
+      opts_chunk:
+        dev: png
+        dev.args: 
+          type: cairo-png
 
 filters:
   - collapse-output  # https://github.com/mcanouil/quarto-collapse-output

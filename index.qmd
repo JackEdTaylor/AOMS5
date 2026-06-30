@@ -1,9 +1,38 @@
 # Preface {.unnumbered}
 
-This is a Quarto book.
+This workshop forms part of [AOMS5](https://cles.umk.pl/conferences-events/aoms5/).
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+> Location: [ICNT](https://icnt.umk.pl/), Room B.1.9
+
+> Time: 13:00 2nd July 2026
+
+In this workshop, we will introduce linear mixed-effects modelling. We will start with a [simple linear model](01-linear_models), and slowly build up the model by adding:
+
+- [Random Intercepts](02-random_intercepts)
+- [Random Slopes](03-random_slopes)
+- [Random Correlations](04-random_correlations)
+
+We will take a simulation-based approach, simulating data based on the logic of mixed-effects models, and then fitting models via `lme4` to retrieve the parameters we simulate.
+
+## Setup
+
+To make sure you have everything you need to take part in this workshop, you will need to install R, an IDE for R, and the packages we will be using.
+
+1.  Install R: https://cran.r-project.org/bin/windows/base/
+
+2.  Install RStudio (recommended IDE): https://posit.co/downloads
+
+3.  Install the required R packages. You can do this by running the following in an R terminal:
 
 ```{r}
-1 + 1
+#| eval: false
+req_packages <- c(
+  "lme4", "dplyr", "tidyr", "readr", "purrr",
+  "faux", "lmerTest", "broom.mixed", "ggplot2"
+)
+install.packages(req_packages)
 ```
+
+## Prior Knowledge
+
+This workshop assumes you have basic knowledge of working with data and code in R and some familiarity with linear modelling. No prior experience working with mixed-effects models is necessary.

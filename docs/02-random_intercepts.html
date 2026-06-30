@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -95,9 +95,9 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-ffc4c3fc79587ee79da4865b6a08975e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -484,8 +484,7 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)  <span class="co"># for fitting LMMs</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># for data wrangling</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)  <span class="co"># for data wrangling</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)  <span class="co"># for importing data</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># for plotting</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># for plotting</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="defining-parameters" class="level2" data-number="2.4">
@@ -562,7 +561,7 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-2-1.svg" class="img-fluid figure-img"></p>
+<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="288"></p>
 <figcaption>(a) Per-Item Variability</figcaption>
 </figure>
 </div>
@@ -570,7 +569,7 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-2-2.svg" class="img-fluid figure-img"></p>
+<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid figure-img" width="288"></p>
 <figcaption>(b) Per-Participant Variability</figcaption>
 </figure>
 </div>
@@ -600,7 +599,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-3-1.svg" class="img-fluid figure-img"></p>
+<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="216"></p>
 </figure>
 </div>
 </div>
@@ -677,7 +676,7 @@ Note
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-6-1.svg" class="img-fluid figure-img"></p>
+<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="288"></p>
 <figcaption>(a) Trials coloured by Item</figcaption>
 </figure>
 </div>
@@ -685,7 +684,7 @@ Note
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-6-2.svg" class="img-fluid figure-img"></p>
+<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="288"></p>
 <figcaption>(b) Trials coloured by Participant</figcaption>
 </figure>
 </div>
@@ -801,7 +800,7 @@ zipf -0.812</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-10-1.svg" class="img-fluid figure-img"></p>
+<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="480"></p>
 </figure>
 </div>
 </div>
@@ -841,7 +840,7 @@ zipf -0.812</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-13-1.svg" class="img-fluid figure-img"></p>
+<p><img src="02-random_intercepts_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="480"></p>
 </figure>
 </div>
 </div>

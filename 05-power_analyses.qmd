@@ -46,10 +46,10 @@ library(lme4)  # for fitting LMMs
 library(dplyr)  # for data wrangling
 library(tidyr)  # for data wrangling
 library(purrr)  # for iterating
-library(readr)  # for importing data
 library(faux)  # for simulating multivariate normals
 library(lmerTest)  # for calculating significance
 library(broom.mixed)  # for getting tidy summaries from models
+library(parallel)  # for parallelisation
 library(ggplot2)  # for plotting
 ```
 
@@ -151,11 +151,11 @@ sim_trials(n_participants=250, s_P0=0.3)
 
 There are many ways to test hypotheses. Even within the null hypothesis significance testing approach, there are many ways to calculate a *p* value.
 
-* **Wald *p* values** are the *p* values printed in the model `summary()` outputs for `lme4` models. They correspond to *z* values calculated as $\beta/SE$. The *p* values then reflect the probability of seeing a *z* value at least this large, assuming the null hypothesis is true.
+- **Wald *p* values** are the *p* values printed in the model `summary()` outputs for `lme4` models. They correspond to *z* values calculated as $\beta/SE$. The *p* values then reflect the probability of seeing a *z* value at least this large, assuming the null hypothesis is true.
 
-* **Satterthwaite and Kenward-Roger *p* values** are Wald *p* values, but with a correction to the degrees of freedom to address inflated false-positive rates.
+- **Satterthwaite and Kenward-Roger *p* values** are Wald *p* values, but with a correction to the degrees of freedom to address inflated false-positive rates.
 
-* **Likelihood ratio tests** provide *p* values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it. They reflect the probability of seeing a likelihood ratio at least as large as that observed, assuming that the models actually explain the data equally well.
+- **Likelihood ratio tests** provide *p* values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it. They reflect the probability of seeing a likelihood ratio at least as large as that observed, assuming that the models actually explain the data equally well.
 
 These approaches differ in their power and false-positive rates. Satterthwaite and Kenward-Roger *p* values are generally the best calibrated tests, while Wald *p* values result in high false-positive rates [@lukeEvaluatingSignificanceLinear2017].
 
@@ -211,10 +211,10 @@ We now have everything we need to run some simulations to calculate power. Let's
 #| message: false
 n_sims <- 250
 
-sims_res <- lapply(1:n_sims, function(i) {
-  # simulate data
-  trials <- sim_trials(n_items=50, n_participants=50, b_1=-0.033) |>
-    mutate(zipf_sc = scale(zipf))
+# function for running a single simulation and returning the results
+sim_res <- function(sim_nr, options = list()) {
+  # simulate data (also pass the list of options)
+  trials <- do.call(sim_trials, options)
   
   # fit model
   m <- lmer(
@@ -242,38 +242,53 @@ sims_res <- lapply(1:n_sims, function(i) {
   }
   
   # get tidy summary with Satterthwaite p values
-  tidy(m, effects="fixed", ddf.method="Satterthwaite") |>
+  res <- tidy(m, effects="fixed", ddf.method="Satterthwaite") |>
     # only get the results for the zipf parameter (not also the intercept)
     filter(term == "zipf_sc") |>
     mutate(
       # store the simulation number
-      i = i,
+      sim_nr = sim_nr,
       # store whether converged
       converged = is.null(m@optinfo$conv$lme4$messages),
       # store whether random correlations were removed
       removed_rcs = removed_rcs
     )
-})
+  
+  # add the non-default arguments as columns in the output
+  options_df <- as_tibble(options)
+  res <- bind_cols(res, options_df)
+  
+  # return the dataframe
+  res
+}
+
+# run the simulations, passing the options as arguments to the function
+sims <- lapply(
+  # pass the simulation numbers as the first argument
+  1:n_sims, sim_res,
+  # then pass the desired options as subsequent arguments
+  options = list("n_items"=50, "n_participants"=50, "b_1"=-0.033)
+)
 ```
 
 This will give us a list of dataframes (one dataframe for each simulation). We can use `purrr::list_rbind()` to join these into one large dataframe.
 
 ```{r}
-sims_res_df <- list_rbind(sims_res)
+sims_df <- list_rbind(sims)
 
-sims_res_df
+sims_df
 ```
 
-We can also see that random correlations were removed from about 1 third of models because of convergence issues.
+We can also see that random correlations were removed from a few models to address convergence issues.
 
 ```{r}
-count(sims_res_df, removed_rcs)
+count(sims_df, removed_rcs)
 ```
 
 As you can see here, all of the models then converged. This means that removing the random correlations addressed the nonconvergence in those original 5 models.
 
 ```{r}
-count(sims_res_df, converged)
+count(sims_df, converged)
 ```
 
 ## Calculating Power
@@ -281,11 +296,336 @@ count(sims_res_df, converged)
 We can estimate the power as the proportion of simulations in which our p value is smaller than alpha.
 
 ```{r}
-mean(sims_res_df$p.value < 0.05)
+mean(sims_df$p.value < 0.05)
 ```
 
 This tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, we should expect 94.8% of studies to correctly detect the effect using our analysis method.
 
+Given that we expect frequency to have a negative effect (i.e., speed up responses), we could also calculate the one-tailed power for the same alpha level:
+
+```{r}
+mean(sims_df$p.value < 0.1 & sims_df$estimate < 0)
+```
+
 ## Parallelisation
 
-Running large numbers of simulations, in which each simulation requires fitting a mixed-effects model, is quite intensive in terms of computation and time. Since R is fitting these models in a single-thread manner, we could make this much faster by parallelising our simulations across cores.
+Running large numbers of simulations, in which each simulation requires fitting a mixed-effects model, is quite intensive in terms of computation and time. This is especially true if we want to run simulations across multiple combinations of parameters.
+
+For instance, we often want to run simulations across multiple values of *N*, to identify the number of participants and/or items required to reach a certain power target. Let's run 250 simulations for each value of `n_participants` from 3 to 15.
+
+```{r}
+n_sims <- 250  # per combination of parameters
+n_participants <- 3:15
+```
+
+Since R is fitting these models in a single-thread manner, we could make this much faster by parallelising our simulations across cores.
+
+First, we build a dataframe that contains all combinations of parameters for the simulations we want to run. To do this, I use `expand_grid()`.
+
+```{r}
+sim_pars_df <- expand_grid(
+  sim_nr = 1:n_sims,
+  n_participants = n_participants
+)
+```
+
+It's also important to ensure reproducibility. One approach is to pre-assign random seeds for each simulation:
+
+```{r}
+# assign random seeds for each simulation
+max_int <- 2147483647  # .Machine$integer.max
+total_n_sims <- nrow(sim_pars_df)  # get the total number of simulations to run
+sim_pars_df <- mutate(sim_pars_df, seed = sample.int(max_int, total_n_sims))
+```
+
+We then want to split the dataframe we've built into a list that we can iterate over easily. Here we split them into single-row dataframes with the parameters for individual simulations.
+
+```{r}
+sim_pars <- group_split(sim_pars_df, sim_id = row_number())
+```
+
+Each item in `sim_pars` now contains the parameters for running one simulation, e.g.:
+
+```{r}
+sim_pars[[1]]
+```
+
+We also need to now initialise our cluster. Here I create a cluster of as many cores as the `parallel` library can detect on my machine:
+
+```{r}
+# get the number of cores
+n_cores <- detectCores()
+# create a cluster with that number of cores
+cl <- makeCluster(n_cores)
+```
+
+We also need to make sure that each worker in the cluster has all the required objects and libraries loaded. Here we tell each worker to load the libraries that we use in the `sim_trials()` and `sim_res()` functions.
+
+```{r}
+cl_pkg <- clusterEvalQ(cl, {
+  library(dplyr)
+  library(tidyr)
+  library(lme4)
+  library(lmerTest)
+  library(faux)
+  library(broom.mixed)
+})
+```
+
+The clusters also need to have the `sim_trials()` and `sim_res()` functions available to them, so we pass the function objects.
+
+```{r}
+cl_obj <- clusterExport(cl, list("sim_trials", "sim_res"))
+```
+
+Finally, we can run the simulations.
+
+```{r}
+sims <- parLapply(cl, sim_pars, function(pars) {
+  set.seed(pars$seed)
+  
+  sim_res(
+    sim_nr = pars$sim_nr,
+    options = list("n_participants" = pars$n_participants)
+  )
+})
+```
+
+## Plotting Power over Parameters
+
+Again, we can use `list_rbind()` to convert the list of outputs to a single dataframe. We also add a column, `is_sig`, which will contain information on whether each individual simulation had a significant effect of Zipf.
+
+```{r}
+sims_df <- list_rbind(sims) |>
+  mutate(is_sig = as.integer(p.value < 0.05))
+```
+
+Here we calculate the power for each number of participants. I also calculate the a binomial confidence interval for each value of `n_participants`.
+
+```{r}
+sims_summ <- sims_df |>
+  group_by(n_participants) |>
+  summarise(
+    power = mean(is_sig),
+    ci_lwr = binom.test(sum(is_sig), n(), conf.level=0.95)$conf.int[1],
+    ci_upr = binom.test(sum(is_sig), n(), conf.level=0.95)$conf.int[2]
+  )
+```
+
+We can now plot how expected statistical power varies as we change the number of participants. I also add a horizontal line to show where 90% power would be:
+
+```{r}
+#| fig-height: 3
+#| fig-width: 4
+ggplot(sims_summ, aes(n_participants, power)) +
+  geom_point() +
+  geom_linerange(aes(ymin=ci_lwr, ymax=ci_upr)) +
+  geom_line() +
+  geom_hline(yintercept=0.9, linetype="dashed")
+```
+
+## Modelling Statistical Power
+
+We can also go one step further. Rather than estimating power for each value of N Participants separately, we can fit a general linear model that includes N Participants as a coefficient. A model formula that tends to predict power quite well is `is_sig ~ 1 + sqrt(n_participants)`.
+
+We could use such a model to make predictions about the expected power for a given value of `n_participants`. This can be very useful since, rather than running hundreds of simulations at each value of N, we can run fewer simulations in total, and then interpolate across the observed combinations to improve the precision of our predictions.
+
+```{r}
+# fit a model predicting power
+power_mod <- glm(
+  is_sig ~ 1 + sqrt(n_participants),
+  family = binomial("logit"),
+  data = sims_df
+)
+
+# predict power for a given number of participants
+predict(
+  power_mod,
+  newdata = tibble(n_participants = 5),
+  type = "response"
+)
+```
+
+We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the N associated with a probability of 0.9.
+
+Since our power model is estimating
+
+$$ log\left( \frac{p}{1-p} \right) = \beta_0 + \beta_1\sqrt{NParticipants}, $$
+
+we can rearrange this to tell us the value of $NParticipants$ for a given $p$:
+
+::: {.callout-note collapse="true"}
+#### Show Rearrangement Details
+
+$$\begin{aligned}
+log\left( \frac{p}{1-p} \right) &= \beta_0 + \beta_1\sqrt{NParticipants} \\
+log\left( \frac{p}{1-p} \right) - \beta_1\sqrt{NParticipants} &= \beta_0 \\
+\beta_1\sqrt{NParticipants} &= log\left( \frac{p}{1-p} \right) - \beta_0 \\
+\sqrt{NParticipants} &= \frac{ log\left( \frac{p}{1-p} \right) - \beta_0 }{\beta_1} \\
+NParticipants &= \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{ \beta_1 } \right) ^2
+\end{aligned}$$
+:::
+
+$$NParticipants = \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{ \beta_1 } \right) ^ 2$$
+
+```{r}
+power_target <- 0.9
+
+logit_target <- log(power_target/(1-power_target))
+
+power_b_0 <- coef(power_mod)[["(Intercept)"]]
+power_b_1 <- coef(power_mod)[["sqrt(n_participants)"]]
+
+target_n_sqrt <- (logit_target - power_b_0) / power_b_1
+
+target_n <- target_n_sqrt ** 2
+
+target_n
+```
+
+Based on this, we might plan to collect from 5 participants to reach the power target.
+
+Finally, we can plot this model's predictions using `geom_smooth()`. I've added dashed lines at the 90% power target, and the number of participants required to reach this target.
+
+```{r}
+#| fig-height: 3
+#| fig-width: 4
+ggplot(sims_summ, aes(n_participants, power)) +
+  geom_smooth(
+    aes(x=n_participants, y=is_sig),
+    data = sims_df,
+    method = glm,
+    method.args = list("family" = binomial("logit")),
+    formula = y ~ 1 + sqrt(x)
+  ) +
+  geom_point() +
+  geom_hline(yintercept=power_target, linetype="dashed") +
+  geom_vline(xintercept=target_n, linetype="dashed") +
+  labs(x = "N Participants", y = "Statistical Power")
+```
+
+## Exercises
+
+1. The power above was calculated using two-tailed power. Compare the power curves for one-tailed and two-tailed power. (Note: this should not require any new simulations!)
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show solution"
+#| layout-ncol: 2
+#| fig-height: 3
+#| fig-width: 4
+# calculate significance for one- and two-tailed separately
+sims_df <- list_rbind(sims) |>
+  expand_grid(sig_test = c("one-tailed", "two-tailed")) |>
+  mutate(is_sig = ifelse(
+    sig_test == "one-tailed",
+    as.integer(p.value < 0.1 & estimate < 0),
+    as.integer(p.value < 0.05)
+  ))
+
+# calculate mean for one- and two-tailed separately
+sims_summ <- sims_df |>
+  group_by(n_participants, sig_test) |>
+  summarise(power = mean(is_sig))
+
+# plot
+ggplot(sims_summ, aes(n_participants, power, colour=sig_test, group=sig_test)) +
+  geom_smooth(
+    aes(x = n_participants, y = is_sig),
+    data = sims_df,
+    method = glm,
+    method.args = list("family" = binomial("logit")),
+    formula = y ~ 1 + sqrt(x)
+  ) +
+  geom_point() +
+  geom_hline(yintercept=power_target, linetype="dashed") +
+  labs(x = "N Participants", y = "Statistical Power")
+```
+
+2. Run new simulations to consider possible values of both N Participants and N Items. I suggest 100 simulations per parameter. If possible, try to recreate the plot below:
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show solution"
+#| fig-height: 3
+#| fig-width: 4
+# set up parameters (16900 simulations in total!)
+sim_pars_df <- expand_grid(
+  sim_nr = 1:100,
+  n_participants = 3:15,
+  n_items = 3:15
+)
+
+# convert to list with parameters for each simulation
+sim_pars <- group_split(sim_pars_df, sim_id = row_number())
+
+# run simulations
+sims <- parLapply(cl, sim_pars, function(pars) {
+  set.seed(pars$seed)
+  
+  sim_res(
+    sim_nr = pars$sim_nr,
+    options = list(
+      "n_participants" = pars$n_participants,
+      "n_items" = pars$n_items
+    )
+  )
+})
+
+# convert to dataframe
+sims_df <- list_rbind(sims) |>
+  mutate(is_sig = as.integer(p.value < 0.05))
+
+# calculate power per combination
+sims_summ <- sims_df |>
+  group_by(n_participants, n_items) |>
+  summarise(power = mean(is_sig))
+
+# plot
+ggplot(sims_summ, aes(n_participants, power, colour=n_items, group=n_items)) +
+  geom_point() +
+  geom_smooth(
+    aes(x = n_participants, y = is_sig),
+    data = sims_df,
+    method = glm,
+    method.args = list("family" = binomial("logit")),
+    formula = y ~ 1 + sqrt(x)
+  ) +
+  scale_colour_viridis_c()
+```
+
+3. The plot above actually fit a separate model for each value of `n_items`. Can you think of a way of fitting one model that uses both `n_items` and `n_participants` as predictors? If possible, see whether you can produce the two plots below.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show solution"
+#| fig-height: 3
+#| fig-width: 3
+# fit model with interaction between sqrt(N participant) and sqrt(N item)
+power_mod <- glm(
+  is_sig ~ 1 + sqrt(n_participants) * sqrt(n_items),
+  family = binomial("logit"),
+  data = sims_df
+)
+
+# get predicted power for each combination of Ns
+combs_df <- expand_grid(n_participants=3:15, n_items=3:15)
+
+combs_df$pred_power <- predict(
+  power_mod,
+  newdata = combs_df,
+  type = "response"
+)
+
+# plot per-cell means
+ggplot(sims_summ, aes(n_participants, n_items, fill=power)) +
+  geom_raster() +
+  scale_fill_viridis_c(limits = c(0, 1)) +
+  labs(title = "Empirical Means")
+
+# plot model predictions
+ggplot(combs_df, aes(n_participants, n_items, fill=pred_power)) +
+  geom_raster() +
+  scale_fill_viridis_c(limits = c(0, 1)) +
+  labs(title = "Model Predictions")
+```
