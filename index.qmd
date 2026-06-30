@@ -12,15 +12,15 @@ In this workshop, we will introduce linear mixed-effects modelling. We will star
 - [Random Slopes](03-random_slopes)
 - [Random Correlations](04-random_correlations)
 
-We will take a simulation-based approach, simulating data based on the logic of mixed-effects models, and then fitting models via `lme4` to retrieve the parameters we simulate. Finally, we will see how the code we have built up over the workshop can be used to estimate statistical power from simulations.
+We will take a simulation-based approach, simulating data based on the logic of mixed-effects models, and then fitting models via `lme4` to retrieve the parameters we simulate. Finally, we will see how the code we have built up over the workshop can be used to estimate [statistical power](05-power_analyses) from simulations.
 
 ## Setup
 
 To make sure you have everything you need to take part in this workshop, you will need to install R, an IDE for R, and the packages we will be using.
 
-1.  Install R: https://cran.r-project.org/bin/windows/base/
+1.  Install R: [https://cran.r-project.org/bin/windows/base/](https://cran.r-project.org/bin/windows/base/)
 
-2.  Install RStudio (recommended IDE): https://posit.co/downloads
+2.  Install RStudio (recommended IDE): [https://posit.co/downloads](https://posit.co/downloads)
 
 3.  Install the required R packages. You can do this by running the following in an R terminal:
 

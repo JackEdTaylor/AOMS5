@@ -448,7 +448,7 @@ predict(
 
 We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the N associated with a probability of 0.9.
 
-Since our power model is estimating
+Since our logit-link binomial model for power is estimating
 
 $$ log\left( \frac{p}{1-p} \right) = \beta_0 + \beta_1\sqrt{NParticipants}, $$
 
@@ -458,10 +458,10 @@ we can rearrange this to tell us the value of $NParticipants$ for a given $p$:
 #### Show Rearrangement Details
 
 $$\begin{aligned}
-log\left( \frac{p}{1-p} \right) &= \beta_0 + \beta_1\sqrt{NParticipants} \\
-log\left( \frac{p}{1-p} \right) - \beta_1\sqrt{NParticipants} &= \beta_0 \\
-\beta_1\sqrt{NParticipants} &= log\left( \frac{p}{1-p} \right) - \beta_0 \\
-\sqrt{NParticipants} &= \frac{ log\left( \frac{p}{1-p} \right) - \beta_0 }{\beta_1} \\
+log\left( \frac{p}{1-p} \right) &= \beta_0 + \beta_1\sqrt{NParticipants} \\\\
+log\left( \frac{p}{1-p} \right) - \beta_1\sqrt{NParticipants} &= \beta_0 \\\\
+\beta_1\sqrt{NParticipants} &= log\left( \frac{p}{1-p} \right) - \beta_0 \\\\
+\sqrt{NParticipants} &= \frac{ log\left( \frac{p}{1-p} \right) - \beta_0 }{\beta_1} \\\\
 NParticipants &= \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{ \beta_1 } \right) ^2
 \end{aligned}$$
 :::
@@ -510,6 +510,8 @@ ggplot(sims_summ, aes(n_participants, power)) +
 
 ```{r}
 #| code-fold: true
+#| message: false
+#| warning: false
 #| code-summary: "Show solution"
 #| layout-ncol: 2
 #| fig-height: 3
@@ -546,6 +548,8 @@ ggplot(sims_summ, aes(n_participants, power, colour=sig_test, group=sig_test)) +
 
 ```{r}
 #| code-fold: true
+#| message: false
+#| warning: false
 #| code-summary: "Show solution"
 #| fig-height: 3
 #| fig-width: 4
@@ -598,6 +602,8 @@ ggplot(sims_summ, aes(n_participants, power, colour=n_items, group=n_items)) +
 
 ```{r}
 #| code-fold: true
+#| message: false
+#| warning: false
 #| code-summary: "Show solution"
 #| fig-height: 3
 #| fig-width: 3.5

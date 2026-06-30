@@ -27,6 +27,7 @@ format:
         dev: png
         dev.args: 
           type: cairo-png
+    html-math-method: katex
 
 filters:
   - collapse-output  # https://github.com/mcanouil/quarto-collapse-output
