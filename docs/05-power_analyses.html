@@ -819,7 +819,7 @@ zipf_sc 0.155 </code></pre>
 <pre><code>[1] 0.948</code></pre>
 </div>
 </div>
-<p>This tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, we should expect 94.8% of studies to correctly detect the effect using our analysis method.</p>
+<p>This tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, then in the long run we should expect 94.8% of studies to correctly detect the effect using our analysis method.</p>
 <p>Given that we expect frequency to have a negative effect (i.e., speed up responses), we could also calculate the one-tailed power for the same alpha level:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(sims_df<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.1</span> <span class="sc">&amp;</span> sims_df<span class="sc">$</span>estimate <span class="sc">&lt;</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

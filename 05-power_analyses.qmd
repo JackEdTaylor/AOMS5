@@ -299,7 +299,7 @@ We can estimate the power as the proportion of simulations in which our p value 
 mean(sims_df$p.value < 0.05)
 ```
 
-This tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, we should expect 94.8% of studies to correctly detect the effect using our analysis method.
+This tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, then in the long run we should expect `{r} round(mean(sims_df$p.value < 0.05) * 100, 2)`% of studies to correctly detect the effect using our analysis method.
 
 Given that we expect frequency to have a negative effect (i.e., speed up responses), we could also calculate the one-tailed power for the same alpha level:
 

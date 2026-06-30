@@ -484,7 +484,7 @@
     "href": "05-power_analyses.html#calculating-power",
     "title": "5  Power Analyses",
     "section": "5.8 Calculating Power",
-    "text": "5.8 Calculating Power\nWe can estimate the power as the proportion of simulations in which our p value is smaller than alpha.\n\nmean(sims_df$p.value &lt; 0.05)\n\n[1] 0.948\n\n\nThis tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, we should expect 94.8% of studies to correctly detect the effect using our analysis method.\nGiven that we expect frequency to have a negative effect (i.e., speed up responses), we could also calculate the one-tailed power for the same alpha level:\n\nmean(sims_df$p.value &lt; 0.1 & sims_df$estimate &lt; 0)\n\n[1] 0.98",
+    "text": "5.8 Calculating Power\nWe can estimate the power as the proportion of simulations in which our p value is smaller than alpha.\n\nmean(sims_df$p.value &lt; 0.05)\n\n[1] 0.948\n\n\nThis tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, then in the long run we should expect 94.8% of studies to correctly detect the effect using our analysis method.\nGiven that we expect frequency to have a negative effect (i.e., speed up responses), we could also calculate the one-tailed power for the same alpha level:\n\nmean(sims_df$p.value &lt; 0.1 & sims_df$estimate &lt; 0)\n\n[1] 0.98",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Power Analyses</span>"
     ]
