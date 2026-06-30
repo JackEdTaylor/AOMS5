@@ -87,7 +87,7 @@ multiply(4)
 
 Using the code snippets from the [last section](04-random_correlations), write a function, `sim_trials()`, that takes all free parameters as inputs and returns the simulated trials. I recommend setting all arguments to defaults based on the numbers we've used so far.
 
-As a last step, we should also [scale the Zipf variable](04-random_correlations#rescale-continuous-predictors) to promote model convergence.
+As a last step, the function should also [scale the Zipf variable](04-random_correlations#rescale-continuous-predictors) to promote model convergence.
 
 ```{r}
 #| code-fold: true
@@ -151,7 +151,7 @@ sim_trials(n_participants=250, s_P0=0.3)
 
 There are many ways to test hypotheses. Even within the null hypothesis significance testing approach, there are many ways to calculate a *p* value.
 
-- **Wald *p* values** are the *p* values printed in the model `summary()` outputs for `lme4` models. They correspond to *z* values calculated as $\beta/SE$. The *p* values then reflect the probability of seeing a *z* value at least this large, assuming the null hypothesis is true.
+- **Wald *p* values** are the *p* values printed in the model `summary()` outputs for `lme4` models. They correspond to *z* values calculated as $\beta/SE$. The *p* values then reflect the probability of seeing a *z* value at least as extreme as that observed, assuming the null hypothesis is true.
 
 - **Satterthwaite and Kenward-Roger *p* values** are Wald *p* values, but with a correction to the degrees of freedom to address inflated false-positive rates.
 
@@ -285,7 +285,7 @@ We can also see that random correlations were removed from a few models to addre
 count(sims_df, removed_rcs)
 ```
 
-As you can see here, all of the models then converged. This means that removing the random correlations addressed the nonconvergence in those original 5 models.
+We can also see that removing correlations from these 5 models did address convergence issues, because in the final check, all models converged.
 
 ```{r}
 count(sims_df, converged)
@@ -299,13 +299,15 @@ We can estimate the power as the proportion of simulations in which our p value 
 mean(sims_df$p.value < 0.05)
 ```
 
-This tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, then in the long run we should expect `{r} round(mean(sims_df$p.value < 0.05) * 100, 2)`% of studies to correctly detect the effect using our analysis method.
+This tells us that if we present 50 participants with 50 items, and the effect of Zipf is `{r} sims_df$b_1[[1]]`, then in the long run we should expect `{r} round(mean(sims_df$p.value < 0.05) * 100, 2)`% of studies to correctly detect the effect using our analysis method.
 
 Given that we expect frequency to have a negative effect (i.e., speed up responses), we could also calculate the one-tailed power for the same alpha level:
 
 ```{r}
 mean(sims_df$p.value < 0.1 & sims_df$estimate < 0)
 ```
+
+Although they have the same false-positive rate, one-tailed significance tests are higher.
 
 ## Parallelisation
 
@@ -382,8 +384,9 @@ Finally, we can run the simulations.
 
 ```{r}
 sims <- parLapply(cl, sim_pars, function(pars) {
+  # set the seed for reproducibility
   set.seed(pars$seed)
-  
+  # run the simulations, passing n_participants via the options list
   sim_res(
     sim_nr = pars$sim_nr,
     options = list("n_participants" = pars$n_participants)
@@ -400,7 +403,7 @@ sims_df <- list_rbind(sims) |>
   mutate(is_sig = as.integer(p.value < 0.05))
 ```
 
-Here we calculate the power for each number of participants. I also calculate the a binomial confidence interval for each value of `n_participants`.
+Here we calculate the power for each number of participants. I also calculate a binomial 95% confidence interval for each value of `n_participants`.
 
 ```{r}
 sims_summ <- sims_df |>
@@ -412,7 +415,7 @@ sims_summ <- sims_df |>
   )
 ```
 
-We can now plot how expected statistical power varies as we change the number of participants. I also add a horizontal line to show where 90% power would be:
+We can now plot how expected statistical power varies as we change the number of participants. Let's also add a horizontal line to show where 90% power would be:
 
 ```{r}
 #| fig-height: 3
@@ -446,7 +449,7 @@ predict(
 )
 ```
 
-We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the N associated with a probability of 0.9.
+We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the value of N associated with a probability of 0.9.
 
 Since our logit-link binomial model for power is estimating
 
@@ -483,9 +486,9 @@ target_n <- target_n_sqrt ** 2
 target_n
 ```
 
-Based on this, we might plan to collect from 5 participants to reach the power target.
+Based on this, we might plan to collect from 5 participants to reach at least `{r} round(power_target * 100, 2)`% power.
 
-Finally, we can plot this model's predictions using `geom_smooth()`. I've added dashed lines at the 90% power target, and the number of participants required to reach this target.
+Finally, we can plot this model's predictions using `geom_smooth()`. I've added dashed lines at the `{r} round(power_target * 100, 2)`% power target, and the number of participants required to reach this target.
 
 ```{r}
 #| fig-height: 3
@@ -544,7 +547,7 @@ ggplot(sims_summ, aes(n_participants, power, colour=sig_test, group=sig_test)) +
   labs(x = "N Participants", y = "Statistical Power")
 ```
 
-2. Run new simulations to consider possible values of both N Participants and N Items. I suggest 100 simulations per parameter. If possible, try to recreate the plot below:
+2. Run new simulations to consider possible values of both N Participants and N Items. I suggest 100 simulations per each unique combination of parameters. If possible, try to recreate the plot below:
 
 ```{r}
 #| code-fold: true
@@ -598,7 +601,7 @@ ggplot(sims_summ, aes(n_participants, power, colour=n_items, group=n_items)) +
   scale_colour_viridis_c()
 ```
 
-3. The plot above actually fit a separate model for each value of `n_items`. Can you think of a way of fitting one model that uses both `n_items` and `n_participants` as predictors? If possible, see whether you can produce the two plots below.
+3. The lines in the plot above actually fit used a separate model for each value of `n_items`. Can you think of a way of fitting one model that uses both `n_items` and `n_participants` as predictors? If possible, see whether you can produce the two plots below.
 
 ```{r}
 #| code-fold: true

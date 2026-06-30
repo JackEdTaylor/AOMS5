@@ -17,7 +17,7 @@ However, as well as different averages *overall*, participants may also differ i
 
 $$logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip}$$
 
-For now ([*ominous foreshadowing*](04-random_correlations)), we will simulate the random effects independently. This means that we just draw $P_{1p}$ from a new independent normal distribution:
+For now ([*ominous foreshadowing*](04-random_correlations)), we will simulate the random effects independently. This means that we just draw $P_{1p}$ from yet another independent normal distribution:
 
 $$\begin{aligned}
 I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\

@@ -161,6 +161,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -507,7 +508,7 @@ window.Quarto = {
 </section>
 <section id="intercept-slope" class="level2" data-number="1.4">
 <h2 data-number="1.4" class="anchored" data-anchor-id="intercept-slope"><span class="header-section-number">1.4</span> Intercept + Slope</h2>
-<p>In addition to the intercept, we can calculate a slope. This is usually written as <span class="math inline">\(b_1\)</span>. It is multiplied by our predictor, and represents the change in <span class="math inline">\(y_i\)</span> associated with a one-unit increase in <span class="math inline">\(x\)</span> for item <span class="math inline">\(i\)</span>.</p>
+<p>In addition to the intercept, we can calculate a slope. This is usually written as <span class="math inline">\(\beta_1\)</span>. It is multiplied by our predictor, and represents the change in <span class="math inline">\(y_i\)</span> associated with a one-unit increase in <span class="math inline">\(x\)</span> for item <span class="math inline">\(i\)</span>.</p>
 <p><span class="math display">\[ logRT_i = \beta_0 + \beta_1 zipf_i \]</span></p>
 <p>Whereas before we could just calculate the mean, now we need to estimate these parameters. R has a handy <code>lm()</code> function for this.</p>
 <div class="cell">
@@ -616,8 +617,8 @@ e_i &amp;\sim \mathcal{N}(0, \sigma)
 \end{aligned}\]</span></p>
 <p>We now have 3 free parameters that are estimated by the <code>lm()</code> function in R:</p>
 <ul>
-<li><span class="math inline">\(b_0\)</span>: <code>(Intercept)</code></li>
-<li><span class="math inline">\(b_1\)</span>: <code>zipf</code></li>
+<li><span class="math inline">\(\beta_0\)</span>: <code>(Intercept)</code></li>
+<li><span class="math inline">\(\beta_1\)</span>: <code>zipf</code></li>
 <li><span class="math inline">\(\sigma\)</span>: <code>Residual standard error</code></li>
 </ul>
 <div class="cell">

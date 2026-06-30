@@ -161,6 +161,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -525,7 +526,7 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 </div>
 </div>
 <p>Using the code snippets from the <a href="04-random_correlations">last section</a>, write a function, <code>sim_trials()</code>, that takes all free parameters as inputs and returns the simulated trials. I recommend setting all arguments to defaults based on the numbers we’ve used so far.</p>
-<p>As a last step, we should also <a href="04-random_correlations#rescale-continuous-predictors">scale the Zipf variable</a> to promote model convergence.</p>
+<p>As a last step, the function should also <a href="04-random_correlations#rescale-continuous-predictors">scale the Zipf variable</a> to promote model convergence.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show solution</summary>
@@ -618,7 +619,7 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <h2 data-number="5.4" class="anchored" data-anchor-id="hypothesis-testing"><span class="header-section-number">5.4</span> Hypothesis Testing</h2>
 <p>There are many ways to test hypotheses. Even within the null hypothesis significance testing approach, there are many ways to calculate a <em>p</em> value.</p>
 <ul>
-<li><p><strong>Wald <em>p</em> values</strong> are the <em>p</em> values printed in the model <code>summary()</code> outputs for <code>lme4</code> models. They correspond to <em>z</em> values calculated as <span class="math inline">\(\beta/SE\)</span>. The <em>p</em> values then reflect the probability of seeing a <em>z</em> value at least this large, assuming the null hypothesis is true.</p></li>
+<li><p><strong>Wald <em>p</em> values</strong> are the <em>p</em> values printed in the model <code>summary()</code> outputs for <code>lme4</code> models. They correspond to <em>z</em> values calculated as <span class="math inline">\(\beta/SE\)</span>. The <em>p</em> values then reflect the probability of seeing a <em>z</em> value at least as extreme as that observed, assuming the null hypothesis is true.</p></li>
 <li><p><strong>Satterthwaite and Kenward-Roger <em>p</em> values</strong> are Wald <em>p</em> values, but with a correction to the degrees of freedom to address inflated false-positive rates.</p></li>
 <li><p><strong>Likelihood ratio tests</strong> provide <em>p</em> values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it. They reflect the probability of seeing a likelihood ratio at least as large as that observed, assuming that the models actually explain the data equally well.</p></li>
 </ul>
@@ -799,7 +800,7 @@ zipf_sc 0.155 </code></pre>
 2 TRUE            5</code></pre>
 </div>
 </div>
-<p>As you can see here, all of the models then converged. This means that removing the random correlations addressed the nonconvergence in those original 5 models.</p>
+<p>We can also see that removing correlations from these 5 models did address convergence issues, because in the final check, all models converged.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(sims_df, converged)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -827,6 +828,7 @@ zipf_sc 0.155 </code></pre>
 <pre><code>[1] 0.98</code></pre>
 </div>
 </div>
+<p>Although they have the same false-positive rate, one-tailed significance tests are higher.</p>
 </section>
 <section id="parallelisation" class="level2" data-number="5.9">
 <h2 data-number="5.9" class="anchored" data-anchor-id="parallelisation"><span class="header-section-number">5.9</span> Parallelisation</h2>
@@ -890,13 +892,14 @@ zipf_sc 0.155 </code></pre>
 <p>Finally, we can run the simulations.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>sims <span class="ot">&lt;-</span> <span class="fu">parLapply</span>(cl, sim_pars, <span class="cf">function</span>(pars) {</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(pars<span class="sc">$</span>seed)</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sim_res</span>(</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sim_nr =</span> pars<span class="sc">$</span>sim_nr,</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">options =</span> <span class="fu">list</span>(<span class="st">"n_participants"</span> <span class="ot">=</span> pars<span class="sc">$</span>n_participants)</span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># set the seed for reproducibility</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(pars<span class="sc">$</span>seed)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run the simulations, passing n_participants via the options list</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sim_res</span>(</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">sim_nr =</span> pars<span class="sc">$</span>sim_nr,</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">options =</span> <span class="fu">list</span>(<span class="st">"n_participants"</span> <span class="ot">=</span> pars<span class="sc">$</span>n_participants)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="plotting-power-over-parameters" class="level2" data-number="5.10">
@@ -906,7 +909,7 @@ zipf_sc 0.155 </code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>sims_df <span class="ot">&lt;-</span> <span class="fu">list_rbind</span>(sims) <span class="sc">|&gt;</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">is_sig =</span> <span class="fu">as.integer</span>(p.value <span class="sc">&lt;</span> <span class="fl">0.05</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Here we calculate the power for each number of participants. I also calculate the a binomial confidence interval for each value of <code>n_participants</code>.</p>
+<p>Here we calculate the power for each number of participants. I also calculate a binomial 95% confidence interval for each value of <code>n_participants</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>sims_summ <span class="ot">&lt;-</span> sims_df <span class="sc">|&gt;</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(n_participants) <span class="sc">|&gt;</span></span>
@@ -916,7 +919,7 @@ zipf_sc 0.155 </code></pre>
 <span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_upr =</span> <span class="fu">binom.test</span>(<span class="fu">sum</span>(is_sig), <span class="fu">n</span>(), <span class="at">conf.level=</span><span class="fl">0.95</span>)<span class="sc">$</span>conf.int[<span class="dv">2</span>]</span>
 <span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>We can now plot how expected statistical power varies as we change the number of participants. I also add a horizontal line to show where 90% power would be:</p>
+<p>We can now plot how expected statistical power varies as we change the number of participants. Let’s also add a horizontal line to show where 90% power would be:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sims_summ, <span class="fu">aes</span>(n_participants, power)) <span class="sc">+</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
@@ -955,7 +958,7 @@ zipf_sc 0.155 </code></pre>
 0.9143551 </code></pre>
 </div>
 </div>
-<p>We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the N associated with a probability of 0.9.</p>
+<p>We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the value of N associated with a probability of 0.9.</p>
 <p>Since our logit-link binomial model for power is estimating</p>
 <p><span class="math display">\[ log\left( \frac{p}{1-p} \right) = \beta_0 + \beta_1\sqrt{NParticipants}, \]</span></p>
 <p>we can rearrange this to tell us the value of <span class="math inline">\(NParticipants\)</span> for a given <span class="math inline">\(p\)</span>:</p>
@@ -999,7 +1002,7 @@ NParticipants &amp;= \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{
 <pre><code>[1] 4.829742</code></pre>
 </div>
 </div>
-<p>Based on this, we might plan to collect from 5 participants to reach the power target.</p>
+<p>Based on this, we might plan to collect from 5 participants to reach at least 90% power.</p>
 <p>Finally, we can plot this model’s predictions using <code>geom_smooth()</code>. I’ve added dashed lines at the 90% power target, and the number of participants required to reach this target.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sims_summ, <span class="fu">aes</span>(n_participants, power)) <span class="sc">+</span></span>
@@ -1065,7 +1068,7 @@ NParticipants &amp;= \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{
 </div>
 </div>
 <ol start="2" type="1">
-<li>Run new simulations to consider possible values of both N Participants and N Items. I suggest 100 simulations per parameter. If possible, try to recreate the plot below:</li>
+<li>Run new simulations to consider possible values of both N Participants and N Items. I suggest 100 simulations per each unique combination of parameters. If possible, try to recreate the plot below:</li>
 </ol>
 <div class="cell">
 <details class="code-fold">
@@ -1123,7 +1126,7 @@ NParticipants &amp;= \left( \frac { log\left( \frac{p}{1-p} \right) - \beta_0 }{
 </div>
 </div>
 <ol start="3" type="1">
-<li>The plot above actually fit a separate model for each value of <code>n_items</code>. Can you think of a way of fitting one model that uses both <code>n_items</code> and <code>n_participants</code> as predictors? If possible, see whether you can produce the two plots below.</li>
+<li>The lines in the plot above actually fit used a separate model for each value of <code>n_items</code>. Can you think of a way of fitting one model that uses both <code>n_items</code> and <code>n_participants</code> as predictors? If possible, see whether you can produce the two plots below.</li>
 </ol>
 <details class="code-fold">
 <summary>Show solution</summary>

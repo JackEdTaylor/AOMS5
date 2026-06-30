@@ -161,6 +161,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -468,7 +469,7 @@ window.Quarto = {
 <li>We include <span class="math inline">\(I_{0i}\)</span>: per-item random intercepts</li>
 <li>We include <span class="math inline">\(P_{0p}\)</span>: per-participant random intercepts</li>
 </ul>
-<p>As we saw with <a href="01-linear_models.html#intercept-slope-residual"><span class="math inline">\(e_i\)</span> in the linear model example</a>, <span class="math inline">\(I_{0i}\)</span>, <span class="math inline">\(P_{0p}\)</span>, and <span class="math inline">\(e_{ip}\)</span> are all drawn from normal distributions with their own standard deviations:</p>
+<p><a href="01-linear_models.html#intercept-slope-residual">In the linear model example</a>, we saw that <span class="math inline">\(e_i\)</span> is normally distributed, with an unknown standard deviation. When we include random intercepts, we model <span class="math inline">\(I_{0i}\)</span>, <span class="math inline">\(P_{0p}\)</span>, and <span class="math inline">\(e_{ip}\)</span> all from their own normal distributions with their own standard deviations:</p>
 <p><span class="math display">\[\begin{aligned}
 I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\
 P_{0p} &amp;\sim \mathcal{N}(0, \sigma_{P0}) \\

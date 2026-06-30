@@ -142,6 +142,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -434,7 +435,7 @@ window.Quarto = {
 <p>In the <a href="02-random_intercepts">last section</a>, we saw how we can use linear mixed-effects models to account for item and participant variability simultaneously. We simulated and modelled random intercepts, which aim to describe the degree to which individual items and participants differ from the average of their population. For example, participants may be faster or slower relative to the population of possible participants.</p>
 <p>However, as well as different averages <em>overall</em>, participants may also differ in the size of the effect of word frequency. Some participants may show a larger effect than others. We can model these differences with <em>random slopes</em>. Like random intercepts, random slopes describe a deviation from the fixed-effect average. It is added to the fixed-effect slope before we multiply it by the predictor:</p>
 <p><span class="math display">\[logRT_{ip} = \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} + e_{ip}\]</span></p>
-<p>For now (<a href="04-random_correlations"><em>ominous foreshadowing</em></a>), we will simulate the random effects independently. This means that we just draw <span class="math inline">\(P_{1p}\)</span> from a new independent normal distribution:</p>
+<p>For now (<a href="04-random_correlations"><em>ominous foreshadowing</em></a>), we will simulate the random effects independently. This means that we just draw <span class="math inline">\(P_{1p}\)</span> from yet another independent normal distribution:</p>
 <p><span class="math display">\[\begin{aligned}
 I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\
 P_{0p} &amp;\sim \mathcal{N}(0, \sigma_{P0}) \\

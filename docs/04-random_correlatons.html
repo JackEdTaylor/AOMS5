@@ -161,6 +161,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -465,7 +466,7 @@ window.Quarto = {
 \begin{pmatrix}
     P_{0p} \\ P_{1p}
     \end{pmatrix}
-    \sim \mathcal{N}\!\left(\mathbf{0},\, \Sigma_P\right) \\
+    \sim \mathcal{N}\!\left(0,\, \Sigma_P\right) \\
 \]</span></p>
 <p>Rather than a single standard deviation, as we’ve seen so far, <span class="math inline">\(\Sigma_P\)</span> is a covariance matrix, describing the standard deviations (variances) of <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> on the diagonal, and the covariances on the upper and lower triangle.</p>
 <p><span class="math display">\[
@@ -815,7 +816,7 @@ Note
 </section>
 <section id="addressing-nonconvergence" class="level2" data-number="4.9">
 <h2 data-number="4.9" class="anchored" data-anchor-id="addressing-nonconvergence"><span class="header-section-number">4.9</span> Addressing Nonconvergence</h2>
-<p>It is worth saying that convergence warnings aren’t always totally reliable. It’s very difficult to estimate whether the nonlinear optimisers used by <code>lme4</code> have actually converged. Sometimes convergence warnings may be false positives. Even so, a model that passes these convergence tests is much more trustworthy, so we probably want to try to address any issues we see with convergence.</p>
+<p>It is worth saying that convergence warnings aren’t always totally reliable. It’s very difficult to estimate whether the nonlinear optimisers used by <code>lme4</code> have actually converged. Sometimes convergence warnings may be false positives. Even so, it is better to address convergence issues if we can.</p>
 <p>There are a few ways to deal with convergence issues:</p>
 <ol type="1">
 <li>Ensure the model is actually estimable</li>
@@ -844,7 +845,7 @@ Note
 <section id="rescale-continuous-predictors" class="level3" data-number="4.9.2">
 <h3 data-number="4.9.2" class="anchored" data-anchor-id="rescale-continuous-predictors"><span class="header-section-number">4.9.2</span> Rescale Continuous Predictors</h3>
 <p>A common fix when we have a continuous predictor is to simply rescale it (<em>z</em>-score, so centre and divide by SD). This helps because the nonlinear optimisers used to fit <code>lmer()</code> models can struggle when predictors have vastly different scales. Our Zipf values vary from 1.5 to 7.5, so this could be causing the problem.</p>
-<p>Indeed, scaling <code>zipf</code> addresses the convergence issues:</p>
+<p>Indeed, z-scoring <code>zipf</code> addresses the convergence issues:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">mutate</span>(trials, <span class="at">zipf_sc =</span> <span class="fu">scale</span>(zipf))</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
