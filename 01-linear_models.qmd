@@ -99,7 +99,7 @@ This is a start, but it ignores the clear effect of frequency (Zipf) on our resp
 
 ## Intercept + Slope
 
-In addition to the intercept, we can calculate a slope. This is usually written as $b_1$. It is multiplied by our predictor, and represents the change in $y_i$ associated with a one-unit increase in $x$ for item $i$.
+In addition to the intercept, we can calculate a slope. This is usually written as $\beta_1$. It is multiplied by our predictor, and represents the change in $y_i$ associated with a one-unit increase in $x$ for item $i$.
 
 $$ logRT_i = \beta_0 + \beta_1 zipf_i $$
 
@@ -199,8 +199,8 @@ e_i &\sim \mathcal{N}(0, \sigma)
 
 We now have 3 free parameters that are estimated by the `lm()` function in R:
 
-* $b_0$: `(Intercept)`
-* $b_1$: `zipf`
+* $\beta_0$: `(Intercept)`
+* $\beta_1$: `zipf`
 * $\sigma$: `Residual standard error`
 
 ```{r}
