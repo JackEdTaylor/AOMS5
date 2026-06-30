@@ -6,7 +6,7 @@
 #| warning: false
 #| include: false
 source("ggplot2_setup.R", local=TRUE)
-set.seed(1237865070)  # from sample(.Machine$integer.max, 1)
+set.seed(1237865072)  # from sample(.Machine$integer.max, 1)
 ```
 
 ## Summary so far
@@ -49,6 +49,7 @@ library(purrr)  # for iterating
 library(readr)  # for importing data
 library(faux)  # for simulating multivariate normals
 library(lmerTest)  # for calculating significance
+library(broom.mixed)  # for getting tidy summaries from models
 library(ggplot2)  # for plotting
 ```
 
@@ -86,6 +87,8 @@ multiply(4)
 
 Using the code snippets from the [last section](04-random_correlations), write a function, `sim_trials()`, that takes all free parameters as inputs and returns the simulated trials. I recommend setting all arguments to defaults based on the numbers we've used so far.
 
+As a last step, we should also [scale the Zipf variable](04-random_correlations#rescale-continuous-predictors) to promote model convergence.
+
 ```{r}
 #| code-fold: true
 #| code-summary: Show solution
@@ -120,7 +123,9 @@ sim_trials <- function(
   trials <- crossing(items, participants) |>
     mutate(
       e_ip = rnorm(n(), 0, s_e),
-      log_rt = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf + e_ip
+      log_rt = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf + e_ip,
+      # also include a scaled version of the zipf variable
+      zipf_sc = scale(zipf)
     )
   
   # return the simulated trials
@@ -146,10 +151,141 @@ sim_trials(n_participants=250, s_P0=0.3)
 
 There are many ways to test hypotheses. Even within the null hypothesis significance testing approach, there are many ways to calculate a *p* value.
 
-* **Wald *p* values** are the *p* values printed in the model `summary()` outputs for `lme4` models. Wald *p* values capture whether a model parameter is significantly different from zero.
+* **Wald *p* values** are the *p* values printed in the model `summary()` outputs for `lme4` models. They correspond to *z* values calculated as $\beta/SE$. The *p* values then reflect the probability of seeing a *z* value at least this large, assuming the null hypothesis is true.
 
-* **Kenward-Roger corrected *p* values** are Wald *p* values, but with a correction to address inflated false-positive rates.
+* **Satterthwaite and Kenward-Roger *p* values** are Wald *p* values, but with a correction to the degrees of freedom to address inflated false-positive rates.
 
-* **Likelihood ratio tests** provide *p* values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it.
+* **Likelihood ratio tests** provide *p* values for the significance of model comparisons. They capture whether data are significantly more likely to come from a model that includes the parameter of interest, relative to a simpler model that omits it. They reflect the probability of seeing a likelihood ratio at least as large as that observed, assuming that the models actually explain the data equally well.
 
-[@lukeEvaluatingSignificanceLinear2017]
+These approaches differ in their power and false-positive rates. Satterthwaite and Kenward-Roger *p* values are generally the best calibrated tests, while Wald *p* values result in high false-positive rates [@lukeEvaluatingSignificanceLinear2017].
+
+## Convergence Issues
+
+Let's generate a dataset using the default parameters:
+
+```{r}
+trials <- sim_trials()
+```
+
+Next let's fit a model with our full ("maximal") mixed-effects formula:
+
+```{r}
+m <- lmer(
+  log_rt ~ 1 + zipf_sc +
+    (1 | i_id) +
+    (1 + zipf_sc | p_id),
+  data = trials
+)
+```
+
+The model converges nicely. We can confirm this using an approach [we saw briefly in the last section](04-random_correlations#parameter-retrieval):
+
+```{r}
+model_converged <- is.null(m@optinfo$conv$lme4$messages)
+
+print(model_converged)
+```
+
+When running power simulations, we can use this to programmatically address convergence issues. Addressing any convergence issues in this way is valid if the rules we use to address convergence issues in the simulations are the same rules we actually plan to use in the eventual study.
+
+## Getting *p* Values
+
+If you've loaded the `lmerTest` package, then the model summary will print tests for the fixed effects with degrees of freedom and p values.
+
+```{r}
+summary(m)
+```
+
+We can get these results in a tidier format using the `broom.mixed::tidy()` function:
+
+```{r}
+tidy(m, effects="fixed", ddf.method="Satterthwaite")
+```
+
+## Running Power Simulations
+
+We now have everything we need to run some simulations to calculate power. Let's calculate the statistical power to detect the effect of Zipf when we have 50 items and 50 participants, but the frequency effect is around 3 times smaller than we originally simulated. To make sure it finishes in a reasonable time, we'll just run 250 simulations.
+
+```{r}
+#| warning: false
+#| message: false
+n_sims <- 250
+
+sims_res <- lapply(1:n_sims, function(i) {
+  # simulate data
+  trials <- sim_trials(n_items=50, n_participants=50, b_1=-0.033) |>
+    mutate(zipf_sc = scale(zipf))
+  
+  # fit model
+  m <- lmer(
+    log_rt ~ 1 + zipf_sc +
+      (1 | i_id) +
+      (1 + zipf_sc | p_id),
+    data = trials
+  )
+  
+  # detect whether converged (TRUE if converged)
+  m_converged <- is.null(m@optinfo$conv$lme4$messages)
+  
+  # if not converged, refit with random correlations removed
+  if (!m_converged) {
+    removed_rcs <- TRUE  # record that the random correlations were removed
+    
+    m <- lmer(
+      log_rt ~ 1 + zipf_sc +
+        (1 | i_id) +
+        (1 + zipf_sc || p_id),
+      data = trials
+    )
+  } else {
+    removed_rcs <- FALSE  # record that the random correlations were kept
+  }
+  
+  # get tidy summary with Satterthwaite p values
+  tidy(m, effects="fixed", ddf.method="Satterthwaite") |>
+    # only get the results for the zipf parameter (not also the intercept)
+    filter(term == "zipf_sc") |>
+    mutate(
+      # store the simulation number
+      i = i,
+      # store whether converged
+      converged = is.null(m@optinfo$conv$lme4$messages),
+      # store whether random correlations were removed
+      removed_rcs = removed_rcs
+    )
+})
+```
+
+This will give us a list of dataframes (one dataframe for each simulation). We can use `purrr::list_rbind()` to join these into one large dataframe.
+
+```{r}
+sims_res_df <- list_rbind(sims_res)
+
+sims_res_df
+```
+
+We can also see that random correlations were removed from about 1 third of models because of convergence issues.
+
+```{r}
+count(sims_res_df, removed_rcs)
+```
+
+As you can see here, all of the models then converged. This means that removing the random correlations addressed the nonconvergence in those original 5 models.
+
+```{r}
+count(sims_res_df, converged)
+```
+
+## Calculating Power
+
+We can estimate the power as the proportion of simulations in which our p value is smaller than alpha.
+
+```{r}
+mean(sims_res_df$p.value < 0.05)
+```
+
+This tells us that if we present 50 participants with 50 items, and the effect of Zipf is -0.033, we should expect 94.8% of studies to correctly detect the effect using our analysis method.
+
+## Parallelisation
+
+Running large numbers of simulations, in which each simulation requires fitting a mixed-effects model, is quite intensive in terms of computation and time. Since R is fitting these models in a single-thread manner, we could make this much faster by parallelising our simulations across cores.

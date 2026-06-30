@@ -6,7 +6,7 @@
 #| warning: false
 #| include: false
 source("ggplot2_setup.R", local=TRUE)
-set.seed(1050109868)  # from sample(.Machine$integer.max, 1)
+set.seed(131500652)  # from sample(.Machine$integer.max, 1)
 ```
 
 ## What are Random Correlations?
@@ -267,16 +267,104 @@ print(trials)
 To fit a model that can estimate the [simulated random correlation](#defining-parameters), we can now use one single bar (`|`) rather than double bars (`||`). This tells `lme4` to estimate and account for the influence of random correlations:
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Show code"
-#| output-fold: true
-#| output-summary: "Show output"
 m <- lmer(
   log_rt ~ 1 + zipf +
     (1 | i_id) +
     (1 + zipf | p_id),
   data = trials
 )
-
-summary(m)
 ```
+
+Oh no --- Looks like our model didn't converge! Convergence warnings occur fairly often for mixed-effects models. They are much more likely to occur when the model structure is complicated (e.g., including random correlations).
+
+::: callout-note
+Something that will be useful later is that we can also extract messages about nonconvergence like so:
+
+```{r}
+m@optinfo$conv$lme4$messages
+```
+
+This allows us to detect nonconvergence programmatically, as if the model converged, there will be no messages in this slot, and it will return a value of `NULL`, e.g.:
+
+```{r}
+#| eval: false
+model_converged <- is.null(m@optinfo$conv$lme4$messages)
+
+if (model_converged) {
+  ...
+} else {
+  ...
+}
+```
+:::
+
+## Addressing Nonconvergence
+
+It is worth saying that convergence warnings aren't always totally reliable. It's very difficult to estimate whether the nonlinear optimisers used by `lme4` have actually converged. Sometimes convergence warnings may be false positives. Even so, a model that passes these convergence tests is much more trustworthy, so we probably want to try to address any issues we see with convergence.
+
+There are a few ways to deal with convergence issues:
+
+1. Ensure the model is actually estimable
+2. Rescale continuous predictors
+3. Simplify model structure
+4. Change or tweak the optimiser
+
+Find more details in [`?lme4::convergence`](https://rdrr.io/cran/lme4/man/convergence.html).
+
+### Ensure the Model is Estimable
+
+Sometimes models fail to converge because we don't have enough information in our data to estimate the structure we requested. Addressing this is a matter of thinking through the parameters that the model is estimating, and making sure that each parameter makes sense.
+
+For example, a model that tries to estimate a random slope for the effect of `zipf` within items is likely to either not converge or produce singular estimates:
+
+```{r}
+bad_m <- lmer(
+  log_rt ~ 1 + zipf +
+    (1 + zipf | i_id) +
+    (1 + zipf | p_id),
+  data = trials
+)
+```
+
+In this case, the problem is that `(1 + zipf | i_id)` is not estimable, since each unique item ID (`i_id`) has only one value of `zipf`. This means that we can't estimate what the response to that item would look like if it had a different `zipf` value, because this information is missing from the data. The optimiser tries its best and provides a very small estimate for the SD of this random effect.
+
+### Rescale Continuous Predictors
+
+A common fix when we have a continuous predictor is to simply rescale it (*z*-score, so centre and divide by SD). This helps because the nonlinear optimisers used to fit `lmer()` models can struggle when predictors have vastly different scales. Our Zipf values vary from 1.5 to 7.5, so this could be causing the problem.
+
+Indeed, scaling `zipf` addresses the convergence issues:
+
+```{r}
+trials <- mutate(trials, zipf_sc = scale(zipf))
+
+m <- lmer(
+  log_rt ~ 1 + zipf_sc +
+    (1 | i_id) +
+    (1 + zipf_sc | p_id),
+  data = trials
+)
+```
+
+**Scaling continuous predictors in this way every time you estimate a model is good practice to ensure that mixed-effects models are stable**. An advantage of using the original scale is that you can more meaningfully interpret the coefficients, but:
+
+a. You can always transform back to the original scale by multiplying coefficients by the SD of the original scale.
+b. If you have multiple predictors, scaling them in this way will provide standardised coefficients, such that you can meaningfully compare their magnitude.
+
+### Simplify Model Structure
+
+Using a more sensible scale has already addressed our convergence issues, but in case the model were still not converging we could also simplify the model structure. When models struggle to fit, one common problem is that the model is struggling to estimate the random correlations. As a result, if it's preventing our model from converging we could simply fit the model without random correlations after all.
+
+```{r}
+m <- lmer(
+  log_rt ~ 1 + zipf_sc +
+    (1 | i_id) +
+    (1 + zipf_sc || p_id),
+  data = trials
+)
+```
+
+### Change/Tweak the Optimiser
+
+Finally, you could try fit the model with a different nonlinear optimiser. As the [`lme4` documentation](https://rdrr.io/cran/lme4/man/convergence.html) recommends, one good option may be `lme4::allFit()`, which fits the model using all possible optimisers.
+
+This can also be used to check for false positives in the convergence check, because if each model is giving very similar estimates despite using different algorithms, this suggests that the models are in fact converging.
