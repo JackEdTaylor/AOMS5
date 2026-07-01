@@ -1,0 +1,343 @@
+# GLMMs
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| include: false
+source("ggplot2_setup.R", local=TRUE)
+set.seed(1997061335)  # from sample(.Machine$integer.max, 1)
+```
+
+## Packages
+
+We'll use the following packages in this section:
+
+```{r}
+#| label: packages
+#| message: false
+#| warning: false
+library(lme4)  # for fitting LMMs
+library(dplyr)  # for data wrangling
+library(tidyr)  # for data wrangling
+library(purrr)  # for iterating
+library(faux)  # for simulating multivariate normals
+library(lmerTest)  # for calculating significance
+library(broom.mixed)  # for getting tidy summaries from models
+library(parallel)  # for parallelisation
+library(ggplot2)  # for plotting
+```
+
+## Non-Gaussian Variables
+
+So far, we have fit models that assume the outcome is a continuous, normally distributed variable. However, we're often interested in behaviours that produce variables for which this is not true.
+
+A good example is **accuracy**. To use the [Lexical Decision Task](01-linear_models#building-up-the-linear-model) example again, we might be interested in not only how frequency affects response time in recognising a word, but also how it affects accuracy.
+
+## The Logit Link
+
+We could use a linear model again, but this would produce unlikely or impossible predictions if we're not careful. For example, there is nothing in a standard linear model that would clip the values to be between the minimum probaility (0) and the maximum (1). This means that if we're not careful, we could get a linear model that predicts nonsense values:
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-height: 2.5
+#| fig-width: 4.5
+x_trans <- scales::new_transform(
+  "Zipf",
+  transform = function(x) x / 5 - 0.5,
+  inverse = function(x) (x + 0.5) * 5
+)
+
+ggplot() +
+  geom_rect(aes(fill="Impossible"), xmin=-0.5, xmax=1.5, ymin=-0.5, ymax=0) +
+  geom_rect(aes(fill="Impossible"), xmin=-0.5, xmax=1.5, ymin=1, ymax=1.5) +
+  geom_rect(aes(fill="Possible"), xmin=-0.5, xmax=1.5, ymin=0, ymax=1) +
+  geom_abline(intercept=0, slope=1) +
+  scale_x_continuous(transform = x_trans, expand=c(0, 0)) +
+  scale_y_continuous(breaks=seq(-0.5, 1.5, 0.25), limits=c(-0.5, 1.5), expand=c(0, 0)) +
+  scale_fill_manual(values=c("grey", "white"), name=NULL) +
+  theme(legend.key = element_rect(colour="black")) +
+  labs(x = "Zipf", y = "Accuracy")
+```
+
+As we saw briefly at the [end of the last section](05-power_analyses#modelling-statistical-power), one common solution is to use a logit link. Here, we transform probabilities into "logistic units", or *logits*.
+
+We can transform probabilities to logits using the transformation:
+
+$$ logit(p) = log\left( \frac{Pr}{1-Pr} \right) $$
+
+```{r}
+p2logit <- function(p) log(p / (1 - p))
+```
+
+The inverse, to transform probabilities to logits, is therefore:
+
+$$ Pr = \frac{1}{1 + exp(-x)} $$
+
+```{r}
+logit2p <- function(x) 1 / (1 + exp(-x))
+```
+
+This produces a sigmoid relationship that is clipped to [0, 1], where a logit of 0 has a probability of 0.5:
+
+```{r}
+#| fig-height: 2.5
+#| fig-width: 2.5
+ggplot() +
+  geom_function(fun = logit2p) +
+  scale_x_continuous(limits = c(-10, 10)) +
+  labs(x = "logit", y = "Pr")
+```
+
+## Logit-Link GLMs
+
+We can extend the linear model framework to use a logit link function, so that we can model probabilities based on observed events. When we fit a binomial generalised linear model (GLM), we can estimate how our variables affect logits, rather than raw probabilities.
+
+$$\begin{aligned}
+\eta_i &= \beta_0 + \beta_1 Zipf_i \\\\
+Pr_i &= \frac{1}{1 + exp(-\eta_i)}
+\end{aligned}$$
+
+For example, we could calculate probabilities of correct responses for simulated items:
+
+```{r}
+#| fig-height: 2.5
+#| fig-width: 2.5
+# high accuracy overall
+b_0 <- 2.93
+# effect of frequency
+b_1 <- 1.07
+
+# simulate items
+n_items <- 50
+
+items <- tibble(
+  i_id = 1:n_items,
+  zipf = runif(n_items, 1.5, 7.5),
+  # include a scaled version of Zipf
+  zipf_sc = scale(zipf)
+)
+
+# calculate probabilities
+items <- items |>
+  mutate(
+    eta = b_0 + b_1 * zipf_sc,
+    Pr = 1 / (1 + exp(-eta))
+  )
+
+# plot probabilities of correct responses over Zipf
+ggplot(items, aes(zipf, Pr)) +
+  geom_line()
+```
+
+## Logit-Link GLMMs
+
+We've already seen that we can extend the simple linear model to account for mixed-effects models with a linear mixed-effects model. We can also extend a logit-link general linear model to a generalised linear mixed-effects model (GLMM) in the same way.
+
+We can simply adapt the equations we've already built to include the logit link transformation to model the probability of a correct response, $Pr_{ip}$:
+
+$$\begin{aligned}
+Pr_{ip} &= \frac{1}{1 + exp(-\eta_{ip})} \\\\
+\eta_{ip} &= \beta_0 + I_{0i} + P_{0p} + (\beta_1 + P_{1p}) Zipf_{ip} \\\\
+I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\\\
+\begin{pmatrix}
+    P_{0p} \\ P_{1p}
+    \end{pmatrix}
+    &\sim \mathcal{N}\!\left(\mathbf{0},\, \Sigma_P\right) \\\\
+\Sigma_P &= 
+    \begin{pmatrix}
+    \sigma^2_{P0} & \rho_P \sigma_{P0} \sigma_{P1} \\
+    \rho_P \sigma_{P0} \sigma_{P1} & \sigma^2_{P1}
+    \end{pmatrix}
+\end{aligned}$$
+
+
+There is one key difference: we no longer simulate $e_{ip}$.
+
+Instead, we simulate such noise in the mapping from probabilities, `Pr_{ip}`, to observed binary outcomes or responses, $Y_{ip}$:
+
+$$ Y_{ip} \sim Bernoulli(Pr_{ip})$$
+
+In R, we can implement this with the `rbinom()` function. In this function:
+
+* `n` dictates the number of observations to simulate
+* `size` dictates the number of binary events per trial (usually 1 for our purposes)
+* `prob` is a vector of probabilities (e.g., `Pr_{ip}`)
+
+```{r}
+# some example probabilities
+Pr <- c(0.99, 0.01, 0.5)
+# simulate binary outcomes (size=2) from each probability
+Y <- rbinom(n=length(Pr), size=1, prob=Pr)
+
+print(Y)
+```
+
+## Simulating Logit-Link GLMMs
+
+Using what we have covered in the workshop, try to write a function to simulate data from a binomial GLMM for the effect of word frequency on lexical decision accuracy. You could use some parameters I suggest below, or try to come up with your own.
+
+```{r}
+#| code-fold: true
+#| message: false
+#| warning: false
+#| code-summary: "Show trial simulations function"
+sim_trials <- function(
+  # fixed effects
+  b_0 = 2.93,
+  b_1 = 1.07,
+  # numbers of items & participants
+  n_items = 50,
+  n_participants = 30,
+  # SD of item intercepts
+  s_I0 = 0.08,
+  # SDs of participant intercepts & slopes
+  s_P0 = 0.16,
+  s_P1 = 0.04,
+  # random correlation for participant intercepts & slopes
+  r_P = -0.28
+  ) {
+  # simulate items
+  items <- tibble(
+    i_id = 1:n_items,
+    zipf = runif(n_items, 1.5, 7.5),
+    I_0i = rnorm(n_items, 0, s_I0)
+  ) |>
+    mutate(zipf_sc = scale(zipf))
+  
+  # simulate participants
+  participants <- rnorm_multi(
+    n = n_participants,
+    vars = 2,
+    varnames = c("P_0p", "P_1p"),
+    mu = c(0, 0),
+    sd = c(s_P0, s_P1),
+    r = r_P
+  ) |>
+    mutate(p_id = 1:n_participants)
+  
+  # generate trials
+  trials <- crossing(items, participants) |>
+    mutate(
+      eta_ip = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf_sc,
+      Pr_ip = 1 / (1 + exp(-eta_ip)),
+      is_correct = rbinom(n=n(), size=1, prob=Pr_ip)
+    )
+  
+  trials
+}
+```
+
+```{r}
+trials <- sim_trials()
+```
+
+## Fitting the GLMM
+
+Whereas we fit the linear mixed-effects models with `lme4::lmer()`, we fit the *generalised* linear mixed-effects models with `lme4::glmer()`. Here (as with `glm()`), we have to provide the model family as binomial with a logit link. The syntax of the formula is identical.
+
+```{r}
+m <- glmer(
+    is_correct ~ 1 + zipf_sc +
+      (1 | i_id) +
+      (1 + zipf_sc | p_id),
+    family = binomial("logit"),
+    data = trials
+  )
+
+summary(m)
+```
+
+The fixed effects are retrieved fairly well, but note that the random-effects estimates are quite far off in this simulation. These estimates will also be very variable between simulations. This is something you might see quite often: compared to continuous outcome variables, binomial outcomes offer much less information from a single trial, and these make it hard to estimate complex random effects structures accurately from a single dataset. (Although it should approximate the true parameters in the long run).
+
+Estimating the random effects variance is especially difficult in a situation where there is a ceiling or floor effect. In our study, `{r} round(mean(trials$is_correct) * 100, 1)`% of observations are 1s, because our simulated participants are performing the task very well overall:
+
+```{r}
+mean(trials$is_correct)
+```
+
+This is a typical level of accuracy for a lexical decision task. However, we might want to design a study that better allows us to estimate participant and item variability specifically.
+
+We could, for example, design a study with:
+
+* Harder task/items overall (e.g., performing around 60% accuracy overall, so $\beta_0$ of arounf 0.4)
+* More variability between items and participants (increase $\sigma_{i0}$, $\sigma_{p0}$, and $\sigma_{p1}$)
+* A larger sample size of items and participants
+
+We can then more easily get enough information to retrieve these parameters more accurately from a single study or simulation.
+
+```{r}
+trials2 <- sim_trials(b_0=0.4, s_I0=0.5, s_P0=0.5, s_P1=0.25, n_items=150, n_participants=90)
+
+m2 <- glmer(
+    is_correct ~ 1 + zipf_sc +
+      (1 | i_id) +
+      (1 + zipf_sc | p_id),
+    family = binomial("logit"),
+    data = trials2
+  )
+
+summary(m2)
+```
+
+## Exercises
+
+Using the `ranef()` function, we can retrieve the specific estimates for individual participants and items. For example, we can get per-participant random effects from `m2` like so:
+
+```{r}
+ranef(m2)$p_id
+```
+
+We can use this to see how well our model is retrieving the random effects we actually simulate. Reproduce the following plots comparing the parameter retrieval between `m` and `m2` for participant random intercepts:
+
+```{r}
+#| code-fold: true
+#| message: false
+#| warning: false
+#| code-summary: "Show solution"
+#| layout-ncol: 2
+#| fig-height: 3
+#| fig-width: 3
+# get the participant random effects from m
+m_est <- ranef(m)$p_id |>
+  as_tibble(rownames="p_id") |>
+  rename(estimated = `(Intercept)`)
+# get all unique participants and their "true" random intercepts from trials
+m_true <- trials |>
+  distinct(p_id, P_0p) |>
+  rename(true = P_0p) |>
+  # convert p_id to character, to match m_est
+  mutate(p_id = as.character(p_id))
+# plot the correspondence
+left_join(m_est, m_true, by="p_id") |>
+  ggplot(aes(true, estimated)) +
+  geom_point() +
+  geom_abline(intercept=0, slope=1) +
+  labs(title = "Original Simulation (m)")
+
+# do the same for m2 and trials2
+m_est2 <- ranef(m2)$p_id |>
+  as_tibble(rownames="p_id") |>
+  rename(estimated = `(Intercept)`)
+
+m_true2 <- trials2 |>
+  distinct(p_id, P_0p) |>
+  rename(true = P_0p) |>
+  mutate(p_id = as.character(p_id))
+
+left_join(m_est2, m_true2, by="p_id") |>
+  ggplot(aes(true, estimated)) +
+  geom_point() +
+  geom_abline(intercept=0, slope=1) +
+  labs(title = "Second Simulation (m2)")
+```
+
+This shows very clearly that our model fit to the second simulation is much able to much better estimate such random effects. If these are parameters we want to estimate precisely, we could run a large number of simulations for different combinations of parameters. Instead of recording significance, we could then record the correlation between "true" and estimated random effects of interest. As with the power analysis, we could use such simulations to decide on a suitable study design.
+
+## More than Two Response Options
+
+What about when, rather than two possible responses (e.g., correct/incorrect), we want to model an ordinal variable. A common example might be studies where we ask participants to rate items. In this case there are powerful extensions that build on the logic of the Bernoulli/binomial model to describe ordinal responses [@burknerOrdinalRegressionModels2019].
+
+For example, Cumulative-link Mixed-Effects Models (CLMMs) allow us to simulate realistic ratings data, and analyse ratings data in a much more robust and meaningful way. In particular, models like CLMMs can help us avoid distortions that come from treating ordinal variables as though they are continuous [@liddellAnalyzingOrdinalData2018, @taylorRatingNormsShould2023].

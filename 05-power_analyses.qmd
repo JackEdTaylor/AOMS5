@@ -451,7 +451,7 @@ predict(
 
 We could even predict the number of participants required to reach a certain power target. For example, if we want to reach 90% power, we can rearrange the formula for a logit-link binomial model to calculate the value of N associated with a probability of 0.9.
 
-Since our logit-link binomial model for power is estimating
+Since our [logit-link binomial model](https://en.wikipedia.org/wiki/Logistic_regression) for power is estimating
 
 $$ log\left( \frac{p}{1-p} \right) = \beta_0 + \beta_1\sqrt{NParticipants}, $$
 
