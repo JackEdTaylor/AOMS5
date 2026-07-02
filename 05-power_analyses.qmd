@@ -307,7 +307,7 @@ Given that we expect frequency to have a negative effect (i.e., speed up respons
 mean(sims_df$p.value < 0.1 & sims_df$estimate < 0)
 ```
 
-Although they have the same false-positive rate, one-tailed significance tests are higher.
+Although they have the same false-positive rate, one-tailed significance tests provide more power when we have a good reason to make a directional prediction.
 
 ## Parallelisation
 
