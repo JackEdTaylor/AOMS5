@@ -1,4 +1,4 @@
-# GLMMs
+# Binomial GLMMs
 
 ```{r}
 #| label: setup
@@ -62,7 +62,7 @@ ggplot() +
   labs(x = "Zipf", y = "Accuracy")
 ```
 
-As we saw briefly at the [end of the last section](05-power_analyses#modelling-statistical-power), one common solution is to use a logit link. Here, we transform probabilities into "logistic units", or *logits*.
+As we saw briefly at the [end of the last section](05-power_analyses#modelling-statistical-power), one common solution for binary outcomes is to use a logit link. Here, we transform probabilities into "logistic units", or *logits*.
 
 We can transform probabilities to logits using the transformation:
 
@@ -90,6 +90,23 @@ ggplot() +
   scale_x_continuous(limits = c(-10, 10)) +
   labs(x = "logit", y = "Pr")
 ```
+
+::: {.callout-note}
+#### The probit link
+
+Another common transformation for binary outcomes is the probit link. The logic is similar to that of the logit link, except that it transforms the probabilities to a continuous space using the cumulative distribution function for the normal distribution.
+
+```{r}
+#| fig-height: 2
+#| fig-width: 2.5
+ggplot() +
+  geom_function(aes(colour="logit"), fun = logit2p) +
+  geom_function(aes(colour="probit"), fun = pnorm) +
+  scale_x_continuous(limits = c(-10, 10)) +
+  labs(y = "Pr", colour = NULL) +
+  theme(legend.position = "top")
+```
+:::
 
 ## Logit-Link GLMs
 
@@ -156,7 +173,7 @@ I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\\\
 
 There is one key difference: we no longer simulate $e_{ip}$.
 
-Instead, we simulate such noise in the mapping from probabilities, `Pr_{ip}`, to observed binary outcomes or responses, $Y_{ip}$:
+Instead, we simulate such noise in the mapping from probabilities, `Pr_{ip}`, to observed binary outcomes or responses, $Y_{ip}$ (e.g., whether the paricipant responded correctly):
 
 $$ Y_{ip} \sim Bernoulli(Pr_{ip})$$
 
@@ -232,6 +249,8 @@ sim_trials <- function(
 
 ```{r}
 trials <- sim_trials()
+
+print(trials)
 ```
 
 ## Fitting the GLMM
@@ -269,7 +288,9 @@ We could, for example, design a study with:
 We can then more easily get enough information to retrieve these parameters more accurately from a single study or simulation.
 
 ```{r}
-trials2 <- sim_trials(b_0=0.4, s_I0=0.5, s_P0=0.5, s_P1=0.25, n_items=150, n_participants=90)
+trials2 <- sim_trials(
+  b_0=0.4, s_I0=0.5, s_P0=0.5, s_P1=0.25, n_items=150, n_participants=90
+)
 
 m2 <- glmer(
     is_correct ~ 1 + zipf_sc +
@@ -287,7 +308,7 @@ summary(m2)
 Using the `ranef()` function, we can retrieve the specific estimates for individual participants and items. For example, we can get per-participant random effects from `m2` like so:
 
 ```{r}
-ranef(m2)$p_id
+head( ranef(m2)$p_id )  # show the first few rows
 ```
 
 We can use this to see how well our model is retrieving the random effects we actually simulate. Reproduce the following plots comparing the parameter retrieval between `m` and `m2` for participant random intercepts:
@@ -338,6 +359,6 @@ This shows very clearly that our model fit to the second simulation is much able
 
 ## More than Two Response Options
 
-What about when, rather than two possible responses (e.g., correct/incorrect), we want to model an ordinal variable. A common example might be studies where we ask participants to rate items. In this case there are powerful extensions that build on the logic of the Bernoulli/binomial model to describe ordinal responses [@burknerOrdinalRegressionModels2019].
+What about when, rather than two possible responses (e.g., correct/incorrect), we want to model an ordinal variable. A common example might be studies where we ask participants to rate items. For example, a rating scale from 1 to 5 is ordinal because 1<2<3<4<5. In this case there are powerful extensions that build on the logic of the Bernoulli/binomial model to describe ordinal responses [@burknerOrdinalRegressionModels2019].
 
-For example, Cumulative-link Mixed-Effects Models (CLMMs) allow us to simulate realistic ratings data, and analyse ratings data in a much more robust and meaningful way. In particular, models like CLMMs can help us avoid distortions that come from treating ordinal variables as though they are continuous [@liddellAnalyzingOrdinalData2018, @taylorRatingNormsShould2023].
+For example, Cumulative-link Mixed-Effects Models (CLMMs) allow us to simulate realistic ratings data, and analyse ratings data in a much more robust and meaningful way. In particular, models like CLMMs can help us avoid distortions that come from treating ordinal variables as though they are continuous [@liddellAnalyzingOrdinalData2018; @taylorRatingNormsShould2023].

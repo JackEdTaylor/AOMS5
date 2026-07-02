@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>6&nbsp; GLMMs – AOMS5 Workshop - Modelling Behaviour with Mixed Effects</title>
+<title>6&nbsp; Binomial GLMMs – AOMS5 Workshop - Modelling Behaviour with Mixed Effects</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -335,7 +335,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./06-GLMMs.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">GLMMs</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./06-GLMMs.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Binomial GLMMs</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -402,7 +402,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./06-GLMMs.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">GLMMs</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Binomial GLMMs</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -439,7 +439,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">GLMMs</span></h1>
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Binomial GLMMs</span></h1>
 </div>
 
 
@@ -488,7 +488,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>As we saw briefly at the <a href="05-power_analyses#modelling-statistical-power">end of the last section</a>, one common solution is to use a logit link. Here, we transform probabilities into “logistic units”, or <em>logits</em>.</p>
+<p>As we saw briefly at the <a href="05-power_analyses#modelling-statistical-power">end of the last section</a>, one common solution for binary outcomes is to use a logit link. Here, we transform probabilities into “logistic units”, or <em>logits</em>.</p>
 <p>We can transform probabilities to logits using the transformation:</p>
 <p><span class="math display">\[ logit(p) = log\left( \frac{Pr}{1-Pr} \right) \]</span></p>
 <div class="cell">
@@ -513,6 +513,34 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The probit link
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Another common transformation for binary outcomes is the probit link. The logic is similar to that of the logit link, except that it transforms the probabilities to a continuous space using the cumulative distribution function for the normal distribution.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="fu">aes</span>(<span class="at">colour=</span><span class="st">"logit"</span>), <span class="at">fun =</span> logit2p) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="fu">aes</span>(<span class="at">colour=</span><span class="st">"probit"</span>), <span class="at">fun =</span> pnorm) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">10</span>, <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Pr"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06-GLMMs_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="240"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
 </section>
 <section id="logit-link-glms" class="level2" data-number="6.4">
 <h2 data-number="6.4" class="anchored" data-anchor-id="logit-link-glms"><span class="header-section-number">6.4</span> Logit-Link GLMs</h2>
@@ -523,35 +551,35 @@ Pr_i &amp;= \frac{1}{1 + exp(-\eta_i)}
 \end{aligned}\]</span></p>
 <p>For example, we could calculate probabilities of correct responses for simulated items:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># high accuracy overall</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>b_0 <span class="ot">&lt;-</span> <span class="fl">2.93</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># effect of frequency</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>b_1 <span class="ot">&lt;-</span> <span class="fl">1.07</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate items</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>n_items <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>items <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">i_id =</span> <span class="dv">1</span><span class="sc">:</span>n_items,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">zipf =</span> <span class="fu">runif</span>(n_items, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># include a scaled version of Zipf</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">zipf_sc =</span> <span class="fu">scale</span>(zipf)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate probabilities</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>items <span class="ot">&lt;-</span> items <span class="sc">|&gt;</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">eta =</span> b_0 <span class="sc">+</span> b_1 <span class="sc">*</span> zipf_sc,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Pr =</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>eta))</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># plot probabilities of correct responses over Zipf</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(items, <span class="fu">aes</span>(zipf, Pr)) <span class="sc">+</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># high accuracy overall</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>b_0 <span class="ot">&lt;-</span> <span class="fl">2.93</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># effect of frequency</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>b_1 <span class="ot">&lt;-</span> <span class="fl">1.07</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate items</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>n_items <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>items <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">i_id =</span> <span class="dv">1</span><span class="sc">:</span>n_items,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">zipf =</span> <span class="fu">runif</span>(n_items, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># include a scaled version of Zipf</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">zipf_sc =</span> <span class="fu">scale</span>(zipf)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate probabilities</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>items <span class="ot">&lt;-</span> items <span class="sc">|&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">eta =</span> b_0 <span class="sc">+</span> b_1 <span class="sc">*</span> zipf_sc,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Pr =</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>eta))</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># plot probabilities of correct responses over Zipf</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(items, <span class="fu">aes</span>(zipf, Pr)) <span class="sc">+</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="06-GLMMs_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="240"></p>
+<p><img src="06-GLMMs_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="240"></p>
 </figure>
 </div>
 </div>
@@ -576,7 +604,7 @@ I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\\\
     \end{pmatrix}
 \end{aligned}\]</span></p>
 <p>There is one key difference: we no longer simulate <span class="math inline">\(e_{ip}\)</span>.</p>
-<p>Instead, we simulate such noise in the mapping from probabilities, <code>Pr_{ip}</code>, to observed binary outcomes or responses, <span class="math inline">\(Y_{ip}\)</span>:</p>
+<p>Instead, we simulate such noise in the mapping from probabilities, <code>Pr_{ip}</code>, to observed binary outcomes or responses, <span class="math inline">\(Y_{ip}\)</span> (e.g., whether the paricipant responded correctly):</p>
 <p><span class="math display">\[ Y_{ip} \sim Bernoulli(Pr_{ip})\]</span></p>
 <p>In R, we can implement this with the <code>rbinom()</code> function. In this function:</p>
 <ul>
@@ -585,12 +613,12 @@ I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\\\
 <li><code>prob</code> is a vector of probabilities (e.g., <code>Pr_{ip}</code>)</li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># some example probabilities</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Pr <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.99</span>, <span class="fl">0.01</span>, <span class="fl">0.5</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate binary outcomes (size=2) from each probability</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="fu">length</span>(Pr), <span class="at">size=</span><span class="dv">1</span>, <span class="at">prob=</span>Pr)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(Y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># some example probabilities</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>Pr <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.99</span>, <span class="fl">0.01</span>, <span class="fl">0.5</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate binary outcomes (size=2) from each probability</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="fu">length</span>(Pr), <span class="at">size=</span><span class="dv">1</span>, <span class="at">prob=</span>Pr)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(Y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 0 1</code></pre>
 </div>
@@ -602,71 +630,90 @@ I_{0i} &amp;\sim \mathcal{N}(0, \sigma_{I0}) \\\\
 <div class="cell">
 <details class="code-fold">
 <summary>Show trial simulations function</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sim_trials <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fixed effects</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_0 =</span> <span class="fl">2.93</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_1 =</span> <span class="fl">1.07</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># numbers of items &amp; participants</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_items =</span> <span class="dv">50</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_participants =</span> <span class="dv">30</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SD of item intercepts</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">s_I0 =</span> <span class="fl">0.08</span>,</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SDs of participant intercepts &amp; slopes</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">s_P0 =</span> <span class="fl">0.16</span>,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">s_P1 =</span> <span class="fl">0.04</span>,</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># random correlation for participant intercepts &amp; slopes</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_P =</span> <span class="sc">-</span><span class="fl">0.28</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  ) {</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate items</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  items <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">i_id =</span> <span class="dv">1</span><span class="sc">:</span>n_items,</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">zipf =</span> <span class="fu">runif</span>(n_items, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_0i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0)</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">zipf_sc =</span> <span class="fu">scale</span>(zipf))</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate participants</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  participants <span class="ot">&lt;-</span> <span class="fu">rnorm_multi</span>(</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n_participants,</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">vars =</span> <span class="dv">2</span>,</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">varnames =</span> <span class="fu">c</span>(<span class="st">"P_0p"</span>, <span class="st">"P_1p"</span>),</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">c</span>(s_P0, s_P1),</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> r_P</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="dv">1</span><span class="sc">:</span>n_participants)</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate trials</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  trials <span class="ot">&lt;-</span> <span class="fu">crossing</span>(items, participants) <span class="sc">|&gt;</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">eta_ip =</span> b_0 <span class="sc">+</span> I_0i <span class="sc">+</span> P_0p <span class="sc">+</span> (b_1 <span class="sc">+</span> P_1p) <span class="sc">*</span> zipf_sc,</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>      <span class="at">Pr_ip =</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>eta_ip)),</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">is_correct =</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">size=</span><span class="dv">1</span>, <span class="at">prob=</span>Pr_ip)</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  trials</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sim_trials <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fixed effects</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_0 =</span> <span class="fl">2.93</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_1 =</span> <span class="fl">1.07</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># numbers of items &amp; participants</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_items =</span> <span class="dv">50</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_participants =</span> <span class="dv">30</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SD of item intercepts</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">s_I0 =</span> <span class="fl">0.08</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SDs of participant intercepts &amp; slopes</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">s_P0 =</span> <span class="fl">0.16</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">s_P1 =</span> <span class="fl">0.04</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># random correlation for participant intercepts &amp; slopes</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_P =</span> <span class="sc">-</span><span class="fl">0.28</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  ) {</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate items</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  items <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">i_id =</span> <span class="dv">1</span><span class="sc">:</span>n_items,</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">zipf =</span> <span class="fu">runif</span>(n_items, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_0i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">zipf_sc =</span> <span class="fu">scale</span>(zipf))</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate participants</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  participants <span class="ot">&lt;-</span> <span class="fu">rnorm_multi</span>(</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n_participants,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">vars =</span> <span class="dv">2</span>,</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">varnames =</span> <span class="fu">c</span>(<span class="st">"P_0p"</span>, <span class="st">"P_1p"</span>),</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">c</span>(s_P0, s_P1),</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> r_P</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="dv">1</span><span class="sc">:</span>n_participants)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate trials</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  trials <span class="ot">&lt;-</span> <span class="fu">crossing</span>(items, participants) <span class="sc">|&gt;</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">eta_ip =</span> b_0 <span class="sc">+</span> I_0i <span class="sc">+</span> P_0p <span class="sc">+</span> (b_1 <span class="sc">+</span> P_1p) <span class="sc">*</span> zipf_sc,</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>      <span class="at">Pr_ip =</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>eta_ip)),</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">is_correct =</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">size=</span><span class="dv">1</span>, <span class="at">prob=</span>Pr_ip)</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  trials</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">sim_trials</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">sim_trials</span>()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(trials)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,500 × 10
+    i_id  zipf    I_0i zipf_sc[,1]    P_0p     P_1p  p_id eta_ip[,1] Pr_ip[,1]
+   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt;     &lt;dbl&gt;
+ 1     1  6.46 -0.0598        1.24 -0.496   0.00513     6       3.71     0.976
+ 2     1  6.46 -0.0598        1.24 -0.247   0.0376     20       4.00     0.982
+ 3     1  6.46 -0.0598        1.24 -0.215   0.0554      7       4.05     0.983
+ 4     1  6.46 -0.0598        1.24 -0.189   0.0198     21       4.03     0.983
+ 5     1  6.46 -0.0598        1.24 -0.181  -0.0105     27       4.00     0.982
+ 6     1  6.46 -0.0598        1.24 -0.162   0.0118     24       4.05     0.983
+ 7     1  6.46 -0.0598        1.24 -0.144   0.0707     14       4.14     0.984
+ 8     1  6.46 -0.0598        1.24 -0.119   0.101       4       4.20     0.985
+ 9     1  6.46 -0.0598        1.24 -0.0859 -0.0318     23       4.07     0.983
+10     1  6.46 -0.0598        1.24 -0.0738  0.0184     17       4.15     0.984
+# ℹ 1,490 more rows
+# ℹ 1 more variable: is_correct &lt;int&gt;</code></pre>
+</div>
 </div>
 </section>
 <section id="fitting-the-glmm" class="level2" data-number="6.7">
 <h2 data-number="6.7" class="anchored" data-anchor-id="fitting-the-glmm"><span class="header-section-number">6.7</span> Fitting the GLMM</h2>
 <p>Whereas we fit the linear mixed-effects models with <code>lme4::lmer()</code>, we fit the <em>generalised</em> linear mixed-effects models with <code>lme4::glmer()</code>. Here (as with <code>glm()</code>), we have to provide the model family as binomial with a logit link. The syntax of the formula is identical.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    is_correct <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">+</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> i_id) <span class="sc">+</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">|</span> p_id),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> trials</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    is_correct <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> i_id) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">|</span> p_id),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> trials</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>boundary (singular) fit: see help('isSingular')</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
   Approximation) [glmerMod]
@@ -705,7 +752,7 @@ boundary (singular) fit: see help('isSingular')</code></pre>
 <p>The fixed effects are retrieved fairly well, but note that the random-effects estimates are quite far off in this simulation. These estimates will also be very variable between simulations. This is something you might see quite often: compared to continuous outcome variables, binomial outcomes offer much less information from a single trial, and these make it hard to estimate complex random effects structures accurately from a single dataset. (Although it should approximate the true parameters in the long run).</p>
 <p>Estimating the random effects variance is especially difficult in a situation where there is a ceiling or floor effect. In our study, 91.5% of observations are 1s, because our simulated participants are performing the task very well overall:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(trials<span class="sc">$</span>is_correct)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(trials<span class="sc">$</span>is_correct)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9146667</code></pre>
 </div>
@@ -719,17 +766,19 @@ boundary (singular) fit: see help('isSingular')</code></pre>
 </ul>
 <p>We can then more easily get enough information to retrieve these parameters more accurately from a single study or simulation.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>trials2 <span class="ot">&lt;-</span> <span class="fu">sim_trials</span>(<span class="at">b_0=</span><span class="fl">0.4</span>, <span class="at">s_I0=</span><span class="fl">0.5</span>, <span class="at">s_P0=</span><span class="fl">0.5</span>, <span class="at">s_P1=</span><span class="fl">0.25</span>, <span class="at">n_items=</span><span class="dv">150</span>, <span class="at">n_participants=</span><span class="dv">90</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    is_correct <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">+</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> i_id) <span class="sc">+</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">|</span> p_id),</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>),</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> trials2</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>trials2 <span class="ot">&lt;-</span> <span class="fu">sim_trials</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_0=</span><span class="fl">0.4</span>, <span class="at">s_I0=</span><span class="fl">0.5</span>, <span class="at">s_P0=</span><span class="fl">0.5</span>, <span class="at">s_P1=</span><span class="fl">0.25</span>, <span class="at">n_items=</span><span class="dv">150</span>, <span class="at">n_participants=</span><span class="dv">90</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    is_correct <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">+</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> i_id) <span class="sc">+</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">+</span> zipf_sc <span class="sc">|</span> p_id),</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>),</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> trials2</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
   Approximation) [glmerMod]
@@ -768,143 +817,59 @@ zipf_sc -0.097</code></pre>
 <h2 data-number="6.8" class="anchored" data-anchor-id="exercises"><span class="header-section-number">6.8</span> Exercises</h2>
 <p>Using the <code>ranef()</code> function, we can retrieve the specific estimates for individual participants and items. For example, we can get per-participant random effects from <code>m2</code> like so:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ranef</span>(m2)<span class="sc">$</span>p_id</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>( <span class="fu">ranef</span>(m2)<span class="sc">$</span>p_id )  <span class="co"># show the first few rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    (Intercept)       zipf_sc
-1   0.368577343 -0.1906755054
-2   0.098040151 -0.1202844930
-3  -0.116497885  0.0423348606
-4   0.126320294 -0.1927128931
-5  -0.408326832 -0.1083937177
-6  -0.082214080 -0.1012269869
-7  -0.354670015 -0.0553612527
-8   0.070306661  0.0028805697
-9  -0.181991138  0.1098054498
-10 -0.784365893  0.2277957707
-11 -0.516310262  0.0174877880
-12 -0.511289757  0.1861919278
-13  0.608970006 -0.3005851669
-14 -0.211567178  0.0724638999
-15 -0.276439912  0.1002063917
-16  0.942438281 -0.3078738304
-17 -0.631447893  0.2966395853
-18  0.070226262 -0.0005208038
-19 -0.694069271 -0.0185946587
-20  0.549142494  0.0018415825
-21  0.067614727 -0.1386588335
-22 -0.247435479  0.1382588760
-23  0.247112410 -0.1771183369
-24 -0.143369173 -0.0663647314
-25  0.226784507 -0.0004259418
-26  0.377129716 -0.0907327734
-27 -0.628428442  0.1183224634
-28  0.869361575 -0.1093420498
-29  0.097909133 -0.1260385866
-30  0.168255169  0.0837828458
-31 -0.086516275  0.1050709027
-32 -0.631305587  0.1327717146
-33 -0.375738152  0.1403095448
-34 -0.053550418 -0.0079602088
-35  0.008323295  0.0225513232
-36 -0.963649789  0.1567111886
-37 -0.276320502  0.0986887404
-38 -0.180408118  0.0769562682
-39  0.734357564 -0.0962707068
-40  0.258464589  0.0006204905
-41 -0.555518855  0.0668164162
-42 -0.584826555  0.0553233546
-43  0.223085543 -0.0597184915
-44 -0.676210421  0.0427761500
-45 -0.590780919 -0.0814118796
-46  0.487879365  0.0361994252
-47  0.279434792 -0.1465782177
-48  0.325197273  0.0355450856
-49  0.134122520  0.0363908715
-50  0.269492910  0.1400845229
-51 -0.222827444 -0.2247952843
-52  0.130506559 -0.0544102877
-53 -0.424501455  0.0222815572
-54  0.135005147  0.0566139936
-55  0.919815225 -0.2246184281
-56  0.039119879 -0.0034606462
-57 -0.022859635  0.0694031109
-58  0.469185703 -0.1200398005
-59  0.231867195  0.0740788826
-60 -0.466225708 -0.1174139574
-61  0.482953488 -0.0024042429
-62 -0.085721055  0.0628662192
-63  0.660119764 -0.1463521776
-64  0.531323152 -0.1360067743
-65  0.586695169  0.0318489940
-66  0.662397738 -0.1302110743
-67 -0.530366846  0.1050716808
-68 -1.357133405  0.1301204968
-69 -0.273963488  0.0685843836
-70 -0.404926772  0.1168395868
-71 -0.298742969  0.3667952645
-72  0.133538561  0.0226675428
-73  0.095885562 -0.2455981584
-74 -0.177996827  0.0268313379
-75 -0.051569685 -0.1424118642
-76 -0.879913395  0.3255521237
-77 -0.311922254  0.1432570446
-78 -0.452402202  0.2319789712
-79  0.469099678 -0.1208337749
-80  1.226474584 -0.1618682534
-81 -0.112751039 -0.0812828641
-82 -0.239277349  0.0185379353
-83  0.383757396 -0.0223811944
-84  0.853616043 -0.2034516434
-85  0.128425086 -0.1159734929
-86  0.194051683 -0.0224519190
-87  0.396257249 -0.2307712608
-88  0.207531355  0.1914113397
-89 -0.119873911  0.1609922569
-90  0.380722986 -0.0529260729</code></pre>
+<pre><code>  (Intercept)     zipf_sc
+1  0.36857734 -0.19067551
+2  0.09804015 -0.12028449
+3 -0.11649789  0.04233486
+4  0.12632029 -0.19271289
+5 -0.40832683 -0.10839372
+6 -0.08221408 -0.10122699</code></pre>
 </div>
 </div>
 <p>We can use this to see how well our model is retrieving the random effects we actually simulate. Reproduce the following plots comparing the parameter retrieval between <code>m</code> and <code>m2</code> for participant random intercepts:</p>
 <details class="code-fold">
 <summary>Show solution</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the participant random effects from m</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>m_est <span class="ot">&lt;-</span> <span class="fu">ranef</span>(m)<span class="sc">$</span>p_id <span class="sc">|&gt;</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">estimated =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># get all unique participants and their "true" random intercepts from trials</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>m_true <span class="ot">&lt;-</span> trials <span class="sc">|&gt;</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(p_id, P_0p) <span class="sc">|&gt;</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">true =</span> P_0p) <span class="sc">|&gt;</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># convert p_id to character, to match m_est</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="fu">as.character</span>(p_id))</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the correspondence</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(m_est, m_true, <span class="at">by=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(true, estimated)) <span class="sc">+</span></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="dv">0</span>, <span class="at">slope=</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Original Simulation (m)"</span>)</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="co"># do the same for m2 and trials2</span></span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>m_est2 <span class="ot">&lt;-</span> <span class="fu">ranef</span>(m2)<span class="sc">$</span>p_id <span class="sc">|&gt;</span></span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">estimated =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>)</span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>m_true2 <span class="ot">&lt;-</span> trials2 <span class="sc">|&gt;</span></span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(p_id, P_0p) <span class="sc">|&gt;</span></span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">true =</span> P_0p) <span class="sc">|&gt;</span></span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="fu">as.character</span>(p_id))</span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(m_est2, m_true2, <span class="at">by=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(true, estimated)) <span class="sc">+</span></span>
-<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="dv">0</span>, <span class="at">slope=</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Second Simulation (m2)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the participant random effects from m</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>m_est <span class="ot">&lt;-</span> <span class="fu">ranef</span>(m)<span class="sc">$</span>p_id <span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">estimated =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co"># get all unique participants and their "true" random intercepts from trials</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>m_true <span class="ot">&lt;-</span> trials <span class="sc">|&gt;</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(p_id, P_0p) <span class="sc">|&gt;</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">true =</span> P_0p) <span class="sc">|&gt;</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># convert p_id to character, to match m_est</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="fu">as.character</span>(p_id))</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the correspondence</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(m_est, m_true, <span class="at">by=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(true, estimated)) <span class="sc">+</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="dv">0</span>, <span class="at">slope=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Original Simulation (m)"</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co"># do the same for m2 and trials2</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>m_est2 <span class="ot">&lt;-</span> <span class="fu">ranef</span>(m2)<span class="sc">$</span>p_id <span class="sc">|&gt;</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">estimated =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>m_true2 <span class="ot">&lt;-</span> trials2 <span class="sc">|&gt;</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(p_id, P_0p) <span class="sc">|&gt;</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">true =</span> P_0p) <span class="sc">|&gt;</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="fu">as.character</span>(p_id))</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(m_est2, m_true2, <span class="at">by=</span><span class="st">"p_id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(true, estimated)) <span class="sc">+</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept=</span><span class="dv">0</span>, <span class="at">slope=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Second Simulation (m2)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="06-GLMMs_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="288"></p>
+<p><img src="06-GLMMs_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="288"></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="06-GLMMs_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="288"></p>
+<p><img src="06-GLMMs_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -912,8 +877,8 @@ zipf_sc -0.097</code></pre>
 </section>
 <section id="more-than-two-response-options" class="level2" data-number="6.9">
 <h2 data-number="6.9" class="anchored" data-anchor-id="more-than-two-response-options"><span class="header-section-number">6.9</span> More than Two Response Options</h2>
-<p>What about when, rather than two possible responses (e.g., correct/incorrect), we want to model an ordinal variable. A common example might be studies where we ask participants to rate items. In this case there are powerful extensions that build on the logic of the Bernoulli/binomial model to describe ordinal responses <span class="citation" data-cites="burknerOrdinalRegressionModels2019">(<a href="references.html#ref-burknerOrdinalRegressionModels2019" role="doc-biblioref">Bürkner and Vuorre 2019</a>)</span>.</p>
-<p>For example, Cumulative-link Mixed-Effects Models (CLMMs) allow us to simulate realistic ratings data, and analyse ratings data in a much more robust and meaningful way. In particular, models like CLMMs can help us avoid distortions that come from treating ordinal variables as though they are continuous <span class="citation" data-cites="liddellAnalyzingOrdinalData2018">Taylor et al. (<a href="references.html#ref-taylorRatingNormsShould2023" role="doc-biblioref">2023</a>)</span>.</p>
+<p>What about when, rather than two possible responses (e.g., correct/incorrect), we want to model an ordinal variable. A common example might be studies where we ask participants to rate items. For example, a rating scale from 1 to 5 is ordinal because 1&lt;2&lt;3&lt;4&lt;5. In this case there are powerful extensions that build on the logic of the Bernoulli/binomial model to describe ordinal responses <span class="citation" data-cites="burknerOrdinalRegressionModels2019">(<a href="references.html#ref-burknerOrdinalRegressionModels2019" role="doc-biblioref">Bürkner and Vuorre 2019</a>)</span>.</p>
+<p>For example, Cumulative-link Mixed-Effects Models (CLMMs) allow us to simulate realistic ratings data, and analyse ratings data in a much more robust and meaningful way. In particular, models like CLMMs can help us avoid distortions that come from treating ordinal variables as though they are continuous <span class="citation" data-cites="liddellAnalyzingOrdinalData2018 taylorRatingNormsShould2023">(<a href="references.html#ref-liddellAnalyzingOrdinalData2018" role="doc-biblioref">Liddell and Kruschke 2018</a>; <a href="references.html#ref-taylorRatingNormsShould2023" role="doc-biblioref">Taylor et al. 2023</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
