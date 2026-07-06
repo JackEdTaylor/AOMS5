@@ -87,7 +87,7 @@ multiply(4)
 
 Using the code snippets from the [last section](04-random_correlations), write a function, `sim_trials()`, that takes all free parameters as inputs and returns the simulated trials. I recommend setting all arguments to defaults based on the numbers we've used so far.
 
-As a last step, the function should also [scale the Zipf variable](04-random_correlations#rescale-continuous-predictors) to promote model convergence.
+In addition, the function should also [scale the Zipf variable](04-random_correlations#rescale-continuous-predictors) to promote model convergence.
 
 ```{r}
 #| code-fold: true
