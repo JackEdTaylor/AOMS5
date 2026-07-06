@@ -173,7 +173,7 @@ I_{0i} &\sim \mathcal{N}(0, \sigma_{I0}) \\\\
 
 There is one key difference: we no longer simulate $e_{ip}$.
 
-Instead, we simulate such noise in the mapping from probabilities, `Pr_{ip}`, to observed binary outcomes or responses, $Y_{ip}$ (e.g., whether the paricipant responded correctly):
+Instead, we simulate such noise in the mapping from probabilities, $Pr_{ip}$, to observed binary outcomes or responses, $Y_{ip}$ (e.g., whether the paricipant responded correctly):
 
 $$ Y_{ip} \sim Bernoulli(Pr_{ip})$$
 
@@ -321,6 +321,7 @@ We can use this to see how well our model is retrieving the random effects we ac
 #| layout-ncol: 2
 #| fig-height: 3
 #| fig-width: 3
+# ORIGINAL SIMULATION
 # get the participant random effects from m
 m_est <- ranef(m)$p_id |>
   as_tibble(rownames="p_id") |>
@@ -337,7 +338,7 @@ left_join(m_est, m_true, by="p_id") |>
   geom_point() +
   geom_abline(intercept=0, slope=1) +
   labs(title = "Original Simulation (m)")
-
+# SECOND SIMULATION
 # do the same for m2 and trials2
 m_est2 <- ranef(m2)$p_id |>
   as_tibble(rownames="p_id") |>

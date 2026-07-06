@@ -105,7 +105,9 @@ sim_trials <- function(
   items <- tibble(
     i_id = 1:n_items,
     zipf = runif(n_items, 1.5, 7.5),
-    I_0i = rnorm(n_items, 0, s_I0)
+    I_0i = rnorm(n_items, 0, s_I0),
+    # also include a scaled version of the zipf variable
+    zipf_sc = scale(zipf)
   )
   
   # simulate participants
@@ -123,9 +125,7 @@ sim_trials <- function(
   trials <- crossing(items, participants) |>
     mutate(
       e_ip = rnorm(n(), 0, s_e),
-      log_rt = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf + e_ip,
-      # also include a scaled version of the zipf variable
-      zipf_sc = scale(zipf)
+      log_rt = b_0 + I_0i + P_0p + (b_1 + P_1p) * zipf + e_ip
     )
   
   # return the simulated trials

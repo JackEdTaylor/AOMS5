@@ -549,27 +549,27 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  items <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">i_id =</span> <span class="dv">1</span><span class="sc">:</span>n_items,</span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">zipf =</span> <span class="fu">runif</span>(n_items, <span class="fl">1.5</span>, <span class="fl">7.5</span>),</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_0i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0)</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate participants</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  participants <span class="ot">&lt;-</span> <span class="fu">rnorm_multi</span>(</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n_participants,</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">vars =</span> <span class="dv">2</span>,</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">varnames =</span> <span class="fu">c</span>(<span class="st">"P_0p"</span>, <span class="st">"P_1p"</span>),</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">c</span>(s_P0, s_P1),</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> r_P</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="dv">1</span><span class="sc">:</span>n_participants)</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate trials</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  trials <span class="ot">&lt;-</span> <span class="fu">crossing</span>(items, participants) <span class="sc">|&gt;</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">e_ip =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, s_e),</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">log_rt =</span> b_0 <span class="sc">+</span> I_0i <span class="sc">+</span> P_0p <span class="sc">+</span> (b_1 <span class="sc">+</span> P_1p) <span class="sc">*</span> zipf <span class="sc">+</span> e_ip,</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>      <span class="co"># also include a scaled version of the zipf variable</span></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">zipf_sc =</span> <span class="fu">scale</span>(zipf)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_0i =</span> <span class="fu">rnorm</span>(n_items, <span class="dv">0</span>, s_I0),</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># also include a scaled version of the zipf variable</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">zipf_sc =</span> <span class="fu">scale</span>(zipf)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate participants</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  participants <span class="ot">&lt;-</span> <span class="fu">rnorm_multi</span>(</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n_participants,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">vars =</span> <span class="dv">2</span>,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">varnames =</span> <span class="fu">c</span>(<span class="st">"P_0p"</span>, <span class="st">"P_1p"</span>),</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">c</span>(s_P0, s_P1),</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> r_P</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">p_id =</span> <span class="dv">1</span><span class="sc">:</span>n_participants)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate trials</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  trials <span class="ot">&lt;-</span> <span class="fu">crossing</span>(items, participants) <span class="sc">|&gt;</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">e_ip =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, s_e),</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">log_rt =</span> b_0 <span class="sc">+</span> I_0i <span class="sc">+</span> P_0p <span class="sc">+</span> (b_1 <span class="sc">+</span> P_1p) <span class="sc">*</span> zipf <span class="sc">+</span> e_ip</span>
 <span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># return the simulated trials</span></span>
@@ -584,18 +584,18 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sim_trials</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,500 × 9
-    i_id  zipf    I_0i    P_0p      P_1p  p_id    e_ip log_rt zipf_sc[,1]
-   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;
- 1     1  7.45 -0.0200 -0.277   0.0509      25  0.188    6.37        1.68
- 2     1  7.45 -0.0200 -0.244   0.0584      22  0.262    6.54        1.68
- 3     1  7.45 -0.0200 -0.210   0.0564       5 -0.276    6.02        1.68
- 4     1  7.45 -0.0200 -0.154   0.0106       4  0.0740   6.08        1.68
- 5     1  7.45 -0.0200 -0.148   0.0143      17 -0.768    5.27        1.68
- 6     1  7.45 -0.0200 -0.101   0.000337    14  0.133    6.12        1.68
- 7     1  7.45 -0.0200 -0.0962  0.0139      10 -0.0169   6.08        1.68
- 8     1  7.45 -0.0200 -0.0948  0.00490     16  0.0814   6.11        1.68
- 9     1  7.45 -0.0200 -0.0740 -0.0387       6 -0.310    5.41        1.68
-10     1  7.45 -0.0200 -0.0680  0.0907       1  0.132    6.82        1.68
+    i_id  zipf    I_0i zipf_sc[,1]    P_0p      P_1p  p_id    e_ip log_rt
+   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;
+ 1     1  7.45 -0.0200        1.66 -0.277   0.0509      25  0.188    6.37
+ 2     1  7.45 -0.0200        1.66 -0.244   0.0584      22  0.262    6.54
+ 3     1  7.45 -0.0200        1.66 -0.210   0.0564       5 -0.276    6.02
+ 4     1  7.45 -0.0200        1.66 -0.154   0.0106       4  0.0740   6.08
+ 5     1  7.45 -0.0200        1.66 -0.148   0.0143      17 -0.768    5.27
+ 6     1  7.45 -0.0200        1.66 -0.101   0.000337    14  0.133    6.12
+ 7     1  7.45 -0.0200        1.66 -0.0962  0.0139      10 -0.0169   6.08
+ 8     1  7.45 -0.0200        1.66 -0.0948  0.00490     16  0.0814   6.11
+ 9     1  7.45 -0.0200        1.66 -0.0740 -0.0387       6 -0.310    5.41
+10     1  7.45 -0.0200        1.66 -0.0680  0.0907       1  0.132    6.82
 # ℹ 1,490 more rows</code></pre>
 </div>
 </div>
@@ -604,18 +604,18 @@ e_{ip} &amp;\sim \mathcal{N}(0, \sigma_e)
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sim_trials</span>(<span class="at">n_participants=</span><span class="dv">250</span>, <span class="at">s_P0=</span><span class="fl">0.3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 12,500 × 9
-    i_id  zipf    I_0i   P_0p   P_1p  p_id    e_ip log_rt zipf_sc[,1]
-   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;
- 1     1  6.19 -0.0292 -0.813 0.0250   192 -0.255    5.29        1.14
- 2     1  6.19 -0.0292 -0.705 0.0740   160 -0.254    5.70        1.14
- 3     1  6.19 -0.0292 -0.696 0.0189   176  0.0524   5.68        1.14
- 4     1  6.19 -0.0292 -0.673 0.109    117  0.0154   6.22        1.14
- 5     1  6.19 -0.0292 -0.668 0.0938   123 -0.113    6.00        1.14
- 6     1  6.19 -0.0292 -0.611 0.0566   145  0.349    6.29        1.14
- 7     1  6.19 -0.0292 -0.585 0.0249    83  0.405    6.18        1.14
- 8     1  6.19 -0.0292 -0.566 0.0239   135  0.0432   5.83        1.14
- 9     1  6.19 -0.0292 -0.534 0.0466   209  0.268    6.22        1.14
-10     1  6.19 -0.0292 -0.520 0.0877   110 -0.553    5.67        1.14
+    i_id  zipf    I_0i zipf_sc[,1]   P_0p   P_1p  p_id    e_ip log_rt
+   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;
+ 1     1  6.19 -0.0292        1.13 -0.813 0.0250   192 -0.255    5.29
+ 2     1  6.19 -0.0292        1.13 -0.705 0.0740   160 -0.254    5.70
+ 3     1  6.19 -0.0292        1.13 -0.696 0.0189   176  0.0524   5.68
+ 4     1  6.19 -0.0292        1.13 -0.673 0.109    117  0.0154   6.22
+ 5     1  6.19 -0.0292        1.13 -0.668 0.0938   123 -0.113    6.00
+ 6     1  6.19 -0.0292        1.13 -0.611 0.0566   145  0.349    6.29
+ 7     1  6.19 -0.0292        1.13 -0.585 0.0249    83  0.405    6.18
+ 8     1  6.19 -0.0292        1.13 -0.566 0.0239   135  0.0432   5.83
+ 9     1  6.19 -0.0292        1.13 -0.534 0.0466   209  0.268    6.22
+10     1  6.19 -0.0292        1.13 -0.520 0.0877   110 -0.553    5.67
 # ℹ 12,490 more rows</code></pre>
 </div>
 </div>
@@ -668,7 +668,7 @@ lmerModLmerTest]
 Formula: log_rt ~ 1 + zipf_sc + (1 | i_id) + (1 + zipf_sc | p_id)
    Data: trials
 
-REML criterion at convergence: 1083.5
+REML criterion at convergence: 1083.4
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
@@ -678,14 +678,14 @@ Random effects:
  Groups   Name        Variance Std.Dev. Corr 
  i_id     (Intercept) 0.012143 0.11019       
  p_id     (Intercept) 0.016894 0.12998       
-          zipf_sc     0.004242 0.06513  0.35 
+          zipf_sc     0.004326 0.06578  0.35 
  Residual             0.107116 0.32729       
 Number of obs: 1500, groups:  i_id, 50; p_id, 30
 
 Fixed effects:
             Estimate Std. Error       df t value Pr(&gt;|t|)    
-(Intercept)  6.46078    0.02962 48.27954 218.118  &lt; 2e-16 ***
-zipf_sc     -0.17354    0.02135 57.31075  -8.128 4.06e-11 ***
+(Intercept)  6.46078    0.02962 48.27788 218.115  &lt; 2e-16 ***
+zipf_sc     -0.17525    0.02156 57.30893  -8.128 4.06e-11 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -701,8 +701,8 @@ zipf_sc 0.155 </code></pre>
 <pre><code># A tibble: 2 × 7
   effect term        estimate std.error statistic    df  p.value
   &lt;chr&gt;  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
-1 fixed  (Intercept)    6.46     0.0296    218.    48.3 6.06e-74
-2 fixed  zipf_sc       -0.174    0.0214     -8.13  57.3 4.06e-11</code></pre>
+1 fixed  (Intercept)    6.46     0.0296    218.    48.3 6.09e-74
+2 fixed  zipf_sc       -0.175    0.0216     -8.13  57.3 4.06e-11</code></pre>
 </div>
 </div>
 </section>
@@ -780,16 +780,16 @@ zipf_sc 0.155 </code></pre>
 <pre><code># A tibble: 250 × 13
    effect term    estimate std.error statistic    df    p.value sim_nr converged
    &lt;chr&gt;  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;  &lt;int&gt; &lt;lgl&gt;    
- 1 fixed  zipf_sc  -0.0641    0.0161     -3.99  70.1 0.000158        1 TRUE     
- 2 fixed  zipf_sc  -0.0321    0.0158     -2.03  71.1 0.0465          2 TRUE     
- 3 fixed  zipf_sc  -0.0378    0.0179     -2.12  74.8 0.0376          3 TRUE     
- 4 fixed  zipf_sc  -0.0643    0.0143     -4.50  61.7 0.0000301       4 TRUE     
- 5 fixed  zipf_sc  -0.0735    0.0153     -4.81  68.0 0.00000871      5 TRUE     
- 6 fixed  zipf_sc  -0.0503    0.0162     -3.11  62.1 0.00285         6 TRUE     
- 7 fixed  zipf_sc  -0.0572    0.0172     -3.32  73.2 0.00140         7 TRUE     
- 8 fixed  zipf_sc  -0.0598    0.0188     -3.18  75.3 0.00214         8 TRUE     
- 9 fixed  zipf_sc  -0.0431    0.0183     -2.36  76.0 0.0211          9 TRUE     
-10 fixed  zipf_sc  -0.0774    0.0168     -4.62  69.6 0.0000172      10 TRUE     
+ 1 fixed  zipf_sc  -0.0647    0.0162     -3.99  70.1 0.000158        1 TRUE     
+ 2 fixed  zipf_sc  -0.0324    0.0160     -2.03  71.1 0.0465          2 TRUE     
+ 3 fixed  zipf_sc  -0.0382    0.0181     -2.12  74.8 0.0376          3 TRUE     
+ 4 fixed  zipf_sc  -0.0649    0.0144     -4.51  61.7 0.0000301       4 TRUE     
+ 5 fixed  zipf_sc  -0.0742    0.0154     -4.81  68.0 0.00000869      5 TRUE     
+ 6 fixed  zipf_sc  -0.0508    0.0164     -3.11  62.1 0.00285         6 TRUE     
+ 7 fixed  zipf_sc  -0.0577    0.0174     -3.32  73.2 0.00140         7 TRUE     
+ 8 fixed  zipf_sc  -0.0604    0.0190     -3.18  75.3 0.00214         8 TRUE     
+ 9 fixed  zipf_sc  -0.0435    0.0185     -2.36  76.0 0.0210          9 TRUE     
+10 fixed  zipf_sc  -0.0781    0.0169     -4.62  69.6 0.0000172      10 TRUE     
 # ℹ 240 more rows
 # ℹ 4 more variables: removed_rcs &lt;lgl&gt;, n_items &lt;dbl&gt;, n_participants &lt;dbl&gt;,
 #   b_1 &lt;dbl&gt;</code></pre>
@@ -799,11 +799,10 @@ zipf_sc 0.155 </code></pre>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(sims_df, removed_rcs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 2
+<pre><code># A tibble: 1 × 2
   removed_rcs     n
   &lt;lgl&gt;       &lt;int&gt;
-1 FALSE         245
-2 TRUE            5</code></pre>
+1 FALSE         250</code></pre>
 </div>
 </div>
 <p>We can also see that removing correlations from these 5 models did address convergence issues, because in the final check, all models converged.</p>
