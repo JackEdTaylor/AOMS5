@@ -28,7 +28,7 @@ A common behavioural task in language and word recognition research is the *Lexi
 
 The best predictor of response time to real words is word frequency: response times are faster to words that occur more often.
 
-Here is a plot of some made-up data (based on real estimates) showing a relationship between *Zipf word frequency* [a log-transformed count variable\; @vanheuvenSUBTLEXUKNewImproved2014] and *response time* (ms). Each point is depicts one word.
+Here is a plot of some made-up data (based on real estimates) showing a relationship between *Zipf word frequency* [a log-transformed count variable\; @vanheuvenSUBTLEXUKNewImproved2014] and *response time* (ms). Each point depicts one word.
 
 ```{r}
 #| label: sim_dat
@@ -150,7 +150,7 @@ One last issue is that our model is only predicting values along the red line. Y
 
 ## Intercept + Slope + Residual
 
-"Residual" is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept.
+"Residual" is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept and slope.
 
 ```{r}
 #| label: get_preds
