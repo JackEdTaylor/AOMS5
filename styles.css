@@ -2,6 +2,8 @@ figcaption {
   text-align: center;
 }
 
+/* Remove white background for inline code in headings */
+/* (unreadable in dark mode) */
 code {
   background-color: rgba(0,0,0,0)
 }
