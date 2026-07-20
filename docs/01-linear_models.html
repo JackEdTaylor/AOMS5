@@ -466,7 +466,7 @@ window.Quarto = {
 <h2 data-number="1.2" class="anchored" data-anchor-id="building-up-the-linear-model"><span class="header-section-number">1.2</span> Building up the Linear Model</h2>
 <p>A common behavioural task in language and word recognition research is the <em>Lexical Decision Task</em>. In Lexical Decision Tasks, we present real words (e.g., table) and word-like pseudowords (e.g., frimp). We then measure people’s responses and their response times to each item.</p>
 <p>The best predictor of response time to real words is word frequency: response times are faster to words that occur more often.</p>
-<p>Here is a plot of some made-up data (based on real estimates) showing a relationship between <em>Zipf word frequency</em> <span class="citation" data-cites="vanheuvenSUBTLEXUKNewImproved2014">(a log-transformed count variable; <a href="references.html#ref-vanheuvenSUBTLEXUKNewImproved2014" role="doc-biblioref"><span class="nocase">van Heuven et al.</span> 2014</a>)</span> and <em>response time</em> (ms). Each point is depicts one word.</p>
+<p>Here is a plot of some made-up data (based on real estimates) showing a relationship between <em>Zipf word frequency</em> <span class="citation" data-cites="vanheuvenSUBTLEXUKNewImproved2014">(a log-transformed count variable; <a href="references.html#ref-vanheuvenSUBTLEXUKNewImproved2014" role="doc-biblioref"><span class="nocase">van Heuven et al.</span> 2014</a>)</span> and <em>response time</em> (ms). Each point depicts one word.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -575,7 +575,7 @@ Note
 </section>
 <section id="intercept-slope-residual" class="level2" data-number="1.5">
 <h2 data-number="1.5" class="anchored" data-anchor-id="intercept-slope-residual"><span class="header-section-number">1.5</span> Intercept + Slope + Residual</h2>
-<p>“Residual” is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept.</p>
+<p>“Residual” is a term often used to refer to unexplained variability. We could calculate it as everything left unexplained after we have accounted for the intercept and slope.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  dat,</span>
